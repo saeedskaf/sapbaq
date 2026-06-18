@@ -1,0 +1,153 @@
+{
+  "@@locale": "ar",
+
+  "comingSoon": "قريبًا",
+  "searchCountry": "ابحث عن دولة",
+  "retry": "إعادة المحاولة",
+  "genericError": "حدث خطأ غير متوقّع",
+  "cancelButton": "إلغاء",
+  "noSearchResults": "لا توجد نتائج",
+
+  "phoneRequired": "رقم الهاتف مطلوب",
+  "phoneTooShort": "رقم الهاتف قصير جدًا",
+  "phoneTooLong": "رقم الهاتف طويل جدًا",
+  "phoneOnlyNumbers": "يجب أن يحتوي رقم الهاتف على أرقام فقط",
+
+  "passwordRequired": "كلمة المرور مطلوبة",
+  "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+  "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+  "passwordsNotMatch": "كلمتا المرور غير متطابقتين",
+
+  "fullNameRequired": "الاسم مطلوب",
+  "fullNameTooShort": "الاسم قصير جدًا",
+  "fullNameTooLong": "الاسم طويل جدًا",
+
+  "otpRequired": "رمز التحقق مطلوب",
+  "otpInvalid": "يجب أن يتكون رمز التحقق من 6 أرقام",
+  "otpOnlyNumbers": "يجب أن يحتوي رمز التحقق على أرقام فقط",
+
+  "fieldRequired": "هذا الحقل مطلوب",
+  "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+
+  "loginTitle": "تسجيل الدخول",
+  "loginStaffSubtitle": "سجّل الدخول بحساب الإدارة أو الورشة",
+  "phoneLabel": "رقم الهاتف",
+  "passwordLabel": "كلمة المرور",
+  "loginButton": "دخول",
+
+  "unauthorizedTitle": "هذا التطبيق للموظفين فقط",
+  "unauthorizedDesc": "حسابك لا يملك صلاحية الدخول إلى تطبيق الإدارة والسائق.",
+  "backToLogin": "العودة لتسجيل الدخول",
+
+  "navOrders": "الطلبات",
+  "navDeliveries": "التوصيلات",
+  "navNotifications": "الإشعارات",
+  "navProfile": "حسابي",
+
+  "statusPending": "قيد الانتظار",
+  "statusConfirmed": "مؤكَّد",
+  "statusAssigned": "مُسنَد",
+  "statusInDelivery": "قيد التوصيل",
+  "statusDelivered": "تم التوصيل",
+  "statusCancelled": "ملغى",
+  "typeMosque": "مسجد محدد",
+  "typeMostNeeded": "الأكثر حاجة",
+
+  "orderRefShort": "طلب #{ref}",
+  "@orderRefShort": {
+    "placeholders": { "ref": { "type": "String" } }
+  },
+  "destinationsCount": "{count} وجهة",
+  "@destinationsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "priceKwd": "{amount} د.ك",
+  "@priceKwd": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "workshopActiveLoad": "{count} توصيلة حالية",
+  "@workshopActiveLoad": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "adminOrdersTitle": "الطلبات",
+  "searchOrdersHint": "ابحث برقم الزبون أو مرجع الطلب",
+  "emptyOrders": "لا توجد طلبات",
+  "ordersCount": "{count} طلب",
+  "@ordersCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "awaitingAssignmentBadge": "يحتاج إسناد",
+  "tabAwaiting": "بانتظار الإسناد",
+  "tabAll": "الكل",
+  "tabDelivered": "تم التوصيل",
+  "tabCancelled": "ملغاة",
+
+  "orderDetailsTitle": "تفاصيل الطلب",
+  "giftLabel": "يحتوي على إهداء",
+  "customerLabel": "الزبون",
+  "paymentLabel": "الدفع",
+  "paymentPaid": "مدفوع",
+  "paymentUnpaid": "غير مدفوع",
+  "notesLabel": "ملاحظات الزبون",
+  "destinationsLabel": "الوجهات",
+  "cancelReasonLabel": "سبب الإلغاء",
+  "totalLabel": "الإجمالي",
+  "subtotalLabel": "المجموع الفرعي",
+  "noLocation": "لا يوجد موقع على الخريطة",
+  "openLocation": "فتح الموقع",
+  "assignedWorkshopLabel": "الورشة المُسنَدة",
+  "assignButton": "إسناد الورش",
+  "cancelOrderButton": "إلغاء الطلب",
+  "cancelOrderTitle": "إلغاء الطلب",
+  "cancelReasonHint": "سبب الإلغاء",
+  "confirmCancel": "تأكيد الإلغاء",
+  "keepOrder": "تراجع",
+  "orderCancelled": "تم إلغاء الطلب",
+
+  "assignTitle": "إسناد الورش",
+  "chooseWorkshop": "اختر الورشة",
+  "chooseMosque": "اختر المسجد",
+  "confirmAssign": "تأكيد الإسناد",
+  "assignSuccess": "تم إسناد الورش بنجاح",
+  "noWorkshops": "لا توجد ورش متاحة",
+  "searchMosqueHint": "ابحث عن مسجد",
+
+  "driverDeliveriesTitle": "توصيلاتي",
+  "tabNew": "جديدة",
+  "tabAccepted": "مقبولة",
+  "tabInDelivery": "قيد التوصيل",
+  "tabCompleted": "مكتملة",
+  "emptyDeliveries": "لا توجد توصيلات",
+  "deliveryDetailsTitle": "تفاصيل التوصيلة",
+  "acceptButton": "قبول",
+  "rejectButton": "رفض",
+  "startDeliveryButton": "بدء التوصيل",
+  "uploadProofButton": "رفع التوثيق وإنهاء التوصيل",
+  "acceptedMsg": "تم قبول التوصيلة",
+  "deliveryStartedMsg": "بدأت التوصيل",
+  "rejectedMsg": "تم رفض التوصيلة",
+  "deliveredNote": "تم توصيل هذه الوجهة",
+  "rejectTitle": "رفض التوصيلة",
+  "rejectReasonHint": "سبب الرفض (اختياري)",
+  "confirmReject": "تأكيد الرفض",
+
+  "proofTitle": "توثيق التوصيل",
+  "proofHint": "أضف صورًا أو فيديو لإثبات التركيب، ثم ارفعها لإنهاء التوصيل.",
+  "takePhoto": "التقاط صورة",
+  "fromGallery": "من المعرض",
+  "addVideo": "فيديو",
+  "proofNoteHint": "ملاحظة (اختياري)",
+  "uploadAndFinish": "رفع وإنهاء التوصيل",
+  "pickFailed": "تعذّر اختيار الملف",
+  "noProofSelected": "اختر صورة أو فيديو أولاً",
+  "proofUploaded": "تم رفع التوثيق — تم التوصيل",
+
+  "notificationsTitle": "الإشعارات",
+  "emptyNotifications": "لا توجد إشعارات",
+
+  "profileTitle": "حسابي",
+  "roleAdmin": "مدير",
+  "roleDriver": "ورشة توصيل",
+  "logout": "تسجيل الخروج"
+}
