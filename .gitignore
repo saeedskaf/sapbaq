@@ -1,0 +1,36 @@
+# ───────── OS / editor ─────────
+.DS_Store
+**/.DS_Store
+.idea/
+**/.idea/
+*.iml
+**/*.iml
+.vscode/
+
+# ───────── Local tooling (not part of the project) ─────────
+.claude/
+**/.claude/
+
+# ───────── Flutter / Dart build artifacts (generated, large) ─────────
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/generated_plugin_registrant.*
+**/Flutter/ephemeral/
+**/Pods/
+
+# ───────── Secrets / machine-local config — NEVER commit ─────────
+**/android/local.properties
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/Maps.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/key.properties
+**/*.keystore
+**/*.jks
+**/google-services.json
+**/GoogleService-Info.plist
+**/.env
