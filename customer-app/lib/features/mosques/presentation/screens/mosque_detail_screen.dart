@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
@@ -68,7 +67,6 @@ class MosqueDetailScreen extends StatelessWidget {
                 text: l10n.donateToThisMosque,
                 icon: const Icon(
                   Icons.water_drop_rounded,
-                  color: ColorsCustom.textOnPrimary,
                   size: 20,
                 ),
                 onPressed: () => context.pushNamed(
