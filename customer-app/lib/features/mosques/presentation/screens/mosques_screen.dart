@@ -725,7 +725,6 @@ class _MosqueSheetState extends State<_MosqueSheet> {
                 text: l10n.donateToThisMosque,
                 icon: const Icon(
                   Icons.volunteer_activism_rounded,
-                  color: ColorsCustom.textOnPrimary,
                   size: 20,
                 ),
                 onPressed: () => Navigator.pop(context, _SheetAction.donate),

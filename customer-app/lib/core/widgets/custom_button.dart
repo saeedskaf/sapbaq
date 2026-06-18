@@ -111,7 +111,10 @@ class ButtonCustom extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  icon!,
+                  IconTheme.merge(
+                    data: IconThemeData(color: resolvedTextColor),
+                    child: icon!,
+                  ),
                   const SizedBox(width: 8),
                   Flexible(
                     child: TextCustom(

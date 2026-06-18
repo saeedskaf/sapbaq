@@ -481,7 +481,6 @@ class _ActionBar extends StatelessWidget {
               text: l10n.addToCart,
               icon: const Icon(
                 Icons.add_shopping_cart_rounded,
-                color: ColorsCustom.textOnPrimary,
               ),
               onPressed: onAdd,
             )
@@ -527,7 +526,7 @@ class _StepperBar extends StatelessWidget {
                   text: '$quantity',
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: ColorsCustom.textOnPrimary,
+                  color: context.colors.onPrimary,
                 ),
               ),
             ),
@@ -551,7 +550,7 @@ class _StepButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 22),
-        child: Icon(icon, size: 22, color: ColorsCustom.textOnPrimary),
+        child: Icon(icon, size: 22, color: context.colors.onPrimary),
       ),
     );
   }
