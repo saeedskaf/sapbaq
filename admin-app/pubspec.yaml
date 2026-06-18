@@ -1,0 +1,85 @@
+name: sapbaq_admin
+description: "Sapbaq Admin & Driver — management and delivery companion for the Sapbaq ecosystem."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+# Dependency set mirrors the customer app's core stack so both apps stay
+# architecturally consistent. Feature-only packages (maps, url_launcher) are
+# added alongside the features that need them.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+
+  # Routing
+  go_router: ^17.2.3
+
+  # Networking & storage
+  dio: ^5.9.2
+  # Pinned to 9.x: v10's iOS impl uses the experimental `objective_c` native
+  # assets, which fail to load on stable Flutter (dlopen objective_c.framework).
+  flutter_secure_storage: ^9.2.4
+
+  # Localization & UI
+  intl: ^0.20.2
+  google_fonts: ^8.1.0
+  intl_phone_field: ^3.2.0
+
+  # Open mosque locations (maps_url) in the device's external maps app.
+  url_launcher: ^6.3.0
+
+  # Capture/pick delivery-proof photos & videos (driver upload).
+  image_picker: ^1.2.0
+
+# Pin the iOS/macOS path_provider impl to 2.5.1 — the latest WITHOUT the
+# experimental `objective_c` native-assets dependency (2.5.0 & 2.6.0 add it,
+# which fails to load at runtime on stable Flutter). Pulled in via google_fonts.
+dependency_overrides:
+  path_provider_foundation: 2.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Generates the app launcher icons from assets/icon/ — run:
+  #   dart run flutter_launcher_icons
+  flutter_launcher_icons: ^0.14.4
+
+# Launcher icon: a DEEP-GREEN Sapbaq arrow mark on MINT — deliberately distinct
+# from the customer app (mint mark on near-black) so the two are easy to tell
+# apart on the home screen. Android uses an adaptive icon (mint background +
+# the deep-green mark foreground); iOS flattens onto mint.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#8ACCAB"
+  adaptive_icon_background: "#8ACCAB"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+
+flutter:
+  uses-material-design: true
+
+  # Generate localization (AppLocalizations) from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
+
+  assets:
+    - assets/images/logo/
+    # Bundled Tajawal (Arabic) + Poppins (Latin) so google_fonts uses these
+    # instead of fetching from fonts.gstatic.com at runtime (works offline).
+    - assets/google_fonts/
