@@ -1,0 +1,6 @@
+// Template for ios/Flutter/Maps.xcconfig (which is gitignored).
+//
+//   cp ios/Flutter/Maps.xcconfig.example ios/Flutter/Maps.xcconfig
+//
+// then replace the value below with your own Google Maps SDK for iOS key.
+MAPS_API_KEY = YOUR_IOS_MAPS_API_KEY
