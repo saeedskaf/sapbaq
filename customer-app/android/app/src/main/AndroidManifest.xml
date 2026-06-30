@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for all network access (API calls + Firebase). Flutter adds
+         this only to the debug/profile manifests automatically, so without it
+         here release builds are blocked from the network. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Android 13+ (API 33) runtime permission to post notifications. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:label="Sapbaq"
         android:name="${applicationName}"
@@ -31,10 +38,24 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!-- FCM defaults for notifications the OS renders itself (background /
+             terminated). Without these, such messages land on a low-importance
+             fallback channel with the launcher icon (a white square). The high-
+             importance `sapbaq_default` channel is created in Dart at startup. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="sapbaq_default" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
+
         <!-- Google Maps (Maps SDK for Android). The key is injected at build
              time from android/local.properties (MAPS_API_KEY=...) or the
              MAPS_API_KEY env var — see android/app/build.gradle.kts and the
-             README. Restrict the key by package name (com.albairakgroup.saqia)
+             README. Restrict the key by package name (com.albairakgroup.sapbaq)
              in Google Cloud. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

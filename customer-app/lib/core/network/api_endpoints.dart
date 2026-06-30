@@ -69,11 +69,16 @@ class ApiEndpoints {
   // CMS content pages (A.3): privacy | terms | about | faq
   static String content(String slug) => '/content/$slug/';
 
+  // Structured support-contact details for the "Contact us" screen.
+  static const String contact = '/content/contact/';
+
   // Support tickets (A.3)
   static const String supportTickets = '/support/tickets/';
+  static const String supportUnreadCount = '/support/tickets/unread-count/';
   static String supportTicket(int id) => '/support/tickets/$id/';
   static String supportTicketMessages(int id) =>
       '/support/tickets/$id/messages/';
+  static String supportTicketRead(int id) => '/support/tickets/$id/read/';
 
   // Mosque filter facets — cascading governorate/area/block
   static const String mosquesFilters = '/mosques/filters/';

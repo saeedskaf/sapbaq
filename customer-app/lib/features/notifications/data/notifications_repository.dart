@@ -9,15 +9,39 @@ class NotificationsRepository {
   final Dio _dio;
   NotificationsRepository(this._dio);
 
-  /// The user's notification inbox (newest first, paginated by the backend).
-  Future<List<AppNotification>> fetchNotifications() {
+  /// Register this device's FCM token so the backend can target it with pushes.
+  /// Call once a token has been obtained (see `PushNotificationService`).
+  Future<void> registerDevice({
+    required String token,
+    String platform = 'android',
+  }) {
+    return guardApi(
+      () => _dio.post(
+        ApiEndpoints.devices,
+        data: {'token': token, 'platform': platform},
+      ),
+    );
+  }
+
+  /// Remove this device's token (e.g. on logout) so it stops receiving pushes.
+  Future<void> unregisterDevice(String token) {
+    return guardApi(() => _dio.delete(ApiEndpoints.device(token)));
+  }
+
+  /// One page of the user's notification inbox (newest first, server-ordered).
+  /// Returns the full paginated envelope so callers can page through it (T5).
+  Future<PaginatedResponse<AppNotification>> fetchNotifications({
+    int page = 1,
+  }) {
     return guardApi(() async {
-      final res = await _dio.get(ApiEndpoints.notifications);
-      final page = PaginatedResponse.fromJson(
+      final res = await _dio.get(
+        ApiEndpoints.notifications,
+        queryParameters: {'page': page},
+      );
+      return PaginatedResponse.fromJson(
         Map<String, dynamic>.from(res.data as Map),
         AppNotification.fromJson,
       );
-      return page.results;
     });
   }
 

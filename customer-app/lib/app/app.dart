@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_router.dart';
+import 'package:sapbaq/core/network/session_manager.dart';
+import 'package:sapbaq/core/notifications/push_notification_service.dart';
 import 'package:sapbaq/core/settings/settings_cubit.dart';
 import 'package:sapbaq/core/settings/settings_service.dart';
 import 'package:sapbaq/core/theme/app_theme.dart';
@@ -23,6 +27,7 @@ import 'package:sapbaq/features/orders/data/payment_repository.dart';
 import 'package:sapbaq/features/products/data/products_repository.dart';
 import 'package:sapbaq/features/showcase/data/showcase_repository.dart';
 import 'package:sapbaq/features/support/data/support_repository.dart';
+import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 class SapbaqApp extends StatefulWidget {
@@ -30,6 +35,7 @@ class SapbaqApp extends StatefulWidget {
   final AuthRepository authRepository;
   final SettingsService settingsService;
   final ValueNotifier<String> languageCode;
+  final PushNotificationService pushNotifications;
 
   const SapbaqApp({
     super.key,
@@ -37,6 +43,7 @@ class SapbaqApp extends StatefulWidget {
     required this.authRepository,
     required this.settingsService,
     required this.languageCode,
+    required this.pushNotifications,
   });
 
   @override
@@ -47,6 +54,7 @@ class _SapbaqAppState extends State<SapbaqApp> {
   late final AuthBloc _authBloc;
   late final SettingsCubit _settingsCubit;
   late final GoRouter _router;
+  StreamSubscription<AuthState>? _authStatusSub;
 
   @override
   void initState() {
@@ -58,10 +66,31 @@ class _SapbaqAppState extends State<SapbaqApp> {
       languageCode: widget.languageCode,
     );
     _router = createRouter(_authBloc);
+
+    // Deep-link a tapped notification once the session is authenticated: a cold
+    // launch resolves auth asynchronously, so wait for it; runtime taps fire the
+    // pendingRoute listener directly.
+    _authStatusSub = _authBloc.stream.listen((state) {
+      if (state.status == AuthStatus.authenticated) _maybeNavigatePending();
+    });
+    widget.pushNotifications.pendingRoute.addListener(_maybeNavigatePending);
+  }
+
+  void _maybeNavigatePending() {
+    final route = widget.pushNotifications.pendingRoute.value;
+    if (route == null) return;
+    if (_authBloc.state.status != AuthStatus.authenticated) return;
+    widget.pushNotifications.pendingRoute.value = null;
+    // Defer a frame so the router has settled on the authenticated shell.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _router.pushNamed(route.name, pathParameters: route.pathParameters);
+    });
   }
 
   @override
   void dispose() {
+    _authStatusSub?.cancel();
+    widget.pushNotifications.pendingRoute.removeListener(_maybeNavigatePending);
     _authBloc.close();
     _settingsCubit.close();
     super.dispose();
@@ -122,6 +151,10 @@ class _SapbaqAppState extends State<SapbaqApp> {
           BlocProvider<FavoritesCubit>(
             create: (context) =>
                 FavoritesCubit(context.read<MosquesRepository>()),
+          ),
+          BlocProvider<SupportUnreadCubit>(
+            create: (context) =>
+                SupportUnreadCubit(context.read<SupportRepository>()),
           ),
         ],
         child: BlocBuilder<SettingsCubit, SettingsState>(

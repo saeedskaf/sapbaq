@@ -129,7 +129,6 @@ GoRouter createRouter(AuthBloc authBloc) {
         name: AppRoutes.otpName,
         builder: (_, state) => OtpScreen(
           phone: state.uri.queryParameters['phone'] ?? '',
-          devCode: state.uri.queryParameters['devCode'],
         ),
       ),
       GoRoute(

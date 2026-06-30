@@ -13,10 +13,10 @@ import 'package:sapbaq/features/showcase/presentation/bloc/showcase_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 /// "الوسائط" tab — a public gallery of admin-uploaded photos/videos of
-/// charity work. Each item shows the whole image/thumbnail (no cropping) on a
-/// soft rounded tile with its title beneath, so portrait and landscape media
-/// both read correctly. Images open in an in-app zoom viewer; videos play in
-/// an in-app player.
+/// charity work, laid out as a clean, uniform 2-column grid of cover-filled
+/// tiles. A title (when present) sits in a soft gradient caption over the
+/// image, and videos carry a play badge. Tapping opens the full, uncropped
+/// media: images in an in-app zoom viewer, videos in an in-app player.
 class ShowcaseScreen extends StatelessWidget {
   const ShowcaseScreen({super.key});
 
@@ -73,10 +73,10 @@ class ShowcaseScreen extends StatelessWidget {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          // Soft tile + one-line title → uniform cells.
-                          childAspectRatio: 0.84,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          // Uniform square tiles for a clean, even gallery.
+                          childAspectRatio: 1,
                         ),
                     itemCount: state.items.length,
                     itemBuilder: (context, i) =>
@@ -105,41 +105,23 @@ class _ShowcaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Material(
-              color: context.colors.surfaceVariant,
-              child: InkWell(
-                onTap: () => _onTap(context),
-                child: _ShowcasePreview(item: item),
-              ),
-            ),
-          ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: Material(
+        color: context.colors.surfaceVariant,
+        child: InkWell(
+          onTap: () => _onTap(context),
+          child: _ShowcasePreview(item: item),
         ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 18,
-          child: TextCustom(
-            text: item.title.isEmpty ? ' ' : item.title,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: context.colors.textPrimary,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-/// The media for one tile: the whole image/thumbnail rendered with
-/// `BoxFit.contain` (no cropping), with a play badge over videos. The soft
-/// tile background is supplied by the parent card.
+/// The media for one tile: the image/thumbnail rendered `BoxFit.cover` so every
+/// tile fills uniformly. A title (when present) reads over a soft gradient
+/// scrim at the bottom, and videos carry a centered play badge. The full,
+/// uncropped media is shown in the viewer on tap.
 class _ShowcasePreview extends StatelessWidget {
   final ShowcaseItem item;
   const _ShowcasePreview({required this.item});
@@ -154,7 +136,7 @@ class _ShowcasePreview extends StatelessWidget {
         if (url != null)
           Image.network(
             url,
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             loadingBuilder: (_, child, progress) => progress == null
                 ? child
                 : Center(
@@ -171,6 +153,30 @@ class _ShowcasePreview extends StatelessWidget {
           )
         else
           MediaFallback(isVideo: item.isVideo),
+        if (item.title.isNotEmpty)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Color(0xD9000000), Color(0x00000000)],
+                ),
+              ),
+              child: TextCustom(
+                text: item.title,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
         if (item.isVideo) const Center(child: PlayBadge()),
       ],
     );

@@ -584,6 +584,78 @@ abstract class AppLocalizations {
   /// **'مغلقة'**
   String get ticketStatusClosed;
 
+  /// No description provided for @ticketCategory.
+  ///
+  /// In ar, this message translates to:
+  /// **'التصنيف'**
+  String get ticketCategory;
+
+  /// No description provided for @ticketCategoryOrder.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب'**
+  String get ticketCategoryOrder;
+
+  /// No description provided for @ticketCategoryPayment.
+  ///
+  /// In ar, this message translates to:
+  /// **'دفع'**
+  String get ticketCategoryPayment;
+
+  /// No description provided for @ticketCategoryDelivery.
+  ///
+  /// In ar, this message translates to:
+  /// **'توصيل'**
+  String get ticketCategoryDelivery;
+
+  /// No description provided for @ticketCategoryAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'حساب'**
+  String get ticketCategoryAccount;
+
+  /// No description provided for @ticketCategoryOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخرى'**
+  String get ticketCategoryOther;
+
+  /// No description provided for @ticketClosedNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذه التذكرة مغلقة. افتح تذكرة جديدة للمتابعة.'**
+  String get ticketClosedNote;
+
+  /// No description provided for @attachImage.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرفاق صورة'**
+  String get attachImage;
+
+  /// No description provided for @photoFromGallery.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار من المعرض'**
+  String get photoFromGallery;
+
+  /// No description provided for @photoFromCamera.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقاط صورة'**
+  String get photoFromCamera;
+
+  /// No description provided for @imagePickFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر اختيار الصورة'**
+  String get imagePickFailed;
+
+  /// No description provided for @lastMessageYou.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنت: '**
+  String get lastMessageYou;
+
   /// No description provided for @filterTitle.
   ///
   /// In ar, this message translates to:
@@ -775,18 +847,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اهدِ المياه وسنوصلها للمساجد الأكثر حاجة'**
   String get mostNeededDesc;
-
-  /// No description provided for @donateMostNeeded.
-  ///
-  /// In ar, this message translates to:
-  /// **'المساجد الأكثر\nحاجة'**
-  String get donateMostNeeded;
-
-  /// No description provided for @donateChooseMosque.
-  ///
-  /// In ar, this message translates to:
-  /// **'إهداء لمسجد\nمحدد'**
-  String get donateChooseMosque;
 
   /// No description provided for @chooseMosqueTitle.
   ///
@@ -1459,18 +1519,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'إعادة إرسال الرمز'**
   String get resendCode;
-
-  /// No description provided for @devOtpNotice.
-  ///
-  /// In ar, this message translates to:
-  /// **'رمز التحقق (وضع تجريبي)'**
-  String get devOtpNotice;
-
-  /// No description provided for @devOtpTapToFill.
-  ///
-  /// In ar, this message translates to:
-  /// **'اضغط لتعبئة الرمز تلقائيًا'**
-  String get devOtpTapToFill;
 
   /// No description provided for @forgotPasswordTitle.
   ///

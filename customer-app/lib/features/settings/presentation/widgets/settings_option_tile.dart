@@ -81,11 +81,12 @@ class SettingsOptionTile extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
+              const SizedBox(width: 12),
               Icon(
-                selected
-                    ? Icons.check_circle_rounded
-                    : Icons.circle_outlined,
-                color: selected ? context.colors.primary : context.colors.textHint,
+                selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                color: selected
+                    ? context.colors.primary
+                    : context.colors.textHint,
                 size: 22,
               ),
             ],

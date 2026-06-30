@@ -100,6 +100,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get backToLogin => 'العودة لتسجيل الدخول';
 
   @override
+  String get navDashboard => 'اللوحة';
+
+  @override
   String get navOrders => 'الطلبات';
 
   @override
@@ -112,10 +115,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navProfile => 'حسابي';
 
   @override
+  String get navCustomerSearch => 'بحث الزبون';
+
+  @override
   String get statusPending => 'قيد الانتظار';
 
   @override
   String get statusConfirmed => 'مؤكَّد';
+
+  @override
+  String get statusAssignedToTeam => 'مُسنَد لقائد فريق';
 
   @override
   String get statusAssigned => 'مُسنَد';
@@ -227,7 +236,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assignedWorkshopLabel => 'الورشة المُسنَدة';
 
   @override
+  String get teamLeaderLabel => 'قائد الفريق';
+
+  @override
   String get assignButton => 'إسناد الورش';
+
+  @override
+  String get assignToTeamLeaderButton => 'إسناد لقائد فريق';
+
+  @override
+  String get distributeToHandler => 'توزيع لمنفّذ';
+
+  @override
+  String get approveCompletion => 'اعتماد الإنجاز';
 
   @override
   String get cancelOrderButton => 'إلغاء الطلب';
@@ -257,16 +278,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseMosque => 'اختر المسجد';
 
   @override
+  String get chooseTeamLeader => 'اختر قائد الفريق';
+
+  @override
+  String get chooseHandlerWhoDelivered => 'اختر المنفّذ الذي نفّذ';
+
+  @override
   String get confirmAssign => 'تأكيد الإسناد';
 
   @override
   String get assignSuccess => 'تم إسناد الورش بنجاح';
 
   @override
+  String get assignTeamSuccess => 'تم الإسناد لقائد الفريق بنجاح';
+
+  @override
+  String get distributeSuccess => 'تم توزيع الوجهة للمنفّذ بنجاح';
+
+  @override
+  String get completeSuccess => 'تم اعتماد إنجاز الوجهة بنجاح';
+
+  @override
   String get noWorkshops => 'لا توجد ورش متاحة';
 
   @override
+  String get noTeamLeaders => 'لا يوجد قادة فرق متاحون';
+
+  @override
   String get searchMosqueHint => 'ابحث عن مسجد';
+
+  @override
+  String get reassignButton => 'إعادة الإسناد';
+
+  @override
+  String get reassignSuccess => 'تمت إعادة الإسناد بنجاح';
+
+  @override
+  String get noOtherWorkshops => 'لا توجد ورشة أخرى متاحة';
+
+  @override
+  String get timelineLabel => 'سجل الطلب';
+
+  @override
+  String get callButton => 'اتصال';
+
+  @override
+  String get whatsappButton => 'واتساب';
+
+  @override
+  String get contactFailed => 'تعذّر بدء الاتصال';
 
   @override
   String get driverDeliveriesTitle => 'توصيلاتي';
@@ -358,6 +418,152 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get emptyNotifications => 'لا توجد إشعارات';
+
+  @override
+  String get dashboardTitle => 'اللوحة';
+
+  @override
+  String get dashNew => 'جديدة';
+
+  @override
+  String get dashAwaiting => 'بانتظار الإسناد';
+
+  @override
+  String get dashAssigned => 'قيد التنفيذ';
+
+  @override
+  String get dashCompleted => 'مكتملة';
+
+  @override
+  String get dashCancelled => 'ملغاة';
+
+  @override
+  String get dashAll => 'الإجمالي';
+
+  @override
+  String get completionRate => 'نسبة الإكمال';
+
+  @override
+  String get slaTitle => 'متوسّط زمن الخدمة';
+
+  @override
+  String get slaAvgConfirm => 'متوسّط زمن التأكيد';
+
+  @override
+  String get slaAvgDeliver => 'متوسّط زمن التوصيل';
+
+  @override
+  String get slaSample => 'عدد الطلبات المكتملة';
+
+  @override
+  String minutesValue(String value) {
+    return '$value دقيقة';
+  }
+
+  @override
+  String get activityTitle => 'نشاطي';
+
+  @override
+  String get emptyActivity => 'لا يوجد نشاط';
+
+  @override
+  String get actionAssigned => 'إسناد وجهة لورشة';
+
+  @override
+  String get actionReassigned => 'إعادة إسناد وجهة';
+
+  @override
+  String get actionCancelled => 'إلغاء طلب';
+
+  @override
+  String get customerLookupTitle => 'بحث عن زبون';
+
+  @override
+  String get lookupHint => 'ابحث برقم الهاتف أو الاسم';
+
+  @override
+  String get lookupPrompt => 'ابحث عن زبون برقم الهاتف أو الاسم لعرض سجلّه';
+
+  @override
+  String get lookupNoResults => 'لا يوجد زبون مطابق';
+
+  @override
+  String get approvalsTitle => 'صندوق الموافقات';
+
+  @override
+  String get emptyApprovals => 'لا توجد موافقات معلّقة';
+
+  @override
+  String get approveButton => 'اعتماد';
+
+  @override
+  String get approveSuccess => 'تم اعتماد الطلب';
+
+  @override
+  String get rejectSuccess => 'تم رفض الطلب';
+
+  @override
+  String get approvalRejectTitle => 'سبب الرفض';
+
+  @override
+  String get approvalRejectHint => 'اكتب سبب الرفض';
+
+  @override
+  String get approvalMakerLabel => 'مقدّم الطلب';
+
+  @override
+  String get escalationsTitle => 'التصعيدات';
+
+  @override
+  String get emptyEscalations => 'لا توجد تصعيدات';
+
+  @override
+  String get resolveButton => 'تم الحل';
+
+  @override
+  String get resolveSuccess => 'تم حلّ التصعيد';
+
+  @override
+  String get raiseEscalationTitle => 'رفع تصعيد';
+
+  @override
+  String get raiseEscalationHint => 'اكتب سبب التصعيد';
+
+  @override
+  String get escalationRaised => 'تم رفع التصعيد';
+
+  @override
+  String get escalationRaisedByLabel => 'بواسطة';
+
+  @override
+  String get statusOpen => 'مفتوح';
+
+  @override
+  String get statusResolved => 'تم الحل';
+
+  @override
+  String get productsTitle => 'توفّر المنتجات';
+
+  @override
+  String get searchProductsHint => 'ابحث عن منتج';
+
+  @override
+  String get emptyProducts => 'لا توجد منتجات';
+
+  @override
+  String get productSuspended => 'موقوف';
+
+  @override
+  String get productInactive => 'غير نشط (يُدار من الويب)';
+
+  @override
+  String get suspendReasonTitle => 'سبب الإيقاف';
+
+  @override
+  String get suspendReasonHint => 'مثال: نفاد المخزون (اختياري)';
+
+  @override
+  String get suspendConfirm => 'إيقاف';
 
   @override
   String get profileTitle => 'حسابي';

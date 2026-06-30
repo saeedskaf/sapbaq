@@ -50,21 +50,18 @@ class AuthRepository {
     return json == null ? null : User.fromJson(json);
   }
 
-  /// Create an account and send an OTP. In dev the backend returns the code as
-  /// `dev_code` (no real SMS is delivered) — returned here so the UI can show
-  /// it for testing. In production `dev_code` is absent, so it returns null.
-  Future<String?> signup({
+  /// Create an account; the backend sends a verification OTP over SMS. Throws
+  /// [ApiException] on failure (e.g. the phone is already registered).
+  Future<void> signup({
     required String phone,
     required String fullName,
     required String password,
   }) {
     return _guard(() async {
-      final res = await _dio.post(
+      await _dio.post(
         ApiEndpoints.signup,
         data: {'phone': phone, 'full_name': fullName, 'password': password},
       );
-      final data = res.data;
-      return data is Map ? data['dev_code']?.toString() : null;
     });
   }
 
@@ -88,7 +85,7 @@ class AuthRepository {
     });
   }
 
-  /// Request a password-reset OTP (dev code visible in the debug console).
+  /// Request a password-reset OTP, sent to the phone over SMS.
   Future<void> forgotPassword({required String phone}) {
     return _guard(() async {
       await _dio.post(

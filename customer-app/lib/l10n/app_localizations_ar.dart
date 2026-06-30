@@ -258,6 +258,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ticketStatusClosed => 'مغلقة';
 
   @override
+  String get ticketCategory => 'التصنيف';
+
+  @override
+  String get ticketCategoryOrder => 'طلب';
+
+  @override
+  String get ticketCategoryPayment => 'دفع';
+
+  @override
+  String get ticketCategoryDelivery => 'توصيل';
+
+  @override
+  String get ticketCategoryAccount => 'حساب';
+
+  @override
+  String get ticketCategoryOther => 'أخرى';
+
+  @override
+  String get ticketClosedNote =>
+      'هذه التذكرة مغلقة. افتح تذكرة جديدة للمتابعة.';
+
+  @override
+  String get attachImage => 'إرفاق صورة';
+
+  @override
+  String get photoFromGallery => 'اختيار من المعرض';
+
+  @override
+  String get photoFromCamera => 'التقاط صورة';
+
+  @override
+  String get imagePickFailed => 'تعذّر اختيار الصورة';
+
+  @override
+  String get lastMessageYou => 'أنت: ';
+
+  @override
   String get filterTitle => 'تصفية المساجد';
 
   @override
@@ -352,12 +389,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get mostNeededDesc => 'اهدِ المياه وسنوصلها للمساجد الأكثر حاجة';
-
-  @override
-  String get donateMostNeeded => 'المساجد الأكثر\nحاجة';
-
-  @override
-  String get donateChooseMosque => 'إهداء لمسجد\nمحدد';
 
   @override
   String get chooseMosqueTitle => 'إهداء لمسجد محدد';
@@ -708,12 +739,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resendCode => 'إعادة إرسال الرمز';
-
-  @override
-  String get devOtpNotice => 'رمز التحقق (وضع تجريبي)';
-
-  @override
-  String get devOtpTapToFill => 'اضغط لتعبئة الرمز تلقائيًا';
 
   @override
   String get forgotPasswordTitle => 'نسيت كلمة المرور';

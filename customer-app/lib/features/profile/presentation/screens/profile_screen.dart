@@ -13,6 +13,7 @@ import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 /// "حسابي" tab — a clean settings-style screen: a compact identity header
@@ -106,11 +107,11 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 8),
               _TilesGroup(
                 tiles: [
-                  _TileData(
-                    icon: Icons.location_on_outlined,
-                    label: l10n.addressesTitle,
-                    onTap: () => context.pushNamed(AppRoutes.addressesName),
-                  ),
+                  // _TileData(
+                  //   icon: Icons.location_on_outlined,
+                  //   label: l10n.addressesTitle,
+                  //   onTap: () => context.pushNamed(AppRoutes.addressesName),
+                  // ),
                   _TileData(
                     icon: Icons.favorite_border_rounded,
                     label: l10n.favoritesTitle,
@@ -175,6 +176,7 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.support_agent_outlined,
                     label: l10n.supportTitle,
                     onTap: () => context.pushNamed(AppRoutes.supportName),
+                    trailing: const _SupportBadge(),
                   ),
                 ],
               ),
@@ -342,11 +344,15 @@ class _TileData {
   final VoidCallback onTap;
   final bool destructive;
 
+  /// Optional widget shown just before the trailing chevron (e.g. a badge).
+  final Widget? trailing;
+
   const _TileData({
     required this.icon,
     required this.label,
     required this.onTap,
     this.destructive = false,
+    this.trailing,
   });
 }
 
@@ -396,8 +402,12 @@ class _ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = data.destructive ? ColorsCustom.error : context.colors.textPrimary;
-    final iconFg = data.destructive ? ColorsCustom.error : context.colors.primary;
+    final fg = data.destructive
+        ? ColorsCustom.error
+        : context.colors.textPrimary;
+    final iconFg = data.destructive
+        ? ColorsCustom.error
+        : context.colors.primary;
     final iconBg = data.destructive
         ? ColorsCustom.error.withValues(alpha: 0.10)
         : context.colors.primaryTint;
@@ -430,6 +440,10 @@ class _ProfileTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (data.trailing != null) ...[
+                data.trailing!,
+                const SizedBox(width: 8),
+              ],
               Icon(
                 Icons.chevron_right_rounded,
                 color: context.colors.textHint,
@@ -738,7 +752,12 @@ class _GuestProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
-      padding: EdgeInsets.fromLTRB(16, 4, 16, MediaQuery.of(context).padding.bottom + 24),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        4,
+        16,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
       children: [
         Container(
           padding: const EdgeInsets.all(22),
@@ -847,6 +866,36 @@ class _GuestProfileView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+}
+
+/// Red count badge on the Support row, fed by the app-wide [SupportUnreadCubit].
+class _SupportBadge extends StatelessWidget {
+  const _SupportBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SupportUnreadCubit, int>(
+      builder: (context, count) {
+        if (count <= 0) return const SizedBox.shrink();
+        return Container(
+          constraints: const BoxConstraints(minWidth: 20),
+          height: 20,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: ColorsCustom.error,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextCustom(
+            text: '$count',
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
+        );
+      },
     );
   }
 }

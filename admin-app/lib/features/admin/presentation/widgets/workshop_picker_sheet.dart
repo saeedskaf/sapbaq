@@ -5,12 +5,14 @@ import 'package:sapbaq_admin/features/admin/data/models/workshop.dart';
 import 'package:sapbaq_admin/features/shared/presentation/pill.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
-/// Bottom sheet listing workshops to assign. Pops the chosen [Workshop].
-/// Workshops are sorted by lightest [Workshop.activeLoad] first to help balance
-/// the load.
+/// Bottom sheet listing staff (workshops/handlers or team leaders) to pick
+/// from. Pops the chosen [Workshop]. Entries are sorted by lightest
+/// [Workshop.activeLoad] first to help balance the load. [title] overrides the
+/// default header (e.g. "choose a team leader" vs "choose a workshop").
 class WorkshopPickerSheet extends StatelessWidget {
   final List<Workshop> workshops;
-  const WorkshopPickerSheet({super.key, required this.workshops});
+  final String? title;
+  const WorkshopPickerSheet({super.key, required this.workshops, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class WorkshopPickerSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          TextCustom.subheading(text: l10n.chooseWorkshop),
+          TextCustom.subheading(text: title ?? l10n.chooseWorkshop),
           const SizedBox(height: 12),
           Flexible(
             child: ListView.separated(

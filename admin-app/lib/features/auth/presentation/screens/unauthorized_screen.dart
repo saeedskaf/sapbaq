@@ -6,8 +6,9 @@ import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
-/// Shown when a signed-in account is neither ADMIN nor DRIVER — this app is for
-/// staff only. Offers a way back to the login screen.
+/// Shown when a signed-in account isn't a staff role (a customer or the
+/// reserved MOSQUE_REP) — this app is for staff only. Offers a way back to the
+/// login screen.
 class UnauthorizedScreen extends StatelessWidget {
   const UnauthorizedScreen({super.key});
 

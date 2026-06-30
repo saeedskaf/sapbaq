@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
+import 'package:sapbaq/core/notifications/notification_deep_link.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/utils/date_format.dart';
@@ -46,16 +47,46 @@ class NotificationsScreen extends StatelessWidget {
                     icon: Icons.notifications_none_rounded,
                   );
                 }
+                final cubit = context.read<NotificationsCubit>();
                 return RefreshIndicator(
                   color: context.colors.primary,
-                  onRefresh: () => context.read<NotificationsCubit>().load(),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: state.items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, i) =>
-                        _NotificationTile(item: state.items[i]),
+                  onRefresh: cubit.load,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scroll) {
+                      // Near the bottom → fetch the next page (T5). The cubit
+                      // ignores the call while loading or after the last page.
+                      if (scroll.metrics.pixels >=
+                          scroll.metrics.maxScrollExtent - 320) {
+                        cubit.loadMore();
+                      }
+                      return false;
+                    },
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      // One extra row for the trailing loader when more pages
+                      // remain.
+                      itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (context, i) {
+                        if (i >= state.items.length) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return _NotificationTile(item: state.items[i]);
+                      },
+                    ),
                   ),
                 );
             }
@@ -73,16 +104,24 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = formatShortDate(item.createdAt);
+    // Resolve where this notification points (order / support ticket / inbox).
+    // Don't make the tile tappable when it only resolves to this same inbox.
+    final route = resolveNotificationRoute(
+      item.type,
+      orderId: item.orderId,
+      ticketId: item.ticketId,
+    );
+    final tappable = route != null && route.name != AppRoutes.notificationsName;
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: item.orderId == null
+        onTap: !tappable
             ? null
             : () => context.pushNamed(
-                AppRoutes.orderDetailName,
-                pathParameters: {'id': '${item.orderId}'},
+                route.name,
+                pathParameters: route.pathParameters,
               ),
         child: Container(
           padding: const EdgeInsets.all(14),

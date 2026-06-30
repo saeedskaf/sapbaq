@@ -59,14 +59,10 @@ class _SignupScreenState extends State<SignupScreen> {
           if (state.status == FormStatus.failure && state.message != null) {
             ShowMessage.error(context, state.message!);
           } else if (state.status == FormStatus.success) {
-            // Account created, OTP sent — go verify it. In dev the backend
-            // returns the code (no real SMS), so pass it along to show it.
+            // Account created, OTP sent over SMS — go verify it.
             context.pushNamed(
               AppRoutes.otpName,
-              queryParameters: {
-                'phone': state.phone,
-                if (state.devCode != null) 'devCode': state.devCode!,
-              },
+              queryParameters: {'phone': state.phone},
             );
           }
         },

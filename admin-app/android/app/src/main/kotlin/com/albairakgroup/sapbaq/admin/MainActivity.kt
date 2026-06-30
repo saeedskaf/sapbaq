@@ -1,4 +1,4 @@
-package com.albairakgroup.saqia.admin
+package com.albairakgroup.sapbaq.admin
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -6,6 +6,11 @@
 	     time and read in AppDelegate.swift. -->
 	<key>MapsApiKey</key>
 	<string>$(MAPS_API_KEY)</string>
+	<!-- Attaching an image to a support-ticket reply (image_picker). -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>نحتاج الوصول إلى صورك لإرفاق صورة بتذكرة الدعم.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>نحتاج الوصول إلى الكاميرا لالتقاط صورة لإرفاقها بتذكرة الدعم.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -69,6 +74,11 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<!-- Allow FCM to wake the app for background/data messages. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>

@@ -51,6 +51,8 @@ class _IdentityCard extends StatelessWidget {
     final u = user;
     final name = u?.fullName ?? '';
     final phone = u?.phone ?? '';
+    final role = u?.roleDisplay ?? '';
+    final governorate = u?.governorate?.name ?? '';
 
     return AppCard(
       padding: const EdgeInsets.all(18),
@@ -89,6 +91,17 @@ class _IdentityCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (role.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  TextCustom(
+                    text: governorate.isEmpty ? role : '$role · $governorate',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: ColorsCustom.primary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
                 if (phone.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   TextCustom(

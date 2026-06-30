@@ -4,6 +4,7 @@ import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/network/api_exception.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
+import 'package:sapbaq_admin/features/admin/data/models/admin_order_counts.dart';
 
 /// Admin orders list tabs. [awaiting] (needs workshop assignment) is the default
 /// working queue.
@@ -17,6 +18,10 @@ class AdminOrdersState extends Equatable {
   final int total; // total matching orders (across all pages) for the active tab
   final bool hasMore;
   final bool loadingMore;
+
+  /// Per-tab counts (§3). Null until the first counts fetch resolves; persists
+  /// across tab switches (it doesn't depend on the active tab).
+  final AdminOrderCounts? counts;
   final String? message;
 
   const AdminOrdersState({
@@ -27,6 +32,7 @@ class AdminOrdersState extends Equatable {
     this.total = 0,
     this.hasMore = false,
     this.loadingMore = false,
+    this.counts,
     this.message,
   });
 
@@ -38,6 +44,7 @@ class AdminOrdersState extends Equatable {
     int? total,
     bool? hasMore,
     bool? loadingMore,
+    AdminOrderCounts? counts,
     String? message,
   }) {
     return AdminOrdersState(
@@ -48,13 +55,23 @@ class AdminOrdersState extends Equatable {
       total: total ?? this.total,
       hasMore: hasMore ?? this.hasMore,
       loadingMore: loadingMore ?? this.loadingMore,
+      counts: counts ?? this.counts,
       message: message,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [status, orders, tab, search, total, hasMore, loadingMore, message];
+  List<Object?> get props => [
+    status,
+    orders,
+    tab,
+    search,
+    total,
+    hasMore,
+    loadingMore,
+    counts,
+    message,
+  ];
 }
 
 class AdminOrdersCubit extends Cubit<AdminOrdersState> {
@@ -113,8 +130,22 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         total: page.count,
         hasMore: page.hasMore,
       ));
+      _refreshCounts();
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
+    }
+  }
+
+  /// Refresh the tab counts in the background. Counts are optional chrome, so a
+  /// failure here is swallowed rather than failing the list.
+  Future<void> _refreshCounts() async {
+    try {
+      final counts = await _repo.fetchCounts(
+        search: state.search.isEmpty ? null : state.search,
+      );
+      if (!isClosed) emit(state.copyWith(counts: counts));
+    } on ApiException {
+      // ignore — keep the last known counts (or none).
     }
   }
 

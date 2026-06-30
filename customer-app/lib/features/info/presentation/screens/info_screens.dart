@@ -7,9 +7,11 @@ import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
 import 'package:sapbaq/features/info/data/content_repository.dart';
+import 'package:sapbaq/features/info/data/models/contact_info.dart';
 import 'package:sapbaq/features/info/info_content.dart';
 import 'package:sapbaq/features/info/presentation/bloc/content_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Shared scaffold for the static info pages: an app bar title over a padded,
@@ -85,12 +87,16 @@ class _CmsPage extends StatelessWidget {
                 state.status == LoadStatus.loading) {
               return const LoadingView();
             }
+            // Content comes from the CMS. If it isn't published yet (missing or
+            // empty), show a simple message instead of an error.
             final page = state.page;
-            if (state.status == LoadStatus.failure || page == null) {
-              return ErrorView(
-                message: state.message ?? l10n.comingSoon,
-                retryLabel: l10n.retry,
-                onRetry: () => context.read<ContentCubit>().load(),
+            final empty =
+                page == null ||
+                (page.body.trim().isEmpty && page.sections.isEmpty);
+            if (empty) {
+              return EmptyView(
+                message: l10n.comingSoon,
+                icon: Icons.description_outlined,
               );
             }
             return ListView(
@@ -145,9 +151,16 @@ class AboutScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   TextCustom.subheading(text: l10n.appName),
                   const SizedBox(height: 4),
-                  TextCustom.caption(
-                    text: l10n.versionLabel(InfoContent.appVersion),
-                    color: context.colors.textHint,
+                  // Read the real build version from the platform; fall back to
+                  // the bundled constant until it resolves.
+                  FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) => TextCustom.caption(
+                      text: l10n.versionLabel(
+                        snapshot.data?.version ?? InfoContent.appVersion,
+                      ),
+                      color: context.colors.textHint,
+                    ),
                   ),
                 ],
               ),
@@ -155,6 +168,8 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 28),
             BlocBuilder<ContentCubit, ContentState>(
               builder: (context, state) {
+                // The branded header above always shows; the CMS `about` body is
+                // rendered only when it's been published.
                 final page = state.page;
                 if (page == null) return const SizedBox.shrink();
                 return Column(
@@ -181,10 +196,26 @@ class AboutScreen extends StatelessWidget {
   }
 }
 
-class ContactScreen extends StatelessWidget {
+/// Contact us — support details come from the backend (`GET /content/contact/`);
+/// built-in defaults are shown until it responds (and if it has no entry), so
+/// the user can always reach support.
+class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
 
-  Future<void> _launch(BuildContext context, Uri uri) async {
+  @override
+  State<ContactScreen> createState() => _ContactScreenState();
+}
+
+class _ContactScreenState extends State<ContactScreen> {
+  late final Future<ContactInfo> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = context.read<ContentRepository>().fetchContact();
+  }
+
+  Future<void> _launch(Uri uri) async {
     final l10n = AppLocalizations.of(context)!;
     bool ok = false;
     try {
@@ -192,7 +223,7 @@ class ContactScreen extends StatelessWidget {
     } catch (_) {
       ok = false;
     }
-    if (!ok && context.mounted) {
+    if (!ok && mounted) {
       ShowMessage.error(context, l10n.cannotOpenFile);
     }
   }
@@ -200,7 +231,6 @@ class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final waDigits = InfoContent.supportWhatsapp.replaceAll(RegExp(r'[^0-9]'), '');
     return _InfoPage(
       title: l10n.profileContact,
       children: [
@@ -210,28 +240,82 @@ class ContactScreen extends StatelessWidget {
           color: context.colors.textSecondary,
         ),
         const SizedBox(height: 20),
-        _ContactRow(
-          icon: Icons.call_outlined,
-          label: l10n.contactCall,
-          value: InfoContent.supportPhone,
-          onTap: () =>
-              _launch(context, Uri(scheme: 'tel', path: InfoContent.supportPhone)),
+        FutureBuilder<ContactInfo>(
+          future: _future,
+          builder: (context, snapshot) {
+            // Backend value when available; built-in fallback otherwise.
+            final info = snapshot.data ?? const ContactInfo.fallback();
+            final waDigits = info.whatsapp.replaceAll(RegExp(r'[^0-9]'), '');
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (info.hasPhone) ...[
+                  _ContactRow(
+                    icon: Icons.call_outlined,
+                    label: l10n.contactCall,
+                    value: info.phone,
+                    onTap: () => _launch(Uri(scheme: 'tel', path: info.phone)),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (info.hasWhatsapp) ...[
+                  _ContactRow(
+                    icon: Icons.chat_outlined,
+                    label: l10n.contactWhatsapp,
+                    value: info.whatsapp,
+                    onTap: () => _launch(Uri.parse('https://wa.me/$waDigits')),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (info.hasEmail)
+                  _ContactRow(
+                    icon: Icons.mail_outline_rounded,
+                    label: l10n.contactEmail,
+                    value: info.email,
+                    onTap: () =>
+                        _launch(Uri(scheme: 'mailto', path: info.email)),
+                  ),
+                // if (info.address.isNotEmpty) ...[
+                //   const SizedBox(height: 16),
+                //   _ContactMeta(
+                //     icon: Icons.location_on_outlined,
+                //     text: info.address,
+                //   ),
+                // ],
+                // if (info.workingHours.isNotEmpty) ...[
+                //   const SizedBox(height: 10),
+                //   _ContactMeta(
+                //     icon: Icons.schedule_outlined,
+                //     text: info.workingHours,
+                //   ),
+                // ],
+              ],
+            );
+          },
         ),
-        const SizedBox(height: 12),
-        _ContactRow(
-          icon: Icons.chat_outlined,
-          label: l10n.contactWhatsapp,
-          value: InfoContent.supportWhatsapp,
-          onTap: () => _launch(context, Uri.parse('https://wa.me/$waDigits')),
-        ),
-        const SizedBox(height: 12),
-        _ContactRow(
-          icon: Icons.mail_outline_rounded,
-          label: l10n.contactEmail,
-          value: InfoContent.supportEmail,
-          onTap: () => _launch(
-            context,
-            Uri(scheme: 'mailto', path: InfoContent.supportEmail),
+      ],
+    );
+  }
+}
+
+/// A muted icon + text line for non-tappable contact details (address, hours).
+class _ContactMeta extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _ContactMeta({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: context.colors.textHint),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextCustom(
+            text: text,
+            fontSize: 13.5,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -297,10 +381,7 @@ class _ContactRow extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: context.colors.textHint,
-              ),
+              Icon(Icons.chevron_right_rounded, color: context.colors.textHint),
             ],
           ),
         ),
