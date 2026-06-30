@@ -162,6 +162,8 @@
   "pickFailed": "تعذّر اختيار الملف",
   "noProofSelected": "اختر صورة أو فيديو أولاً",
   "proofUploaded": "تم رفع التوثيق — تم التوصيل",
+  "deliveryProofs": "توثيقات التسليم",
+  "cannotOpenFile": "تعذّر فتح الملف",
 
   "notificationsTitle": "الإشعارات",
   "emptyNotifications": "لا توجد إشعارات",

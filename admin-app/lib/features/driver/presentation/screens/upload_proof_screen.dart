@@ -96,68 +96,76 @@ class _UploadProofViewState extends State<_UploadProofView> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: TextCustom.subheading(text: l10n.proofTitle)),
-      body: BlocBuilder<UploadProofCubit, UploadProofState>(
-        builder: (context, state) {
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            children: [
-              TextCustom.body(
-                text: l10n.proofHint,
-                color: ColorsCustom.textSecondary,
-                fontSize: 14,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _SourceButton(
-                      icon: Icons.photo_camera_outlined,
-                      label: l10n.takePhoto,
-                      onTap: () => _pickImage(ImageSource.camera),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _SourceButton(
-                      icon: Icons.photo_library_outlined,
-                      label: l10n.fromGallery,
-                      onTap: () => _pickImage(ImageSource.gallery),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _SourceButton(
-                      icon: Icons.videocam_outlined,
-                      label: l10n.addVideo,
-                      onTap: () => _pickVideo(ImageSource.camera),
-                    ),
-                  ),
-                ],
-              ),
-              if (state.hasFiles) ...[
-                const SizedBox(height: 20),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+      // Let the driver dismiss the keyboard (tap anywhere off the field, or drag
+      // the list) so the bottom "upload" button is reachable while the note
+      // field is focused.
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: BlocBuilder<UploadProofCubit, UploadProofState>(
+          builder: (context, state) {
+            return ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              children: [
+                TextCustom.body(
+                  text: l10n.proofHint,
+                  color: ColorsCustom.textSecondary,
+                  fontSize: 14,
+                ),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    for (final path in state.files)
-                      _ProofThumb(
-                        path: path,
-                        onRemove: () =>
-                            context.read<UploadProofCubit>().removeFile(path),
+                    Expanded(
+                      child: _SourceButton(
+                        icon: Icons.photo_camera_outlined,
+                        label: l10n.takePhoto,
+                        onTap: () => _pickImage(ImageSource.camera),
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _SourceButton(
+                        icon: Icons.photo_library_outlined,
+                        label: l10n.fromGallery,
+                        onTap: () => _pickImage(ImageSource.gallery),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _SourceButton(
+                        icon: Icons.videocam_outlined,
+                        label: l10n.addVideo,
+                        onTap: () => _pickVideo(ImageSource.camera),
+                      ),
+                    ),
                   ],
                 ),
+                if (state.hasFiles) ...[
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (final path in state.files)
+                        _ProofThumb(
+                          path: path,
+                          onRemove: () =>
+                              context.read<UploadProofCubit>().removeFile(path),
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _noteController,
+                  maxLines: 2,
+                  decoration: InputDecoration(hintText: l10n.proofNoteHint),
+                ),
               ],
-              const SizedBox(height: 20),
-              TextField(
-                controller: _noteController,
-                maxLines: 2,
-                decoration: InputDecoration(hintText: l10n.proofNoteHint),
-              ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BlocBuilder<UploadProofCubit, UploadProofState>(
         builder: (context, state) => SafeArea(

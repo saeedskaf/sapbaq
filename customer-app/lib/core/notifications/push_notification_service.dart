@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -112,7 +113,18 @@ class PushNotificationService {
       return;
     }
 
-    final token = await _messaging.getToken();
+    String? token;
+    try {
+      token = await _messaging.getToken();
+    } catch (error) {
+      // On iOS the APNs token isn't available yet until the device has
+      // registered with APNs (needs network); getToken then throws
+      // `apns-token-not-set`. Skip gracefully and retry on the next login /
+      // token refresh instead of surfacing an unhandled exception.
+      debugPrint('FCM token unavailable yet (will retry): $error');
+      _registered = false;
+      return;
+    }
     if (token == null) {
       _registered = false; // e.g. iOS before APNs is configured — retry later.
       return;
@@ -136,7 +148,15 @@ class PushNotificationService {
     await _tokenRefreshSub?.cancel();
     _tokenRefreshSub = null;
 
-    final token = _registeredToken ?? await _messaging.getToken();
+    String? token = _registeredToken;
+    if (token == null) {
+      // May throw `apns-token-not-set` on iOS when offline — tolerate it.
+      try {
+        token = await _messaging.getToken();
+      } catch (_) {
+        token = null;
+      }
+    }
     if (token != null) {
       try {
         await _notifications.unregisterDevice(token);
@@ -162,6 +182,7 @@ class PushNotificationService {
     );
     await _localNotifications.initialize(
       settings: const InitializationSettings(android: android, iOS: darwin),
+      onDidReceiveNotificationResponse: _onLocalTap,
     );
     await _localNotifications
         .resolvePlatformSpecificImplementation<
@@ -169,10 +190,24 @@ class PushNotificationService {
         ?.createNotificationChannel(_channel);
   }
 
-  /// Resolves a tapped message's deep link and publishes it for the app to
-  /// navigate. The backend sends `notification_type` and ids in `data`.
-  void _handleOpened(RemoteMessage message) {
-    final data = message.data;
+  /// A tapped FCM notification (background/terminated) — deep-link from it.
+  void _handleOpened(RemoteMessage message) => _routeFromData(message.data);
+
+  /// A tapped foreground (Android) local notification — parse the payload we
+  /// stored on it and route exactly like an FCM-delivered tap.
+  void _onLocalTap(NotificationResponse response) {
+    final payload = response.payload;
+    if (payload == null || payload.isEmpty) return;
+    try {
+      _routeFromData(Map<String, dynamic>.from(jsonDecode(payload) as Map));
+    } catch (_) {
+      // Malformed payload — nothing to navigate to.
+    }
+  }
+
+  /// Maps an FCM `data` map to a deep link and publishes it for the app to
+  /// navigate (the backend sends `notification_type` and ids in `data`).
+  void _routeFromData(Map<String, dynamic> data) {
     final type = (data['notification_type'] ?? data['type'] ?? '').toString();
     final route = resolveNotificationRoute(
       type,
@@ -183,12 +218,18 @@ class PushNotificationService {
   }
 
   Future<void> _showForeground(RemoteMessage message) async {
+    // iOS presents foreground notifications itself (see init's
+    // setForegroundNotificationPresentationOptions); showing a local one too
+    // would duplicate it. Only surface the local notification on Android — and
+    // carry the data as the payload so a tap can deep-link via [_onLocalTap].
+    if (defaultTargetPlatform != TargetPlatform.android) return;
     final notification = message.notification;
     if (notification == null) return;
     await _localNotifications.show(
       id: notification.hashCode,
       title: notification.title,
       body: notification.body,
+      payload: jsonEncode(message.data),
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channel.id,
@@ -196,9 +237,8 @@ class PushNotificationService {
           channelDescription: _channel.description,
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+          icon: '@drawable/ic_stat_notification',
         ),
-        iOS: const DarwinNotificationDetails(),
       ),
     );
   }

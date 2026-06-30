@@ -275,48 +275,9 @@ class _ContactScreenState extends State<ContactScreen> {
                     onTap: () =>
                         _launch(Uri(scheme: 'mailto', path: info.email)),
                   ),
-                // if (info.address.isNotEmpty) ...[
-                //   const SizedBox(height: 16),
-                //   _ContactMeta(
-                //     icon: Icons.location_on_outlined,
-                //     text: info.address,
-                //   ),
-                // ],
-                // if (info.workingHours.isNotEmpty) ...[
-                //   const SizedBox(height: 10),
-                //   _ContactMeta(
-                //     icon: Icons.schedule_outlined,
-                //     text: info.workingHours,
-                //   ),
-                // ],
               ],
             );
           },
-        ),
-      ],
-    );
-  }
-}
-
-/// A muted icon + text line for non-tappable contact details (address, hours).
-class _ContactMeta extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _ContactMeta({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: context.colors.textHint),
-        const SizedBox(width: 10),
-        Expanded(
-          child: TextCustom(
-            text: text,
-            fontSize: 13.5,
-            color: context.colors.textSecondary,
-          ),
         ),
       ],
     );

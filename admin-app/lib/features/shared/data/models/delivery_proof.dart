@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 class DeliveryProof extends Equatable {
   final int id;
   final String file;
-  final String mediaType; // IMAGE | VIDEO
+  final String mediaType; // IMAGE | VIDEO | AUDIO
   final String note;
   final String? uploadedAt;
   final int? destinationId;
@@ -20,6 +20,9 @@ class DeliveryProof extends Equatable {
   });
 
   bool get isVideo => mediaType == 'VIDEO';
+  bool get isAudio => mediaType == 'AUDIO';
+  // Treat any unknown/legacy type as an image so it still renders something.
+  bool get isImage => !isVideo && !isAudio;
 
   factory DeliveryProof.fromJson(Map<String, dynamic> json) {
     return DeliveryProof(
