@@ -8,6 +8,7 @@ import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sapbaq/features/cart/presentation/widgets/floating_cart_bar.dart';
 import 'package:sapbaq/features/mosques/presentation/bloc/favorites_cubit.dart';
+import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 /// Authenticated app shell: hosts the five bottom-nav tabs with preserved
@@ -32,9 +33,11 @@ class _AppShellState extends State<AppShell> {
     if (context.read<AuthBloc>().state.status == AuthStatus.authenticated) {
       context.read<CartCubit>().load();
       context.read<FavoritesCubit>().load();
+      context.read<SupportUnreadCubit>().load();
     } else {
       context.read<CartCubit>().reset();
       context.read<FavoritesCubit>().reset();
+      context.read<SupportUnreadCubit>().reset();
     }
   }
 
@@ -57,6 +60,7 @@ class _AppShellState extends State<AppShell> {
       listener: (context, _) {
         context.read<CartCubit>().load();
         context.read<FavoritesCubit>().load();
+        context.read<SupportUnreadCubit>().load();
       },
       child: BlocBuilder<CartCubit, CartState>(
         buildWhen: (a, b) =>

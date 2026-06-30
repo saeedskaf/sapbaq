@@ -221,8 +221,6 @@ class _SummaryCard extends StatelessWidget {
               StatusBadge(status: order.status),
             ],
           ),
-          const SizedBox(height: 20),
-          _StatusTimeline(status: order.status),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 18),
             child: Divider(height: 1),
@@ -293,6 +291,8 @@ class _MetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Arabic → align right; English → align left.
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     return Row(
       children: [
         Icon(icon, size: 18, color: context.colors.textHint),
@@ -302,135 +302,10 @@ class _MetaRow extends StatelessWidget {
             text: text,
             fontSize: 13,
             color: context.colors.textSecondary,
-            textAlign: TextAlign.start,
+            textAlign: isArabic ? TextAlign.right : TextAlign.left,
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Horizontal progress tracker for the order's lifecycle. Steps up to (and
-/// including) the current status are filled; the rest are upcoming. A cancelled
-/// order shows a distinct banner instead.
-class _StatusTimeline extends StatelessWidget {
-  final String status;
-  const _StatusTimeline({required this.status});
-
-  static const List<String> _steps = [
-    'PENDING',
-    'CONFIRMED',
-    'ASSIGNED',
-    'IN_DELIVERY',
-    'DELIVERED',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    if (status == 'CANCELLED') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: ColorsCustom.error.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.cancel_rounded,
-              size: 18,
-              color: ColorsCustom.error,
-            ),
-            const SizedBox(width: 8),
-            TextCustom(
-              text: l10n.statusCancelled,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: ColorsCustom.error,
-            ),
-          ],
-        ),
-      );
-    }
-
-    final index = _steps.indexOf(status);
-    final current = index < 0 ? 0 : index;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < _steps.length; i++)
-          Expanded(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _line(context, done: i <= current, show: i > 0),
-                    ),
-                    _Dot(done: i <= current),
-                    Expanded(
-                      child: _line(
-                        context,
-                        done: i < current,
-                        show: i < _steps.length - 1,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                TextCustom(
-                  text: orderStatusLabel(l10n, _steps[i]),
-                  fontSize: 10,
-                  fontWeight: i <= current ? FontWeight.w700 : FontWeight.w500,
-                  color: i <= current
-                      ? context.colors.primary
-                      : context.colors.textHint,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _line(BuildContext context, {required bool done, required bool show}) {
-    if (!show) return const SizedBox(height: 3);
-    return Container(
-      height: 3,
-      color: done ? context.colors.primary : context.colors.border,
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  final bool done;
-  const _Dot({required this.done});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        color: done ? context.colors.primary : context.colors.surface,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: done ? context.colors.primary : context.colors.border,
-          width: 2,
-        ),
-      ),
-      child: done
-          ? const Icon(
-              Icons.check_rounded,
-              size: 14,
-              color: ColorsCustom.textOnPrimary,
-            )
-          : null,
     );
   }
 }
@@ -585,6 +460,8 @@ class _DestinationCard extends StatelessWidget {
                   const SizedBox(height: 14),
                   _DriverTile(driver: driver),
                 ],
+                const SizedBox(height: 16),
+                _DestinationTimeline(destination: destination),
               ],
             ),
           ),
@@ -618,6 +495,144 @@ class _DestinationCard extends StatelessWidget {
               child: _ProofStrip(proofs: proofs),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Per-destination delivery timeline (FLUTTER_TASKS T4). Each destination is
+/// delivered independently, so its progress comes from `destination.status` +
+/// its own timestamps — not the coarse `order.status` tracker at the top.
+/// Reached steps are highlighted with their time; upcoming steps are muted.
+class _DestinationTimeline extends StatelessWidget {
+  final OrderDestination destination;
+  const _DestinationTimeline({required this.destination});
+
+  // The team-leader hand-off (`ASSIGNED_TO_TEAM`) is an internal staff step the
+  // customer shouldn't see, so it's omitted here and treated as PENDING below.
+  static const List<String> _steps = [
+    'PENDING',
+    'ASSIGNED',
+    'IN_DELIVERY',
+    'DELIVERED',
+  ];
+
+  String? _timeFor(String step) {
+    switch (step) {
+      case 'ASSIGNED':
+        return destination.assignedAt;
+      case 'IN_DELIVERY':
+        return destination.inDeliveryAt;
+      case 'DELIVERED':
+        return destination.deliveredAt;
+      default:
+        return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    // Collapse the hidden team-leader step onto PENDING: until a handler is
+    // assigned, the customer simply sees the destination as still pending.
+    final status = destination.status == 'ASSIGNED_TO_TEAM'
+        ? 'PENDING'
+        : destination.status;
+
+    if (status == 'CANCELLED') {
+      return _TimelineStep(
+        label: orderStatusLabel(l10n, 'CANCELLED'),
+        time: formatShortDateTime(destination.cancelledAt),
+        done: true,
+        isLast: true,
+        color: ColorsCustom.error,
+      );
+    }
+
+    final current = _steps.indexOf(status);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < _steps.length; i++)
+          _TimelineStep(
+            label: orderStatusLabel(l10n, _steps[i]),
+            time: formatShortDateTime(_timeFor(_steps[i])),
+            done: current >= 0 && i <= current,
+            isLast: i == _steps.length - 1,
+            color: context.colors.primary,
+          ),
+      ],
+    );
+  }
+}
+
+/// One row of [_DestinationTimeline]: a dot + connector and the step's
+/// label/time, dimmed when the step hasn't been reached yet.
+class _TimelineStep extends StatelessWidget {
+  final String label;
+  final String time;
+  final bool done;
+  final bool isLast;
+  final Color color;
+  const _TimelineStep({
+    required this.label,
+    required this.time,
+    required this.done,
+    required this.isLast,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dotColor = done ? color : context.colors.border;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 9,
+                height: 9,
+                margin: const EdgeInsets.only(top: 3),
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              if (!isLast)
+                Expanded(
+                  child: Container(width: 2, color: context.colors.border),
+                ),
+            ],
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextCustom(
+                      text: label,
+                      fontSize: 13,
+                      fontWeight: done ? FontWeight.w700 : FontWeight.w500,
+                      color: done
+                          ? context.colors.textPrimary
+                          : context.colors.textHint,
+                    ),
+                  ),
+                  if (done && time.isNotEmpty)
+                    TextCustom(
+                      text: time,
+                      fontSize: 11.5,
+                      color: context.colors.textHint,
+                    ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -695,6 +710,9 @@ class _ItemRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final imageUrl = resolveMediaUrl(item.product.image);
+    // Arabic → align right; English → align left (same rule for name & quantity).
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final textAlign = isArabic ? TextAlign.right : TextAlign.left;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
@@ -735,6 +753,7 @@ class _ItemRow extends StatelessWidget {
               fontWeight: FontWeight.w600,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              textAlign: textAlign,
             ),
           ),
           const SizedBox(width: 8),
@@ -743,6 +762,7 @@ class _ItemRow extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: context.colors.textSecondary,
+            textAlign: textAlign,
           ),
           const SizedBox(width: 12),
           TextCustom(

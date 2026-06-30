@@ -1,4 +1,4 @@
-package com.albairakgroup.saqia
+package com.albairakgroup.sapbaq
 
 import io.flutter.embedding.android.FlutterActivity
 

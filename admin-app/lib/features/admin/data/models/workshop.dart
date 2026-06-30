@@ -28,26 +28,3 @@ class Workshop extends Equatable {
   @override
   List<Object?> get props => [id, phone, fullName, activeLoad];
 }
-
-/// One destination → workshop (+ optional mosque) assignment, sent in the
-/// single `POST /admin/orders/{id}/assign/` call.
-class Assignment extends Equatable {
-  final int destinationId;
-  final int driverId;
-  final int? mosqueId; // required for MOST_NEEDED destinations
-
-  const Assignment({
-    required this.destinationId,
-    required this.driverId,
-    this.mosqueId,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'destination_id': destinationId,
-    'driver_id': driverId,
-    if (mosqueId != null) 'mosque_id': mosqueId,
-  };
-
-  @override
-  List<Object?> get props => [destinationId, driverId, mosqueId];
-}

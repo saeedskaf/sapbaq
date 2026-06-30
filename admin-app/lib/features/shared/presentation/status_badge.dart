@@ -12,6 +12,8 @@ String statusLabel(AppLocalizations l10n, String status) {
       return l10n.statusPending;
     case 'CONFIRMED':
       return l10n.statusConfirmed;
+    case 'ASSIGNED_TO_TEAM':
+      return l10n.statusAssignedToTeam;
     case 'ASSIGNED':
       return l10n.statusAssigned;
     case 'IN_DELIVERY':
@@ -31,6 +33,8 @@ Color statusColor(String status) {
       return ColorsCustom.warning;
     case 'CONFIRMED':
       return ColorsCustom.info;
+    case 'ASSIGNED_TO_TEAM':
+      return ColorsCustom.secondary;
     case 'ASSIGNED':
       return ColorsCustom.primaryLight;
     case 'IN_DELIVERY':

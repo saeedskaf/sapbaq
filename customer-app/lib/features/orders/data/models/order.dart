@@ -44,6 +44,13 @@ class OrderDestination extends Equatable {
   final String subtotal;
   final List<OrderItem> items;
 
+  // Per-destination lifecycle timestamps, each null until that step is reached.
+  // Drive the per-destination delivery timeline (FLUTTER_TASKS T4).
+  final String? assignedAt;
+  final String? inDeliveryAt;
+  final String? deliveredAt;
+  final String? cancelledAt;
+
   const OrderDestination({
     required this.id,
     required this.destinationType,
@@ -53,6 +60,10 @@ class OrderDestination extends Equatable {
     required this.items,
     this.mosque,
     this.driver,
+    this.assignedAt,
+    this.inDeliveryAt,
+    this.deliveredAt,
+    this.cancelledAt,
   });
 
   bool get isMostNeeded => destinationType == 'MOST_NEEDED';
@@ -73,6 +84,10 @@ class OrderDestination extends Equatable {
       items: (json['items'] as List<dynamic>? ?? const [])
           .map((e) => OrderItem.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      assignedAt: json['assigned_at'] as String?,
+      inDeliveryAt: json['in_delivery_at'] as String?,
+      deliveredAt: json['delivered_at'] as String?,
+      cancelledAt: json['cancelled_at'] as String?,
     );
   }
 

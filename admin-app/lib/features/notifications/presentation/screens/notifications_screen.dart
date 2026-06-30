@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
+import 'package:sapbaq_admin/core/notifications/notification_deep_link.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
-import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/features/notifications/data/models/app_notification.dart';
 import 'package:sapbaq_admin/features/notifications/data/notifications_repository.dart';
 import 'package:sapbaq_admin/features/notifications/presentation/bloc/notifications_cubit.dart';
@@ -16,24 +15,21 @@ import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
 /// Notification inbox, shared by both roles. A tap deep-links to the relevant
-/// order (admin) or destination (driver) when the payload carries an id.
+/// screen (order, destination, approval, or escalation) via the ids in the
+/// payload (§14).
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   void _onTap(BuildContext context, AppNotification n) {
-    final user = context.read<AuthBloc>().state.user;
-    if (user == null) return;
-    if (user.isAdmin && n.orderId != null) {
-      context.pushNamed(
-        AppRoutes.adminOrderDetailName,
-        pathParameters: {'id': '${n.orderId}'},
-      );
-    } else if (user.isDriver && n.destinationId != null) {
-      context.pushNamed(
-        AppRoutes.driverDestinationName,
-        pathParameters: {'id': '${n.destinationId}'},
-      );
-    }
+    final route = resolveNotificationRoute(
+      n.type,
+      orderId: n.orderId,
+      destinationId: n.destinationId,
+      approvalId: n.approvalId,
+      escalationId: n.escalationId,
+    );
+    if (route == null) return;
+    context.pushNamed(route.name, pathParameters: route.pathParameters);
   }
 
   @override
@@ -64,20 +60,50 @@ class NotificationsScreen extends StatelessWidget {
                 icon: Icons.notifications_none_rounded,
               );
             }
+            final cubit = context.read<NotificationsCubit>();
             return RefreshIndicator(
               color: ColorsCustom.primary,
-              onRefresh: () => context.read<NotificationsCubit>().load(),
-              child: ListView.builder(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  8,
-                  16,
-                  floatingNavBarClearance(context),
-                ),
-                itemCount: state.items.length,
-                itemBuilder: (context, i) => _NotificationTile(
-                  notification: state.items[i],
-                  onTap: () => _onTap(context, state.items[i]),
+              onRefresh: cubit.load,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scroll) {
+                  // Near the bottom → fetch the next page (T5). The cubit
+                  // ignores the call while loading or after the last page.
+                  if (scroll.metrics.pixels >=
+                      scroll.metrics.maxScrollExtent - 320) {
+                    cubit.loadMore();
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    floatingNavBarClearance(context),
+                  ),
+                  // One extra row for the trailing loader when more pages exist.
+                  itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                  itemBuilder: (context, i) {
+                    if (i >= state.items.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              color: ColorsCustom.primary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return _NotificationTile(
+                      notification: state.items[i],
+                      onTap: () => _onTap(context, state.items[i]),
+                    );
+                  },
                 ),
               ),
             );

@@ -16,10 +16,36 @@ class NewTicketScreen extends StatefulWidget {
   State<NewTicketScreen> createState() => _NewTicketScreenState();
 }
 
+/// Ticket categories — the backend owns the enum; this stable list is safe to
+/// hard-code (default OTHER).
+const List<String> _categories = [
+  'ORDER',
+  'PAYMENT',
+  'DELIVERY',
+  'ACCOUNT',
+  'OTHER',
+];
+
+String ticketCategoryLabel(AppLocalizations l10n, String category) {
+  switch (category) {
+    case 'ORDER':
+      return l10n.ticketCategoryOrder;
+    case 'PAYMENT':
+      return l10n.ticketCategoryPayment;
+    case 'DELIVERY':
+      return l10n.ticketCategoryDelivery;
+    case 'ACCOUNT':
+      return l10n.ticketCategoryAccount;
+    default:
+      return l10n.ticketCategoryOther;
+  }
+}
+
 class _NewTicketScreenState extends State<NewTicketScreen> {
   final _formKey = GlobalKey<FormState>();
   final _subject = TextEditingController();
   final _body = TextEditingController();
+  String _category = 'OTHER';
   bool _busy = false;
 
   @override
@@ -39,6 +65,7 @@ class _NewTicketScreenState extends State<NewTicketScreen> {
       await repo.createTicket(
         subject: _subject.text.trim(),
         body: _body.text.trim(),
+        category: _category,
       );
       if (!mounted) return;
       navigator.pop(true);
@@ -72,7 +99,30 @@ class _NewTicketScreenState extends State<NewTicketScreen> {
                   ? l10n.ticketSubjectRequired
                   : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            TextCustom(
+              text: l10n.ticketCategory,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final c in _categories)
+                  ChoiceChip(
+                    label: TextCustom(
+                      text: ticketCategoryLabel(l10n, c),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    selected: _category == c,
+                    onSelected: (_) => setState(() => _category = c),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
             FormFieldCustom(
               controller: _body,
               label: l10n.ticketMessage,

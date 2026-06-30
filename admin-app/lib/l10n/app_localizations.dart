@@ -274,6 +274,12 @@ abstract class AppLocalizations {
   /// **'العودة لتسجيل الدخول'**
   String get backToLogin;
 
+  /// No description provided for @navDashboard.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللوحة'**
+  String get navDashboard;
+
   /// No description provided for @navOrders.
   ///
   /// In ar, this message translates to:
@@ -298,6 +304,12 @@ abstract class AppLocalizations {
   /// **'حسابي'**
   String get navProfile;
 
+  /// No description provided for @navCustomerSearch.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث الزبون'**
+  String get navCustomerSearch;
+
   /// No description provided for @statusPending.
   ///
   /// In ar, this message translates to:
@@ -309,6 +321,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'مؤكَّد'**
   String get statusConfirmed;
+
+  /// No description provided for @statusAssignedToTeam.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُسنَد لقائد فريق'**
+  String get statusAssignedToTeam;
 
   /// No description provided for @statusAssigned.
   ///
@@ -508,11 +526,35 @@ abstract class AppLocalizations {
   /// **'الورشة المُسنَدة'**
   String get assignedWorkshopLabel;
 
+  /// No description provided for @teamLeaderLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'قائد الفريق'**
+  String get teamLeaderLabel;
+
   /// No description provided for @assignButton.
   ///
   /// In ar, this message translates to:
   /// **'إسناد الورش'**
   String get assignButton;
+
+  /// No description provided for @assignToTeamLeaderButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد لقائد فريق'**
+  String get assignToTeamLeaderButton;
+
+  /// No description provided for @distributeToHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'توزيع لمنفّذ'**
+  String get distributeToHandler;
+
+  /// No description provided for @approveCompletion.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعتماد الإنجاز'**
+  String get approveCompletion;
 
   /// No description provided for @cancelOrderButton.
   ///
@@ -568,6 +610,18 @@ abstract class AppLocalizations {
   /// **'اختر المسجد'**
   String get chooseMosque;
 
+  /// No description provided for @chooseTeamLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر قائد الفريق'**
+  String get chooseTeamLeader;
+
+  /// No description provided for @chooseHandlerWhoDelivered.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المنفّذ الذي نفّذ'**
+  String get chooseHandlerWhoDelivered;
+
   /// No description provided for @confirmAssign.
   ///
   /// In ar, this message translates to:
@@ -580,17 +634,83 @@ abstract class AppLocalizations {
   /// **'تم إسناد الورش بنجاح'**
   String get assignSuccess;
 
+  /// No description provided for @assignTeamSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الإسناد لقائد الفريق بنجاح'**
+  String get assignTeamSuccess;
+
+  /// No description provided for @distributeSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم توزيع الوجهة للمنفّذ بنجاح'**
+  String get distributeSuccess;
+
+  /// No description provided for @completeSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم اعتماد إنجاز الوجهة بنجاح'**
+  String get completeSuccess;
+
   /// No description provided for @noWorkshops.
   ///
   /// In ar, this message translates to:
   /// **'لا توجد ورش متاحة'**
   String get noWorkshops;
 
+  /// No description provided for @noTeamLeaders.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد قادة فرق متاحون'**
+  String get noTeamLeaders;
+
   /// No description provided for @searchMosqueHint.
   ///
   /// In ar, this message translates to:
   /// **'ابحث عن مسجد'**
   String get searchMosqueHint;
+
+  /// No description provided for @reassignButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الإسناد'**
+  String get reassignButton;
+
+  /// No description provided for @reassignSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت إعادة الإسناد بنجاح'**
+  String get reassignSuccess;
+
+  /// No description provided for @noOtherWorkshops.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد ورشة أخرى متاحة'**
+  String get noOtherWorkshops;
+
+  /// No description provided for @timelineLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجل الطلب'**
+  String get timelineLabel;
+
+  /// No description provided for @callButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال'**
+  String get callButton;
+
+  /// No description provided for @whatsappButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'واتساب'**
+  String get whatsappButton;
+
+  /// No description provided for @contactFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر بدء الاتصال'**
+  String get contactFailed;
 
   /// No description provided for @driverDeliveriesTitle.
   ///
@@ -771,6 +891,294 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'لا توجد إشعارات'**
   String get emptyNotifications;
+
+  /// No description provided for @dashboardTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللوحة'**
+  String get dashboardTitle;
+
+  /// No description provided for @dashNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'جديدة'**
+  String get dashNew;
+
+  /// No description provided for @dashAwaiting.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار الإسناد'**
+  String get dashAwaiting;
+
+  /// No description provided for @dashAssigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد التنفيذ'**
+  String get dashAssigned;
+
+  /// No description provided for @dashCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكتملة'**
+  String get dashCompleted;
+
+  /// No description provided for @dashCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get dashCancelled;
+
+  /// No description provided for @dashAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإجمالي'**
+  String get dashAll;
+
+  /// No description provided for @completionRate.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة الإكمال'**
+  String get completionRate;
+
+  /// No description provided for @slaTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسّط زمن الخدمة'**
+  String get slaTitle;
+
+  /// No description provided for @slaAvgConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسّط زمن التأكيد'**
+  String get slaAvgConfirm;
+
+  /// No description provided for @slaAvgDeliver.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسّط زمن التوصيل'**
+  String get slaAvgDeliver;
+
+  /// No description provided for @slaSample.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدد الطلبات المكتملة'**
+  String get slaSample;
+
+  /// No description provided for @minutesValue.
+  ///
+  /// In ar, this message translates to:
+  /// **'{value} دقيقة'**
+  String minutesValue(String value);
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشاطي'**
+  String get activityTitle;
+
+  /// No description provided for @emptyActivity.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد نشاط'**
+  String get emptyActivity;
+
+  /// No description provided for @actionAssigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد وجهة لورشة'**
+  String get actionAssigned;
+
+  /// No description provided for @actionReassigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة إسناد وجهة'**
+  String get actionReassigned;
+
+  /// No description provided for @actionCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء طلب'**
+  String get actionCancelled;
+
+  /// No description provided for @customerLookupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث عن زبون'**
+  String get customerLookupTitle;
+
+  /// No description provided for @lookupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث برقم الهاتف أو الاسم'**
+  String get lookupHint;
+
+  /// No description provided for @lookupPrompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن زبون برقم الهاتف أو الاسم لعرض سجلّه'**
+  String get lookupPrompt;
+
+  /// No description provided for @lookupNoResults.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد زبون مطابق'**
+  String get lookupNoResults;
+
+  /// No description provided for @approvalsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'صندوق الموافقات'**
+  String get approvalsTitle;
+
+  /// No description provided for @emptyApprovals.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد موافقات معلّقة'**
+  String get emptyApprovals;
+
+  /// No description provided for @approveButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعتماد'**
+  String get approveButton;
+
+  /// No description provided for @approveSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم اعتماد الطلب'**
+  String get approveSuccess;
+
+  /// No description provided for @rejectSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم رفض الطلب'**
+  String get rejectSuccess;
+
+  /// No description provided for @approvalRejectTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الرفض'**
+  String get approvalRejectTitle;
+
+  /// No description provided for @approvalRejectHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب سبب الرفض'**
+  String get approvalRejectHint;
+
+  /// No description provided for @approvalMakerLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدّم الطلب'**
+  String get approvalMakerLabel;
+
+  /// No description provided for @escalationsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التصعيدات'**
+  String get escalationsTitle;
+
+  /// No description provided for @emptyEscalations.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد تصعيدات'**
+  String get emptyEscalations;
+
+  /// No description provided for @resolveButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الحل'**
+  String get resolveButton;
+
+  /// No description provided for @resolveSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حلّ التصعيد'**
+  String get resolveSuccess;
+
+  /// No description provided for @raiseEscalationTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع تصعيد'**
+  String get raiseEscalationTitle;
+
+  /// No description provided for @raiseEscalationHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب سبب التصعيد'**
+  String get raiseEscalationHint;
+
+  /// No description provided for @escalationRaised.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم رفع التصعيد'**
+  String get escalationRaised;
+
+  /// No description provided for @escalationRaisedByLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'بواسطة'**
+  String get escalationRaisedByLabel;
+
+  /// No description provided for @statusOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح'**
+  String get statusOpen;
+
+  /// No description provided for @statusResolved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الحل'**
+  String get statusResolved;
+
+  /// No description provided for @productsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'توفّر المنتجات'**
+  String get productsTitle;
+
+  /// No description provided for @searchProductsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن منتج'**
+  String get searchProductsHint;
+
+  /// No description provided for @emptyProducts.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد منتجات'**
+  String get emptyProducts;
+
+  /// No description provided for @productSuspended.
+  ///
+  /// In ar, this message translates to:
+  /// **'موقوف'**
+  String get productSuspended;
+
+  /// No description provided for @productInactive.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير نشط (يُدار من الويب)'**
+  String get productInactive;
+
+  /// No description provided for @suspendReasonTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الإيقاف'**
+  String get suspendReasonTitle;
+
+  /// No description provided for @suspendReasonHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثال: نفاد المخزون (اختياري)'**
+  String get suspendReasonHint;
+
+  /// No description provided for @suspendConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف'**
+  String get suspendConfirm;
 
   /// No description provided for @profileTitle.
   ///

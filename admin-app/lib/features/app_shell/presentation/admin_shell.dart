@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
-/// Admin app shell: Orders / Notifications / Profile tabs with preserved
-/// per-tab navigation state and the shared frosted floating nav bar.
+/// Admin app shell: Dashboard / Orders / Notifications / Profile tabs with
+/// preserved per-tab navigation state and the shared frosted floating nav bar.
 class AdminShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -27,6 +27,11 @@ class AdminShell extends StatelessWidget {
         currentIndex: navigationShell.currentIndex,
         onTap: _onTap,
         items: [
+          FloatingNavItem(
+            icon: Icons.dashboard_outlined,
+            activeIcon: Icons.dashboard_rounded,
+            label: l10n.navDashboard,
+          ),
           FloatingNavItem(
             icon: Icons.receipt_long_outlined,
             activeIcon: Icons.receipt_long,

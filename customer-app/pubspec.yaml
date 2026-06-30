@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.11.0
@@ -65,6 +65,16 @@ dependencies:
   video_player: ^2.9.2
   chewie: ^1.8.5
   shared_preferences: ^2.5.5
+  firebase_core: ^4.11.0
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
+
+  # App version shown on the About screen (read from the platform at runtime).
+  # Pinned to 9.x to match the resolved version and stay off v10's chain.
+  package_info_plus: ^9.0.0
+
+  # Pick an image (gallery/camera) to attach to a support-ticket reply.
+  image_picker: ^1.1.2
 
 # Pin the iOS/macOS path_provider impl to 2.5.1 — the latest WITHOUT the
 # experimental `objective_c` native-assets dependency (2.5.0 & 2.6.0 add it,

@@ -70,10 +70,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     switch (event.status) {
       case AuthStatus.authenticated:
-        // Prefer the cached user; if it's missing (e.g. a login response with
-        // no user payload), fetch it so the router can resolve the role.
-        var user = await _repo.cachedUser();
-        user ??= await _tryGetMe();
+        // Refresh from the server so role/level/governorate/permission fields
+        // are current (the login payload is slim); fall back to the cached
+        // profile when offline.
+        final user = await _tryGetMe() ?? await _repo.cachedUser();
         emit(AuthState(status: AuthStatus.authenticated, user: user));
       case AuthStatus.unauthenticated:
         emit(const AuthState(status: AuthStatus.unauthenticated));

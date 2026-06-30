@@ -2,11 +2,17 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/app/router/go_router_refresh_stream.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/activity_screen.dart';
 import 'package:sapbaq_admin/features/admin/presentation/screens/admin_order_detail_screen.dart';
 import 'package:sapbaq_admin/features/admin/presentation/screens/admin_orders_screen.dart';
-import 'package:sapbaq_admin/features/admin/presentation/screens/assign_screen.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/approvals_screen.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/customer_lookup_screen.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/dashboard_screen.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/escalations_screen.dart';
+import 'package:sapbaq_admin/features/admin/presentation/screens/products_screen.dart';
 import 'package:sapbaq_admin/features/app_shell/presentation/admin_shell.dart';
 import 'package:sapbaq_admin/features/app_shell/presentation/driver_shell.dart';
+import 'package:sapbaq_admin/features/app_shell/presentation/retail_shell.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/features/auth/presentation/screens/login_screen.dart';
 import 'package:sapbaq_admin/features/auth/presentation/screens/splash_screen.dart';
@@ -21,8 +27,9 @@ int _idOf(GoRouterState state) =>
     int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
 
 /// Builds the app router. Redirects are driven by [AuthBloc] state:
-/// unknown → splash, unauthenticated → login, then by role:
-/// ADMIN → admin shell, DRIVER → driver shell, anything else → unauthorized.
+/// unknown → splash, unauthenticated → login, then by role: office/back-office
+/// staff → admin shell, SERVICE_HANDLER → driver shell, anything else (customer,
+/// MOSQUE_REP, unresolved) → unauthorized.
 GoRouter createRouter(AuthBloc authBloc) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
@@ -50,14 +57,30 @@ GoRouter createRouter(AuthBloc authBloc) {
       }
 
       final inAuthFlow = atSplash || atLogin || atUnauthorized;
-      if (user.isAdmin) {
-        if (inAuthFlow || location.startsWith('/driver')) {
-          return AppRoutes.adminOrders;
+      // Retail operator (LV3): restricted to its own customer-search + profile
+      // shell. Keep it out of the full admin/driver areas (T1). The read-only
+      // order detail (`/admin/order/:id`) stays reachable from a search result.
+      if (user.isRetailOperator) {
+        final inAdminShell =
+            location.startsWith('/admin/') &&
+            !location.startsWith('/admin/order/');
+        if (inAuthFlow || inAdminShell || location.startsWith('/driver')) {
+          return AppRoutes.retailCustomers;
         }
         return null;
       }
-      // driver
-      if (inAuthFlow || location.startsWith('/admin')) {
+      if (user.isOfficeStaff) {
+        if (inAuthFlow ||
+            location.startsWith('/driver') ||
+            location.startsWith('/retail')) {
+          return AppRoutes.adminDashboard;
+        }
+        return null;
+      }
+      // service handler (workshop)
+      if (inAuthFlow ||
+          location.startsWith('/admin') ||
+          location.startsWith('/retail')) {
         return AppRoutes.driverHome;
       }
       return null;
@@ -86,9 +109,29 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, state) => AdminOrderDetailScreen(orderId: _idOf(state)),
       ),
       GoRoute(
-        path: AppRoutes.adminAssign,
-        name: AppRoutes.adminAssignName,
-        builder: (_, state) => AssignScreen(orderId: _idOf(state)),
+        path: AppRoutes.adminActivity,
+        name: AppRoutes.adminActivityName,
+        builder: (_, _) => const ActivityScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminCustomerLookup,
+        name: AppRoutes.adminCustomerLookupName,
+        builder: (_, _) => const CustomerLookupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminApprovals,
+        name: AppRoutes.adminApprovalsName,
+        builder: (_, _) => const ApprovalsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminEscalations,
+        name: AppRoutes.adminEscalationsName,
+        builder: (_, _) => const EscalationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminProducts,
+        name: AppRoutes.adminProductsName,
+        builder: (_, _) => const ProductsScreen(),
       ),
 
       // Driver full-screen routes (over the shell).
@@ -104,11 +147,20 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, state) => UploadProofScreen(destinationId: _idOf(state)),
       ),
 
-      // Admin shell (Orders / Notifications / Profile).
+      // Admin shell (Dashboard / Orders / Notifications / Profile).
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) =>
             AdminShell(navigationShell: navigationShell),
         branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.adminDashboard,
+                name: AppRoutes.adminDashboardName,
+                builder: (_, _) => const DashboardScreen(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -132,6 +184,32 @@ GoRouter createRouter(AuthBloc authBloc) {
               GoRoute(
                 path: AppRoutes.adminProfile,
                 name: AppRoutes.adminProfileName,
+                builder: (_, _) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      // Retail-operator shell (Customer Search / Profile) — T1.
+      StatefulShellRoute.indexedStack(
+        builder: (_, _, navigationShell) =>
+            RetailShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.retailCustomers,
+                name: AppRoutes.retailCustomersName,
+                builder: (_, _) => const CustomerLookupScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.retailProfile,
+                name: AppRoutes.retailProfileName,
                 builder: (_, _) => const ProfileScreen(),
               ),
             ],

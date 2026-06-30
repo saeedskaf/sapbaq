@@ -10,19 +10,15 @@ class SignupState extends Equatable {
   final String? phoneError;
   final String phone;
 
-  /// Dev-only OTP returned by the backend (no real SMS in dev); null in prod.
-  final String? devCode;
-
   const SignupState({
     this.status = FormStatus.initial,
     this.message,
     this.phoneError,
     this.phone = '',
-    this.devCode,
   });
 
   @override
-  List<Object?> get props => [status, message, phoneError, phone, devCode];
+  List<Object?> get props => [status, message, phoneError, phone];
 }
 
 class SignupCubit extends Cubit<SignupState> {
@@ -36,18 +32,12 @@ class SignupCubit extends Cubit<SignupState> {
   }) async {
     emit(const SignupState(status: FormStatus.submitting));
     try {
-      final devCode = await _repo.signup(
+      await _repo.signup(
         phone: phone,
         fullName: fullName,
         password: password,
       );
-      emit(
-        SignupState(
-          status: FormStatus.success,
-          phone: phone,
-          devCode: devCode,
-        ),
-      );
+      emit(SignupState(status: FormStatus.success, phone: phone));
     } on ApiException catch (e) {
       emit(
         SignupState(

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/features/support/data/models/support_ticket.dart';
@@ -17,6 +18,8 @@ class TicketState extends Equatable {
     this.sending = false,
     this.message,
   });
+
+  bool get canReply => ticket?.canReply ?? true;
 
   TicketState copyWith({
     LoadStatus? status,
@@ -36,8 +39,9 @@ class TicketState extends Equatable {
   List<Object?> get props => [status, ticket, sending, message];
 }
 
-/// A single ticket's thread, with reply sending. Posting a reply re-fetches the
-/// ticket (so the new message — and any reopen — show immediately).
+/// A single ticket's thread, with reply sending. Opening the ticket marks it
+/// read; posting a reply re-fetches it (so the new message — and any reopen —
+/// show immediately).
 class TicketCubit extends Cubit<TicketState> {
   final SupportRepository _repo;
   final int ticketId;
@@ -49,16 +53,24 @@ class TicketCubit extends Cubit<TicketState> {
     try {
       final ticket = await _repo.fetchTicket(ticketId);
       emit(TicketState(status: LoadStatus.success, ticket: ticket));
+      _markReadBestEffort();
     } on ApiException catch (e) {
       emit(TicketState(status: LoadStatus.failure, message: e.message));
     }
   }
 
-  Future<void> sendReply(String body) async {
-    if (body.trim().isEmpty || state.sending) return;
-    emit(state.copyWith(sending: true));
+  /// Mark the ticket read in the background; a failure here is harmless.
+  void _markReadBestEffort() {
+    if (state.ticket?.hasUnread != true) return;
+    _repo.markRead(ticketId).catchError((_) {});
+  }
+
+  Future<void> sendReply({String? body, XFile? image}) async {
+    final hasText = (body ?? '').trim().isNotEmpty;
+    if ((!hasText && image == null) || state.sending) return;
+    emit(state.copyWith(sending: true, message: null));
     try {
-      await _repo.addMessage(ticketId, body.trim());
+      await _repo.addMessage(ticketId, body: body, image: image);
       final ticket = await _repo.fetchTicket(ticketId);
       emit(TicketState(status: LoadStatus.success, ticket: ticket));
     } on ApiException catch (e) {

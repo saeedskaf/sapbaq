@@ -259,6 +259,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ticketStatusClosed => 'Closed';
 
   @override
+  String get ticketCategory => 'Category';
+
+  @override
+  String get ticketCategoryOrder => 'Order';
+
+  @override
+  String get ticketCategoryPayment => 'Payment';
+
+  @override
+  String get ticketCategoryDelivery => 'Delivery';
+
+  @override
+  String get ticketCategoryAccount => 'Account';
+
+  @override
+  String get ticketCategoryOther => 'Other';
+
+  @override
+  String get ticketClosedNote =>
+      'This ticket is closed. Open a new one to continue.';
+
+  @override
+  String get attachImage => 'Attach image';
+
+  @override
+  String get photoFromGallery => 'Choose from gallery';
+
+  @override
+  String get photoFromCamera => 'Take a photo';
+
+  @override
+  String get imagePickFailed => 'Couldn\'t pick the image';
+
+  @override
+  String get lastMessageYou => 'You: ';
+
+  @override
   String get filterTitle => 'Filter mosques';
 
   @override
@@ -354,12 +391,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mostNeededDesc =>
       'Donate water and we\'ll deliver it to the mosques most in need';
-
-  @override
-  String get donateMostNeeded => 'Mosques most\nin need';
-
-  @override
-  String get donateChooseMosque => 'Donate to a\nspecific mosque';
 
   @override
   String get chooseMosqueTitle => 'Donate to a specific mosque';
@@ -719,12 +750,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resendCode => 'Resend code';
-
-  @override
-  String get devOtpNotice => 'Verification code (dev mode)';
-
-  @override
-  String get devOtpTapToFill => 'Tap to autofill the code';
 
   @override
   String get forgotPasswordTitle => 'Forgot password';

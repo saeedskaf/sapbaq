@@ -12,6 +12,7 @@ import 'package:sapbaq/core/widgets/state_views.dart';
 import 'package:sapbaq/features/support/data/models/support_ticket.dart';
 import 'package:sapbaq/features/support/data/support_repository.dart';
 import 'package:sapbaq/features/support/presentation/bloc/support_cubit.dart';
+import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 String ticketStatusLabel(AppLocalizations l10n, String status) {
@@ -65,9 +66,18 @@ class SupportScreen extends StatelessWidget {
             ),
           ),
           body: BlocConsumer<SupportCubit, SupportState>(
-            listenWhen: (a, b) => b.message != null && a.message != b.message,
-            listener: (context, state) =>
-                ShowMessage.error(context, state.message!),
+            listenWhen: (a, b) =>
+                (b.message != null && a.message != b.message) ||
+                (a.status != b.status && b.status == LoadStatus.success),
+            listener: (context, state) {
+              if (state.message != null) {
+                ShowMessage.error(context, state.message!);
+              }
+              // Reconcile the app-wide unread badge with the freshly loaded list.
+              if (state.status == LoadStatus.success) {
+                context.read<SupportUnreadCubit>().refresh();
+              }
+            },
             builder: (context, state) {
               if (state.status == LoadStatus.loading) {
                 return const LoadingView();
@@ -114,17 +124,30 @@ class _TicketCard extends StatelessWidget {
   final SupportTicket ticket;
   const _TicketCard({required this.ticket});
 
+  Future<void> _open(BuildContext context) async {
+    final cubit = context.read<SupportCubit>();
+    await context.pushNamed(
+      AppRoutes.ticketDetailName,
+      pathParameters: {'id': '${ticket.id}'},
+    );
+    // Refresh so the per-ticket unread badge clears after viewing.
+    cubit.load();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final last = ticket.lastMessage;
+    final preview = last == null
+        ? null
+        : (last.isMine ? '${l10n.lastMessageYou}${last.body}' : last.body);
+    final date = formatShortDate(ticket.lastActivityAt ?? ticket.createdAt);
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.pushNamed(
-          AppRoutes.ticketDetailName,
-          pathParameters: {'id': '${ticket.id}'},
-        ),
+        onTap: () => _open(context),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -145,14 +168,33 @@ class _TicketCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (ticket.hasUnread) ...[
+                    const SizedBox(width: 8),
+                    _UnreadBadge(count: ticket.unreadCount),
+                  ],
                   const SizedBox(width: 8),
                   _StatusChip(status: ticket.status),
                 ],
               ),
-              if (ticket.createdAt != null) ...[
+              if (preview != null && preview.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                TextCustom(
+                  text: preview,
+                  fontSize: 13,
+                  color: ticket.hasUnread
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
+                  fontWeight: ticket.hasUnread
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              if (date.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 TextCustom(
-                  text: formatShortDate(ticket.createdAt),
+                  text: date,
                   fontSize: 12,
                   color: context.colors.textHint,
                 ),
@@ -160,6 +202,32 @@ class _TicketCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Small count badge shown on a ticket with unread replies.
+class _UnreadBadge extends StatelessWidget {
+  final int count;
+  const _UnreadBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 20),
+      height: 20,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: ColorsCustom.error,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TextCustom(
+        text: '$count',
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        color: Colors.white,
       ),
     );
   }

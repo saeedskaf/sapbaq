@@ -60,12 +60,6 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tabLabels = [
-      l10n.tabAwaiting,
-      l10n.tabAll,
-      l10n.tabDelivered,
-      l10n.tabCancelled,
-    ];
 
     return Scaffold(
       appBar: AppBar(title: TextCustom.subheading(text: l10n.adminOrdersTitle)),
@@ -79,14 +73,26 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
               onSubmitted: (q) => context.read<AdminOrdersCubit>().search(q),
             ),
           ),
-          BlocSelector<AdminOrdersCubit, AdminOrdersState, AdminOrdersTab>(
-            selector: (state) => state.tab,
-            builder: (context, tab) => FilterTabs(
-              labels: tabLabels,
-              selectedIndex: AdminOrdersTab.values.indexOf(tab),
-              onChanged: (i) =>
-                  context.read<AdminOrdersCubit>().setTab(AdminOrdersTab.values[i]),
-            ),
+          BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
+            buildWhen: (a, b) => a.tab != b.tab || a.counts != b.counts,
+            builder: (context, state) {
+              final counts = state.counts;
+              String withCount(String label, int? n) =>
+                  n == null ? label : '$label ($n)';
+              final labels = [
+                withCount(l10n.tabAwaiting, counts?.awaitingAssignment),
+                withCount(l10n.tabAll, counts?.all),
+                withCount(l10n.tabDelivered, counts?.delivered),
+                withCount(l10n.tabCancelled, counts?.cancelled),
+              ];
+              return FilterTabs(
+                labels: labels,
+                selectedIndex: AdminOrdersTab.values.indexOf(state.tab),
+                onChanged: (i) => context
+                    .read<AdminOrdersCubit>()
+                    .setTab(AdminOrdersTab.values[i]),
+              );
+            },
           ),
           const SizedBox(height: 10),
           BlocBuilder<AdminOrdersCubit, AdminOrdersState>(

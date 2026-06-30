@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/shared/data/models/mosque.dart';
 import 'package:sapbaq_admin/features/shared/data/models/order_item.dart';
@@ -50,8 +51,13 @@ class SectionCard extends StatelessWidget {
 /// A destination card shared by the admin order detail and the driver
 /// destination detail: the destination name + type + status, the mosque (with
 /// an "open location" action), the items, and the subtotal. [driverName] shows
-/// the assigned workshop (admin view); omit [onOpenLocation] to hide the
-/// location action.
+/// the assigned workshop (admin view); [teamLeaderName] shows the team leader
+/// the order was assigned to. Omit [onOpenLocation] to hide the location
+/// action. Pass [onReassign] (admin view) to move an assigned destination to
+/// another workshop, or [onDistribute] / [onComplete] (team-leader view) to
+/// hand a team-assigned destination to a handler or approve it directly.
+/// When [showTimeline] is set, a per-destination status timeline (T4) renders
+/// from [status] and the lifecycle timestamps.
 class DestinationSection extends StatelessWidget {
   final String label;
   final String destinationType;
@@ -60,7 +66,16 @@ class DestinationSection extends StatelessWidget {
   final List<OrderItem> items;
   final String subtotal;
   final String? driverName;
+  final String? teamLeaderName;
   final VoidCallback? onOpenLocation;
+  final VoidCallback? onReassign;
+  final VoidCallback? onDistribute;
+  final VoidCallback? onComplete;
+  final bool showTimeline;
+  final String? assignedAt;
+  final String? inDeliveryAt;
+  final String? deliveredAt;
+  final String? cancelledAt;
 
   const DestinationSection({
     super.key,
@@ -71,7 +86,16 @@ class DestinationSection extends StatelessWidget {
     required this.subtotal,
     this.mosque,
     this.driverName,
+    this.teamLeaderName,
     this.onOpenLocation,
+    this.onReassign,
+    this.onDistribute,
+    this.onComplete,
+    this.showTimeline = false,
+    this.assignedAt,
+    this.inDeliveryAt,
+    this.deliveredAt,
+    this.cancelledAt,
   });
 
   @override
@@ -117,6 +141,13 @@ class DestinationSection extends StatelessWidget {
             const SizedBox(height: 12),
             _MetaLine(icon: Icons.place_outlined, text: location),
           ],
+          if (teamLeaderName != null && teamLeaderName!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _MetaLine(
+              icon: Icons.groups_outlined,
+              text: '${l10n.teamLeaderLabel}: $teamLeaderName',
+            ),
+          ],
           if (driverName != null && driverName!.isNotEmpty) ...[
             const SizedBox(height: 8),
             _MetaLine(
@@ -124,24 +155,53 @@ class DestinationSection extends StatelessWidget {
               text: '${l10n.assignedWorkshopLabel}: $driverName',
             ),
           ],
-          if (onOpenLocation != null) ...[
+          if (showTimeline) ...[
+            const SizedBox(height: 14),
+            DestinationStatusTimeline(
+              status: status,
+              assignedAt: assignedAt,
+              inDeliveryAt: inDeliveryAt,
+              deliveredAt: deliveredAt,
+              cancelledAt: cancelledAt,
+            ),
+          ],
+          if (onOpenLocation != null ||
+              onReassign != null ||
+              onDistribute != null ||
+              onComplete != null) ...[
             const SizedBox(height: 6),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                onPressed: onOpenLocation,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  visualDensity: VisualDensity.compact,
-                ),
-                icon: const Icon(Icons.map_outlined, size: 18),
-                label: TextCustom(
-                  text: l10n.openLocation,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: ColorsCustom.primary,
-                ),
-              ),
+            Wrap(
+              spacing: 4,
+              children: [
+                if (onOpenLocation != null)
+                  _DestinationAction(
+                    icon: Icons.map_outlined,
+                    label: l10n.openLocation,
+                    color: ColorsCustom.primary,
+                    onPressed: onOpenLocation!,
+                  ),
+                if (onDistribute != null)
+                  _DestinationAction(
+                    icon: Icons.engineering_outlined,
+                    label: l10n.distributeToHandler,
+                    color: ColorsCustom.primary,
+                    onPressed: onDistribute!,
+                  ),
+                if (onComplete != null)
+                  _DestinationAction(
+                    icon: Icons.task_alt_rounded,
+                    label: l10n.approveCompletion,
+                    color: ColorsCustom.success,
+                    onPressed: onComplete!,
+                  ),
+                if (onReassign != null)
+                  _DestinationAction(
+                    icon: Icons.swap_horiz_rounded,
+                    label: l10n.reassignButton,
+                    color: ColorsCustom.secondary,
+                    onPressed: onReassign!,
+                  ),
+              ],
             ),
           ],
           if (items.isNotEmpty) ...[
@@ -164,6 +224,178 @@ class DestinationSection extends StatelessWidget {
                 color: ColorsCustom.primary,
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A compact text button used for the per-destination actions row.
+class _DestinationAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+  const _DestinationAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        visualDensity: VisualDensity.compact,
+      ),
+      icon: Icon(icon, size: 18, color: color),
+      label: TextCustom(
+        text: label,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: color,
+      ),
+    );
+  }
+}
+
+/// Per-destination status timeline (FLUTTER_TASKS T4). Each destination is
+/// delivered independently, so progress is driven by `destination.status` +
+/// its lifecycle timestamps — not the coarse `order.status`. Reached steps are
+/// highlighted with their timestamp; upcoming steps are muted. A cancelled
+/// destination shows a single cancelled row instead.
+class DestinationStatusTimeline extends StatelessWidget {
+  final String status;
+  final String? assignedAt;
+  final String? inDeliveryAt;
+  final String? deliveredAt;
+  final String? cancelledAt;
+
+  const DestinationStatusTimeline({
+    super.key,
+    required this.status,
+    this.assignedAt,
+    this.inDeliveryAt,
+    this.deliveredAt,
+    this.cancelledAt,
+  });
+
+  static const List<String> _steps = [
+    'PENDING',
+    'ASSIGNED_TO_TEAM',
+    'ASSIGNED',
+    'IN_DELIVERY',
+    'DELIVERED',
+  ];
+
+  String? _timeFor(String step) {
+    switch (step) {
+      case 'ASSIGNED':
+        return assignedAt;
+      case 'IN_DELIVERY':
+        return inDeliveryAt;
+      case 'DELIVERED':
+        return deliveredAt;
+      default:
+        return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (status == 'CANCELLED') {
+      return _TimelineStep(
+        label: statusLabel(l10n, 'CANCELLED'),
+        time: formatShortDateTime(cancelledAt),
+        done: true,
+        isLast: true,
+        color: ColorsCustom.error,
+      );
+    }
+
+    final current = _steps.indexOf(status);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < _steps.length; i++)
+          _TimelineStep(
+            label: statusLabel(l10n, _steps[i]),
+            time: formatShortDateTime(_timeFor(_steps[i])),
+            done: current >= 0 && i <= current,
+            isLast: i == _steps.length - 1,
+            color: ColorsCustom.primary,
+          ),
+      ],
+    );
+  }
+}
+
+/// One row of [DestinationStatusTimeline]: a dot + connector and the step's
+/// label/time, dimmed when the step hasn't been reached yet.
+class _TimelineStep extends StatelessWidget {
+  final String label;
+  final String time;
+  final bool done;
+  final bool isLast;
+  final Color color;
+  const _TimelineStep({
+    required this.label,
+    required this.time,
+    required this.done,
+    required this.isLast,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dotColor = done ? color : ColorsCustom.border;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 9,
+                height: 9,
+                margin: const EdgeInsets.only(top: 3),
+                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+              ),
+              if (!isLast)
+                Expanded(child: Container(width: 2, color: ColorsCustom.border)),
+            ],
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextCustom(
+                      text: label,
+                      fontSize: 13,
+                      fontWeight: done ? FontWeight.w700 : FontWeight.w500,
+                      color: done
+                          ? ColorsCustom.textPrimary
+                          : ColorsCustom.textHint,
+                    ),
+                  ),
+                  if (done && time.isNotEmpty)
+                    TextCustom(
+                      text: time,
+                      fontSize: 11.5,
+                      color: ColorsCustom.textHint,
+                    ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

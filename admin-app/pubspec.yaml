@@ -2,7 +2,7 @@ name: sapbaq_admin
 description: "Sapbaq Admin & Driver — management and delivery companion for the Sapbaq ecosystem."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.11.0
@@ -41,6 +41,9 @@ dependencies:
 
   # Capture/pick delivery-proof photos & videos (driver upload).
   image_picker: ^1.2.0
+  firebase_core: ^4.11.0
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
 
 # Pin the iOS/macOS path_provider impl to 2.5.1 — the latest WITHOUT the
 # experimental `objective_c` native-assets dependency (2.5.0 & 2.6.0 add it,

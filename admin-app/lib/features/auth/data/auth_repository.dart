@@ -5,7 +5,7 @@ import 'package:sapbaq_admin/core/network/session_manager.dart';
 import 'package:sapbaq_admin/core/storage/secure_storage.dart';
 import 'package:sapbaq_admin/features/auth/data/models/user.dart';
 
-/// Single source of truth for staff authentication (ADMIN / DRIVER).
+/// Single source of truth for staff authentication (the seven staff roles).
 ///
 /// All methods throw [ApiException] (Arabic, display-ready) on failure. Session
 /// transitions are published through [SessionManager], which the router and

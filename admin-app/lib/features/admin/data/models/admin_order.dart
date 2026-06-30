@@ -60,9 +60,17 @@ class AdminDestination extends Equatable {
   final String label;
   final String status;
   final Mosque? mosque;
-  final OrderCustomer? driver; // the assigned workshop
+  final OrderCustomer? teamLeader; // the team leader the order was assigned to
+  final OrderCustomer? driver; // the assigned workshop (handler)
   final String subtotal;
   final List<OrderItem> items;
+
+  // Per-destination lifecycle timestamps (FLUTTER_TASKS T4), each null until
+  // the destination reaches that step.
+  final String? assignedAt;
+  final String? inDeliveryAt;
+  final String? deliveredAt;
+  final String? cancelledAt;
 
   const AdminDestination({
     required this.id,
@@ -72,14 +80,31 @@ class AdminDestination extends Equatable {
     required this.subtotal,
     required this.items,
     this.mosque,
+    this.teamLeader,
     this.driver,
+    this.assignedAt,
+    this.inDeliveryAt,
+    this.deliveredAt,
+    this.cancelledAt,
   });
 
   bool get isMostNeeded => destinationType == 'MOST_NEEDED';
   bool get isPending => status == 'PENDING';
 
+  /// Assigned to a team leader, awaiting distribution to a handler (T3).
+  bool get isAssignedToTeam => status == 'ASSIGNED_TO_TEAM';
+
   /// A MOST_NEEDED destination still needs a mosque chosen at assignment time.
   bool get needsMosque => isMostNeeded && mosque == null;
+
+  /// Whether this destination can be moved to another workshop (§5): it has a
+  /// current workshop and isn't already in delivery or finished. A destination
+  /// still with the team leader (no handler yet) is distributed, not reassigned.
+  bool get isReassignable =>
+      driver != null &&
+      status != 'IN_DELIVERY' &&
+      status != 'DELIVERED' &&
+      status != 'CANCELLED';
 
   factory AdminDestination.fromJson(Map<String, dynamic> json) {
     return AdminDestination(
@@ -90,6 +115,11 @@ class AdminDestination extends Equatable {
       mosque: json['mosque'] is Map
           ? Mosque.fromJson(Map<String, dynamic>.from(json['mosque'] as Map))
           : null,
+      teamLeader: json['team_leader'] is Map
+          ? OrderCustomer.fromJson(
+              Map<String, dynamic>.from(json['team_leader'] as Map),
+            )
+          : null,
       driver: json['driver'] is Map
           ? OrderCustomer.fromJson(
               Map<String, dynamic>.from(json['driver'] as Map),
@@ -99,11 +129,15 @@ class AdminDestination extends Equatable {
       items: (json['items'] as List<dynamic>? ?? const [])
           .map((e) => OrderItem.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      assignedAt: json['assigned_at'] as String?,
+      inDeliveryAt: json['in_delivery_at'] as String?,
+      deliveredAt: json['delivered_at'] as String?,
+      cancelledAt: json['cancelled_at'] as String?,
     );
   }
 
   @override
-  List<Object?> get props => [id, status, driver, mosque, items];
+  List<Object?> get props => [id, status, teamLeader, driver, mosque, items];
 }
 
 /// Full admin order (`GET /admin/orders/{id}/`).
@@ -122,6 +156,7 @@ class AdminOrderDetail extends Equatable {
   final bool hasGift;
   final List<DeliveryProof> proofs;
   final List<AdminDestination> destinations;
+  final List<OrderTimelineEvent> timeline;
   final String? createdAt;
 
   const AdminOrderDetail({
@@ -132,6 +167,7 @@ class AdminOrderDetail extends Equatable {
     required this.discountAmount,
     required this.totalAmount,
     required this.destinations,
+    this.timeline = const [],
     this.customer,
     this.couponCode = '',
     this.customerNotes,
@@ -180,10 +216,43 @@ class AdminOrderDetail extends Equatable {
           .map((e) =>
               AdminDestination.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      timeline: (json['timeline'] as List<dynamic>? ?? const [])
+          .map((e) =>
+              OrderTimelineEvent.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
       createdAt: json['created_at'] as String?,
     );
   }
 
   @override
-  List<Object?> get props => [id, status, totalAmount, destinations];
+  List<Object?> get props => [id, status, totalAmount, destinations, timeline];
+}
+
+/// One entry in an order's timeline (`GET /admin/orders/{id}/` → `timeline`,
+/// STAFF_APP_API_HANDOFF §4). The backend returns them ordered oldest→newest;
+/// [label] is server-localized — display it as-is.
+class OrderTimelineEvent extends Equatable {
+  final String at; // ISO 8601
+  final String event; // e.g. "order.created", "destination.assigned"
+  final String label;
+  final int? destinationId;
+
+  const OrderTimelineEvent({
+    required this.at,
+    required this.event,
+    required this.label,
+    this.destinationId,
+  });
+
+  factory OrderTimelineEvent.fromJson(Map<String, dynamic> json) {
+    return OrderTimelineEvent(
+      at: (json['at'] ?? '').toString(),
+      event: (json['event'] ?? '').toString(),
+      label: (json['label'] ?? '').toString(),
+      destinationId: json['destination_id'] as int?,
+    );
+  }
+
+  @override
+  List<Object?> get props => [at, event, label, destinationId];
 }

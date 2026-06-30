@@ -27,10 +27,35 @@ class ApiEndpoints {
 
   // --- Admin ---
   static const String adminOrders = '/admin/orders/';
+  static const String adminOrdersCounts = '/admin/orders/counts/';
   static String adminOrder(int id) => '/admin/orders/$id/';
-  static String adminAssignOrder(int id) => '/admin/orders/$id/assign/';
+  static String adminReassignOrder(int id) => '/admin/orders/$id/reassign/';
   static String adminCancelOrder(int id) => '/admin/orders/$id/cancel/';
   static const String adminWorkshops = '/admin/workshops/';
+
+  // Two-level assignment (FLUTTER_TASKS T3): a manager assigns the order to a
+  // team leader, who then distributes each destination to a handler (workshop)
+  // or approves its completion directly.
+  static const String adminTeamLeaders = '/admin/team-leaders/';
+  static String adminAssignTeam(int id) => '/admin/orders/$id/assign-team/';
+  static String adminAssignHandler(int id) =>
+      '/admin/orders/$id/assign-handler/';
+  static String adminCompleteOrder(int id) => '/admin/orders/$id/complete/';
+  static const String adminDashboard = '/admin/me/dashboard/';
+  static const String adminActivity = '/admin/me/activity/';
+  static const String adminCustomerLookup = '/admin/customers/lookup/';
+
+  static const String adminApprovals = '/admin/approvals/';
+  static String adminApproveApproval(int id) => '/admin/approvals/$id/approve/';
+  static String adminRejectApproval(int id) => '/admin/approvals/$id/reject/';
+
+  static const String adminEscalations = '/admin/escalations/';
+  static String adminResolveEscalation(int id) =>
+      '/admin/escalations/$id/resolve/';
+
+  static const String adminProducts = '/admin/products/';
+  static String adminProductAvailability(int id) =>
+      '/admin/products/$id/availability/';
 
   // --- Driver (workshop) ---
   static const String driverDestinations = '/orders/driver/destinations/';

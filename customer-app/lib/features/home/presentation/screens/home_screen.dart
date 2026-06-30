@@ -42,7 +42,8 @@ class HomeScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
-      create: (context) => BannersCubit(context.read<BannersRepository>())..load(),
+      create: (context) =>
+          BannersCubit(context.read<BannersRepository>())..load(),
       child: Scaffold(
         body: SafeArea(
           child: ListView(
@@ -67,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               Padding(
                 padding: _hPad,
                 child: TextCustom.subheading(
@@ -75,33 +76,29 @@ class HomeScreen extends StatelessWidget {
                   fontSize: 17,
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 14),
               Padding(
                 padding: _hPad,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _DonateOption(
-                        icon: Icons.volunteer_activism_outlined,
-                        label: l10n.donateMostNeeded,
-                        onTap: () => context.pushNamed(
-                          AppRoutes.productsName,
-                          extra: DonationDestination.mostNeeded(
-                            label: l10n.mostNeededShort,
-                          ),
-                        ),
-                      ),
+                child: _DonatePathCard(
+                  icon: Icons.volunteer_activism_rounded,
+                  title: l10n.mostNeededShort,
+                  subtitle: l10n.mostNeededDesc,
+                  onTap: () => context.pushNamed(
+                    AppRoutes.productsName,
+                    extra: DonationDestination.mostNeeded(
+                      label: l10n.mostNeededShort,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _DonateOption(
-                        icon: Icons.mosque_outlined,
-                        label: l10n.donateChooseMosque,
-                        onTap: () => context.goNamed(AppRoutes.mosquesName),
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: _hPad,
+                child: _DonatePathCard(
+                  icon: Icons.mosque_rounded,
+                  title: l10n.chooseMosqueTitle,
+                  subtitle: l10n.chooseMosqueDesc,
+                  onTap: () => context.goNamed(AppRoutes.mosquesName),
                 ),
               ),
             ],
@@ -388,59 +385,74 @@ class _BannerCard extends StatelessWidget {
 }
 
 /// One of the two donation entry points (most-needed pool / a chosen mosque),
-/// rendered as a matching white circle with the icon stacked above its label,
-/// both in the brand green — simple, equal choices side by side.
-class _DonateOption extends StatelessWidget {
+/// rendered as a clean full-width card: a tinted icon chip, a title with a
+/// short description, and a trailing chevron. Stacked vertically so each path
+/// has room to read clearly.
+class _DonatePathCard extends StatelessWidget {
   final IconData icon;
-  final String label;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
-  const _DonateOption({
+  const _DonatePathCard({
     required this.icon,
-    required this.label,
+    required this.title,
+    required this.subtitle,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          shape: const CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: context.colors.primary, size: 44),
-                  const SizedBox(height: 10),
-                  TextCustom(
-                    text: label,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.primary,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+    return Material(
+      color: context.colors.surface,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: context.colors.border, width: 0.6),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: context.colors.primaryTint,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ],
-              ),
+                  child: Icon(icon, color: context.colors.primary, size: 26),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextCustom(
+                        text: title,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      TextCustom(
+                        text: subtitle,
+                        fontSize: 12.5,
+                        color: context.colors.textSecondary,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
             ),
           ),
         ),
@@ -448,4 +460,3 @@ class _DonateOption extends StatelessWidget {
     );
   }
 }
-
