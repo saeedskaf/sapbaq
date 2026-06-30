@@ -880,6 +880,18 @@ abstract class AppLocalizations {
   /// **'تم رفع التوثيق — تم التوصيل'**
   String get proofUploaded;
 
+  /// No description provided for @deliveryProofs.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيقات التسليم'**
+  String get deliveryProofs;
+
+  /// No description provided for @cannotOpenFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر فتح الملف'**
+  String get cannotOpenFile;
+
   /// No description provided for @notificationsTitle.
   ///
   /// In ar, this message translates to:

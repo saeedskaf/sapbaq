@@ -414,6 +414,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get proofUploaded => 'تم رفع التوثيق — تم التوصيل';
 
   @override
+  String get deliveryProofs => 'توثيقات التسليم';
+
+  @override
+  String get cannotOpenFile => 'تعذّر فتح الملف';
+
+  @override
   String get notificationsTitle => 'الإشعارات';
 
   @override

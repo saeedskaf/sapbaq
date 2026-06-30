@@ -5,13 +5,16 @@ import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/utils/contact_launcher.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/utils/maps_launcher.dart';
+import 'package:sapbaq_admin/core/utils/media_url.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
+import 'package:sapbaq_admin/core/widgets/in_app_media.dart';
 import 'package:sapbaq_admin/core/widgets/reason_sheet.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
+import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/features/admin/data/models/workshop.dart';
 import 'package:sapbaq_admin/features/admin/presentation/bloc/admin_order_detail_cubit.dart';
 import 'package:sapbaq_admin/features/admin/presentation/widgets/mosque_picker_sheet.dart';
@@ -54,7 +57,9 @@ class _DetailView extends StatelessWidget {
     );
     if (reason == null) return;
     final ok = await cubit.cancel(reason);
-    if (ok && context.mounted) ShowMessage.success(context, l10n.orderCancelled);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.orderCancelled);
+    }
   }
 
   /// Manager flow (T3): assign the whole order to a team leader, who then
@@ -71,7 +76,9 @@ class _DetailView extends StatelessWidget {
     final chosen = await _pickStaff(context, leaders, l10n.chooseTeamLeader);
     if (chosen == null || !context.mounted) return;
     final ok = await cubit.assignTeam(chosen.id);
-    if (ok && context.mounted) ShowMessage.success(context, l10n.assignTeamSuccess);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.assignTeamSuccess);
+    }
   }
 
   /// Team-leader flow (T3): distribute one destination to a handler.
@@ -85,7 +92,9 @@ class _DetailView extends StatelessWidget {
       picked.driverId,
       mosqueId: picked.mosqueId,
     );
-    if (ok && context.mounted) ShowMessage.success(context, l10n.distributeSuccess);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.distributeSuccess);
+    }
   }
 
   /// Team-leader flow (T3): approve a destination's completion directly,
@@ -93,14 +102,20 @@ class _DetailView extends StatelessWidget {
   Future<void> _complete(BuildContext context, AdminDestination d) async {
     final cubit = context.read<AdminOrderDetailCubit>();
     final l10n = AppLocalizations.of(context)!;
-    final picked = await _pickHandler(context, d, l10n.chooseHandlerWhoDelivered);
+    final picked = await _pickHandler(
+      context,
+      d,
+      l10n.chooseHandlerWhoDelivered,
+    );
     if (picked == null || !context.mounted) return;
     final ok = await cubit.completeDestination(
       d.id,
       picked.driverId,
       mosqueId: picked.mosqueId,
     );
-    if (ok && context.mounted) ShowMessage.success(context, l10n.completeSuccess);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.completeSuccess);
+    }
   }
 
   /// Pick a handler (and a mosque first, for an unlocated MOST_NEEDED
@@ -155,9 +170,8 @@ class _DetailView extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => MosquePickerSheet(
-        repository: context.read<AdminRepository>(),
-      ),
+      builder: (_) =>
+          MosquePickerSheet(repository: context.read<AdminRepository>()),
     );
   }
 
@@ -282,6 +296,16 @@ class _DetailView extends StatelessWidget {
     final canReassign = user?.canReassignOrders ?? false;
     final canDispatch = user?.canDispatchTeam ?? false;
 
+    // Delivery proofs come on the order, each tagged with its destination
+    // (FLUTTER_PROOFS_DISPLAY): group them so each destination shows its own,
+    // and any order-level (null destination) proofs render at the end.
+    final proofsByDestination = <int?, List<DeliveryProof>>{};
+    for (final p in order.proofs) {
+      proofsByDestination.putIfAbsent(p.destinationId, () => []).add(p);
+    }
+    final orderLevelProofs =
+        proofsByDestination[null] ?? const <DeliveryProof>[];
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -365,7 +389,9 @@ class _DetailView extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 TextCustom(
-                  text: order.payment!.isPaid ? l10n.paymentPaid : l10n.paymentUnpaid,
+                  text: order.payment!.isPaid
+                      ? l10n.paymentPaid
+                      : l10n.paymentUnpaid,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: order.payment!.isPaid
@@ -393,8 +419,8 @@ class _DetailView extends StatelessWidget {
         const SizedBox(height: 4),
         TextCustom.subheading(text: l10n.destinationsLabel, fontSize: 16),
         const SizedBox(height: 8),
-        ...order.destinations.map(
-          (d) => DestinationSection(
+        for (final d in order.destinations) ...[
+          DestinationSection(
             label: d.label,
             destinationType: d.destinationType,
             status: d.status,
@@ -419,7 +445,9 @@ class _DetailView extends StatelessWidget {
                 ? () => _complete(context, d)
                 : null,
           ),
-        ),
+          if ((proofsByDestination[d.id] ?? const []).isNotEmpty)
+            _ProofStrip(proofs: proofsByDestination[d.id]!),
+        ],
         if (order.cancellationReason != null &&
             order.cancellationReason!.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -432,8 +460,16 @@ class _DetailView extends StatelessWidget {
             ),
           ),
         ],
+        if (orderLevelProofs.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _ProofStrip(proofs: orderLevelProofs),
+        ],
         const SizedBox(height: 8),
-        _TotalRow(label: l10n.totalLabel, amount: order.totalAmount, l10n: l10n),
+        _TotalRow(
+          label: l10n.totalLabel,
+          amount: order.totalAmount,
+          l10n: l10n,
+        ),
         if (order.timeline.isNotEmpty) ...[
           const SizedBox(height: 16),
           _TimelineSection(events: order.timeline),
@@ -450,10 +486,7 @@ class _DetailView extends StatelessWidget {
     final opened = await openMapsUrl(d.mosque?.mapsUrl);
     if (!opened && context.mounted) {
       final address = d.mosque?.address ?? '';
-      ShowMessage.info(
-        context,
-        address.isEmpty ? l10n.noLocation : address,
-      );
+      ShowMessage.info(context, address.isEmpty ? l10n.noLocation : address);
     }
   }
 }
@@ -580,7 +613,9 @@ class _TimelineRow extends StatelessWidget {
                 ),
               ),
               if (!isLast)
-                Expanded(child: Container(width: 2, color: ColorsCustom.border)),
+                Expanded(
+                  child: Container(width: 2, color: ColorsCustom.border),
+                ),
             ],
           ),
           const SizedBox(width: 12),
@@ -712,7 +747,10 @@ class _CancelSheetState extends State<_CancelSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          TextCustom.subheading(text: l10n.cancelOrderTitle, color: ColorsCustom.error),
+          TextCustom.subheading(
+            text: l10n.cancelOrderTitle,
+            color: ColorsCustom.error,
+          ),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
@@ -732,6 +770,133 @@ class _CancelSheetState extends State<_CancelSheet> {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A delivery-proof strip for one destination (or order-level): a small header
+/// and a horizontal row of tappable thumbnails. Images open in the in-app zoom
+/// viewer; videos and audio play in the in-app player.
+class _ProofStrip extends StatelessWidget {
+  final List<DeliveryProof> proofs;
+  const _ProofStrip({required this.proofs});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.verified_rounded,
+                size: 16,
+                color: ColorsCustom.primary,
+              ),
+              const SizedBox(width: 6),
+              TextCustom(
+                text: l10n.deliveryProofs,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: ColorsCustom.primary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 80,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: proofs.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, i) => _ProofThumb(proof: proofs[i]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProofThumb extends StatelessWidget {
+  final DeliveryProof proof;
+  const _ProofThumb({required this.proof});
+
+  void _open(BuildContext context) {
+    if (proof.isImage) {
+      openInAppImage(
+        context,
+        url: proof.file,
+        caption: proof.note.isEmpty ? null : proof.note,
+      );
+    } else {
+      // Video and audio both play in the in-app player.
+      openInAppVideo(context, proof.file);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final url = resolveMediaUrl(proof.file);
+    return GestureDetector(
+      onTap: url == null ? null : () => _open(context),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: 80,
+          height: 80,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (proof.isImage && url != null)
+                Image.network(
+                  url,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) =>
+                      const _ProofPlaceholder(icon: Icons.image_outlined),
+                )
+              else if (proof.isVideo)
+                const _ProofPlaceholder(icon: Icons.videocam_rounded)
+              else
+                const _ProofPlaceholder(icon: Icons.audiotrack_rounded),
+              if (!proof.isImage) const Center(child: _PlayDot()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tinted box with a media-type icon, behind videos/audio and image fallbacks.
+class _ProofPlaceholder extends StatelessWidget {
+  final IconData icon;
+  const _ProofPlaceholder({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: ColorsCustom.surfaceVariant,
+      child: Icon(icon, color: ColorsCustom.textHint, size: 28),
+    );
+  }
+}
+
+/// Small play badge centered on a video/audio thumbnail.
+class _PlayDot extends StatelessWidget {
+  const _PlayDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+      child: Padding(
+        padding: EdgeInsets.all(5),
+        child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
       ),
     );
   }
