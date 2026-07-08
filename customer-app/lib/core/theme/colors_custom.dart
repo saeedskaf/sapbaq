@@ -13,8 +13,13 @@ class ColorsCustom {
   static const Color primaryDark = Color(0xFF14573A);
   static const Color primaryLight = Color(0xFF4FA87D);
 
-  // Logo mint — the brand mark's chevron color
-  static const Color brandMint = Color(0xFF8ACCAB);
+  // Logo mint — the exact flat green of the logo mark (sampled from
+  // assets/images/logo/sapbaq_logo_mark.png). This is the brand's primary
+  // fill: buttons and highlighted surfaces use it with [onMint] on top.
+  static const Color brandMint = Color(0xFF87CDAA);
+
+  /// Foreground on [brandMint] fills (both modes) — brand near-black green.
+  static const Color onMint = Color(0xFF06130D);
 
   // Accent — warm gold
   static const Color secondary = Color(0xFFCFA13E);
@@ -62,12 +67,13 @@ class ColorsCustom {
   static const Color darkTextSecondary = Color(0xFFA4B5AB);
   static const Color darkTextHint = Color(0xFF6E7F76);
 
-  /// Brand green brightened to the logo mint so it stays legible as a
-  /// foreground (text/icons/borders) on dark surfaces.
-  static const Color primaryOnDark = Color(0xFF5FB98C);
+  /// Brand green on dark surfaces — the exact logo mint, which is light
+  /// enough to work as both foreground (text/icons) and fill on dark.
+  static const Color primaryOnDark = brandMint;
 
-  /// Foreground on the (brightened) primary in dark mode.
-  static const Color darkOnPrimary = Color(0xFF06130D);
+  /// Foreground on mint fills. Alias of [onMint], kept for dark-palette
+  /// symmetry.
+  static const Color darkOnPrimary = onMint;
 
   /// Subtle green-tinted chip/fill on dark (the dark counterpart of the mint
   /// [secondaryLight] tint used for icon chips).

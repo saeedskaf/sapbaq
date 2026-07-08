@@ -7,8 +7,9 @@ import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order_counts.dart';
 
 /// Admin orders list tabs. [awaiting] (needs workshop assignment) is the default
-/// working queue.
-enum AdminOrdersTab { awaiting, all, delivered, cancelled }
+/// working queue. Declaration order is the display order — «الكل» stays last
+/// (FLUTTER_TASKS item 9); [inProgress] maps to `?bucket=in_progress` (item 10).
+enum AdminOrdersTab { awaiting, inProgress, delivered, cancelled, all }
 
 class AdminOrdersState extends Equatable {
   final LoadStatus status;
@@ -80,6 +81,17 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
 
   int _page = 1;
 
+  /// An "ORD-00001"-style query is an order-code lookup (`?code=`, FLUTTER_TASKS
+  /// item 17); anything else goes through the generic `?search=`.
+  static final _codePattern = RegExp(r'^ord-?\d+$', caseSensitive: false);
+
+  ({String? search, String? code}) _searchParams() {
+    final q = state.search;
+    if (q.isEmpty) return (search: null, code: null);
+    if (_codePattern.hasMatch(q)) return (search: null, code: q.toUpperCase());
+    return (search: q, code: null);
+  }
+
   Future<void> load() => _loadFirstPage();
 
   Future<void> setTab(AdminOrdersTab tab) {
@@ -95,16 +107,20 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
     return _loadFirstPage();
   }
 
-  ({String? status, bool? awaiting}) _filterFor(AdminOrdersTab tab) {
+  ({String? status, bool? awaiting, String? bucket}) _filterFor(
+    AdminOrdersTab tab,
+  ) {
     switch (tab) {
       case AdminOrdersTab.awaiting:
-        return (status: null, awaiting: true);
-      case AdminOrdersTab.all:
-        return (status: null, awaiting: null);
+        return (status: null, awaiting: true, bucket: null);
+      case AdminOrdersTab.inProgress:
+        return (status: null, awaiting: null, bucket: 'in_progress');
       case AdminOrdersTab.delivered:
-        return (status: 'DELIVERED', awaiting: null);
+        return (status: 'DELIVERED', awaiting: null, bucket: null);
       case AdminOrdersTab.cancelled:
-        return (status: 'CANCELLED', awaiting: null);
+        return (status: 'CANCELLED', awaiting: null, bucket: null);
+      case AdminOrdersTab.all:
+        return (status: null, awaiting: null, bucket: null);
     }
   }
 
@@ -118,11 +134,14 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
     ));
     final f = _filterFor(state.tab);
     try {
+      final q = _searchParams();
       final page = await _repo.fetchOrders(
         page: 1,
         status: f.status,
         awaitingAssignment: f.awaiting,
-        search: state.search.isEmpty ? null : state.search,
+        bucket: f.bucket,
+        search: q.search,
+        code: q.code,
       );
       emit(state.copyWith(
         status: LoadStatus.success,
@@ -140,9 +159,7 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
   /// failure here is swallowed rather than failing the list.
   Future<void> _refreshCounts() async {
     try {
-      final counts = await _repo.fetchCounts(
-        search: state.search.isEmpty ? null : state.search,
-      );
+      final counts = await _repo.fetchCounts(search: _searchParams().search);
       if (!isClosed) emit(state.copyWith(counts: counts));
     } on ApiException {
       // ignore — keep the last known counts (or none).
@@ -158,11 +175,14 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
     emit(state.copyWith(loadingMore: true));
     final f = _filterFor(state.tab);
     try {
+      final q = _searchParams();
       final page = await _repo.fetchOrders(
         page: _page + 1,
         status: f.status,
         awaitingAssignment: f.awaiting,
-        search: state.search.isEmpty ? null : state.search,
+        bucket: f.bucket,
+        search: q.search,
+        code: q.code,
       );
       _page += 1;
       emit(state.copyWith(

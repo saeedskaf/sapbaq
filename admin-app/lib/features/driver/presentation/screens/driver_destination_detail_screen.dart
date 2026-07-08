@@ -104,7 +104,7 @@ class _DetailView extends StatelessWidget {
             title: TextCustom.subheading(
               text: dest == null
                   ? l10n.deliveryDetailsTitle
-                  : l10n.orderRefShort(dest.shortReference),
+                  : l10n.orderRefShort(dest.displayCode),
             ),
           ),
           body: _body(context, state, l10n),
@@ -258,7 +258,7 @@ class _ActionBar extends StatelessWidget {
           text: l10n.startDeliveryButton,
           icon: const Icon(
             Icons.local_shipping_outlined,
-            color: ColorsCustom.textOnPrimary,
+            color: ColorsCustom.onMint,
             size: 20,
           ),
           isLoading: acting,
@@ -271,7 +271,7 @@ class _ActionBar extends StatelessWidget {
           text: l10n.uploadProofButton,
           icon: const Icon(
             Icons.camera_alt_outlined,
-            color: ColorsCustom.textOnPrimary,
+            color: ColorsCustom.onMint,
             size: 20,
           ),
           onPressed: onUploadProof,

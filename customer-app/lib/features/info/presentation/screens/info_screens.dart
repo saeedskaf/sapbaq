@@ -134,8 +134,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final logo = isDark ? AppAssets.logoFullOnDark : AppAssets.logoFullOnLight;
+    const logo = AppAssets.logoFull;
     return BlocProvider(
       create: (context) =>
           ContentCubit(context.read<ContentRepository>(), 'about')..load(),

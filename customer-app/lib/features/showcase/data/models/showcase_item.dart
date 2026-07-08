@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 /// video of charity work. [file] and [thumbnail] are absolute URLs.
 class ShowcaseItem extends Equatable {
   final int id;
+  final int? section; // owning section id (null = ungrouped)
   final String title;
   final String description;
   final String mediaType; // IMAGE | VIDEO
@@ -18,6 +19,7 @@ class ShowcaseItem extends Equatable {
     required this.description,
     required this.mediaType,
     required this.file,
+    this.section,
     this.thumbnail,
     this.sortOrder = 0,
     this.createdAt,
@@ -28,6 +30,7 @@ class ShowcaseItem extends Equatable {
   factory ShowcaseItem.fromJson(Map<String, dynamic> json) {
     return ShowcaseItem(
       id: json['id'] as int,
+      section: json['section'] as int?,
       title: (json['title'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       mediaType: (json['media_type'] ?? 'IMAGE').toString(),
@@ -41,6 +44,7 @@ class ShowcaseItem extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    section,
     title,
     description,
     mediaType,

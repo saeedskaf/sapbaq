@@ -21,22 +21,32 @@ class AdminRepository {
   AdminRepository(this._dio);
 
   /// One page of the admin orders list with optional filters.
+  ///
+  /// [ordering] is omitted by default so the server default applies (FLUTTER_TASKS
+  /// items 5+8: oldest-first for service handlers, `-status_updated_at` for
+  /// managers). [bucket] `in_progress` selects orders with an ASSIGNED or
+  /// IN_DELIVERY destination (item 10).
   Future<PaginatedResponse<AdminOrderSummary>> fetchOrders({
     int page = 1,
     String? status,
     bool? awaitingAssignment,
+    String? bucket,
     int? mosque,
     int? workshop,
     String? search,
-    String ordering = '-created_at',
+    String? code,
+    String? ordering,
   }) {
     return guardApi(() async {
-      final params = <String, dynamic>{'page': page, 'ordering': ordering};
+      final params = <String, dynamic>{'page': page};
+      if (ordering != null && ordering.isNotEmpty) params['ordering'] = ordering;
       if (status != null && status.isNotEmpty) params['status'] = status;
       if (awaitingAssignment == true) params['awaiting_assignment'] = 'true';
+      if (bucket != null && bucket.isNotEmpty) params['bucket'] = bucket;
       if (mosque != null) params['mosque'] = mosque;
       if (workshop != null) params['workshop'] = workshop;
       if (search != null && search.isNotEmpty) params['search'] = search;
+      if (code != null && code.isNotEmpty) params['code'] = code;
       final res = await _dio.get(
         ApiEndpoints.adminOrders,
         queryParameters: params,
@@ -351,11 +361,13 @@ class AdminRepository {
   Future<List<CustomerLookupResult>> lookupCustomers({
     String? phone,
     String? q,
+    int? id,
   }) {
     return guardApi(() async {
       final params = <String, dynamic>{};
       if (phone != null && phone.isNotEmpty) params['phone'] = phone;
       if (q != null && q.isNotEmpty) params['q'] = q;
+      if (id != null) params['id'] = id;
       final res = await _dio.get(
         ApiEndpoints.adminCustomerLookup,
         queryParameters: params,

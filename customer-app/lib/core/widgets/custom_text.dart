@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 
 /// Text widget that auto-detects Arabic vs Latin script and applies the
-/// matching font and direction. Arabic uses Tajawal, Latin uses Poppins.
+/// matching font and direction. Arabic uses IBM Plex Sans Arabic, Latin uses
+/// Poppins — the two share near-identical vertical metrics (1.5em line box),
+/// so mixed-language layouts align without any per-script adjustments.
 ///
 /// When [color] is omitted the text resolves to a theme-aware default
 /// (primary text color, or secondary for [TextCustom.caption]) so it stays
@@ -88,13 +90,13 @@ class TextCustom extends StatelessWidget {
     this.letterSpacing,
   }) : _secondaryDefault = true;
 
-  TextStyle _arabicStyle(Color c) => GoogleFonts.tajawal(
+  TextStyle _arabicStyle(Color c) => GoogleFonts.ibmPlexSansArabic(
     fontSize: fontSize,
     color: c,
     fontWeight: fontWeight,
     decoration: decoration,
     letterSpacing: letterSpacing ?? 0,
-  ).copyWith(leadingDistribution: TextLeadingDistribution.even);
+  );
 
   TextStyle _latinStyle(Color c) => GoogleFonts.poppins(
     fontSize: fontSize,
@@ -102,12 +104,13 @@ class TextCustom extends StatelessWidget {
     fontWeight: fontWeight,
     decoration: decoration,
     letterSpacing: letterSpacing ?? 0,
-  ).copyWith(leadingDistribution: TextLeadingDistribution.even);
+  );
 
   @override
   Widget build(BuildContext context) {
     final hasArabic = text.contains(RegExp(r'[؀-ۿ]'));
-    final effectiveColor = color ??
+    final effectiveColor =
+        color ??
         (_secondaryDefault
             ? context.colors.textSecondary
             : context.colors.textPrimary);
@@ -118,7 +121,9 @@ class TextCustom extends StatelessWidget {
       maxLines: maxLines,
       textAlign: textAlign,
       textDirection: hasArabic ? TextDirection.rtl : TextDirection.ltr,
-      style: hasArabic ? _arabicStyle(effectiveColor) : _latinStyle(effectiveColor),
+      style: hasArabic
+          ? _arabicStyle(effectiveColor)
+          : _latinStyle(effectiveColor),
     );
   }
 }

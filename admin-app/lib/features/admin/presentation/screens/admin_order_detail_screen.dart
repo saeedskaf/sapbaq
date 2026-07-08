@@ -247,7 +247,7 @@ class _DetailView extends StatelessWidget {
             title: TextCustom.subheading(
               text: order == null
                   ? l10n.orderDetailsTitle
-                  : l10n.orderRefShort(order.shortReference),
+                  : l10n.orderRefShort(order.displayCode),
             ),
             actions: [
               if (order != null)
@@ -685,7 +685,7 @@ class _ActionBar extends StatelessWidget {
               text: l10n.assignToTeamLeaderButton,
               icon: const Icon(
                 Icons.groups_outlined,
-                color: ColorsCustom.textOnPrimary,
+                color: ColorsCustom.onMint,
                 size: 20,
               ),
               onPressed: onAssign,
@@ -816,6 +816,32 @@ class _ProofStrip extends StatelessWidget {
               itemBuilder: (context, i) => _ProofThumb(proof: proofs[i]),
             ),
           ),
+          // The handler's note written at upload time (FLUTTER_TASKS item 6),
+          // shown once per distinct note so it also covers video/audio proofs.
+          for (final note in {
+            for (final p in proofs)
+              if (p.note.trim().isNotEmpty) p.note.trim(),
+          }) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.sticky_note_2_outlined,
+                  size: 14,
+                  color: ColorsCustom.textHint,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: TextCustom(
+                    text: note,
+                    fontSize: 12.5,
+                    color: ColorsCustom.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

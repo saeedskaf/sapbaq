@@ -2,7 +2,7 @@ name: sapbaq_admin
 description: "Sapbaq Admin & Driver — management and delivery companion for the Sapbaq ecosystem."
 publish_to: 'none'
 
-version: 1.0.0+2
+version: 1.0.0+4
 
 environment:
   sdk: ^3.11.0
@@ -67,18 +67,18 @@ dev_dependencies:
   #   dart run flutter_launcher_icons
   flutter_launcher_icons: ^0.14.4
 
-# Launcher icon: a DEEP-GREEN Sapbaq arrow mark on MINT — deliberately distinct
-# from the customer app (mint mark on near-black) so the two are easy to tell
-# apart on the home screen. Android uses an adaptive icon (mint background +
-# the deep-green mark foreground); iOS flattens onto mint.
+# Launcher icon: the Sapbaq mark (black arrows + white dots/dashes, no wordmark)
+# on MINT — deliberately distinct from the customer app (mint arrows on black)
+# so the two are easy to tell apart on the home screen. Android uses an adaptive
+# icon (mint background + the black mark foreground); iOS flattens onto mint.
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
-  background_color_ios: "#8ACCAB"
-  adaptive_icon_background: "#8ACCAB"
+  background_color_ios: "#87CDAA"
+  adaptive_icon_background: "#87CDAA"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
 
 flutter:
@@ -89,6 +89,6 @@ flutter:
 
   assets:
     - assets/images/logo/
-    # Bundled Tajawal (Arabic) + Poppins (Latin) so google_fonts uses these
+    # Bundled IBM Plex Sans Arabic (Arabic) + Poppins (Latin) so google_fonts uses these
     # instead of fetching from fonts.gstatic.com at runtime (works offline).
     - assets/google_fonts/

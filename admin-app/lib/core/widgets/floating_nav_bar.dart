@@ -99,7 +99,7 @@ class FloatingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = background ?? ColorsCustom.surface.withValues(alpha: 0.60);
     final indicator =
-        indicatorColor ?? ColorsCustom.primary.withValues(alpha: 0.16);
+        indicatorColor ?? ColorsCustom.brandMint.withValues(alpha: 0.35);
     final active = activeColor ?? ColorsCustom.primary;
     final inactive = inactiveColor ?? ColorsCustom.textHint;
     final border = borderColor ?? Colors.white.withValues(alpha: 0.55);

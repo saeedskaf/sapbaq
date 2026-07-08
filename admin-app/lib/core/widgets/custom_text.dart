@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 /// Text widget that auto-detects Arabic vs Latin script and applies the
-/// matching font and direction. Arabic uses Tajawal, Latin uses Poppins.
+/// matching font and direction. Arabic uses IBM Plex Sans Arabic, Latin uses
+/// Poppins — the two share near-identical vertical metrics (1.5em line box),
+/// so mixed-language layouts align without any per-script adjustments.
 class TextCustom extends StatelessWidget {
   final String text;
   final double fontSize;
@@ -80,13 +82,13 @@ class TextCustom extends StatelessWidget {
     this.letterSpacing,
   });
 
-  TextStyle get _arabicStyle => GoogleFonts.tajawal(
+  TextStyle get _arabicStyle => GoogleFonts.ibmPlexSansArabic(
     fontSize: fontSize,
     color: color,
     fontWeight: fontWeight,
     decoration: decoration,
     letterSpacing: letterSpacing ?? 0,
-  ).copyWith(leadingDistribution: TextLeadingDistribution.even);
+  );
 
   TextStyle get _latinStyle => GoogleFonts.poppins(
     fontSize: fontSize,
@@ -94,7 +96,7 @@ class TextCustom extends StatelessWidget {
     fontWeight: fontWeight,
     decoration: decoration,
     letterSpacing: letterSpacing ?? 0,
-  ).copyWith(leadingDistribution: TextLeadingDistribution.even);
+  );
 
   @override
   Widget build(BuildContext context) {

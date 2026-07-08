@@ -24,11 +24,14 @@ class BannersCubit extends Cubit<BannersState> {
   BannersCubit(this._repo) : super(const BannersState());
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(const BannersState(status: LoadStatus.loading));
     try {
       final banners = await _repo.fetchBanners();
+      if (isClosed) return;
       emit(BannersState(status: LoadStatus.success, banners: banners));
     } catch (_) {
+      if (isClosed) return;
       emit(const BannersState(status: LoadStatus.failure));
     }
   }

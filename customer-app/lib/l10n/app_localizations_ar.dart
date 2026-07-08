@@ -74,7 +74,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteAccountConfirmBody =>
-      'سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. أدخل كلمة المرور للتأكيد.';
+      'سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. سنرسل رمز تأكيد إلى رقم هاتفك للمتابعة.';
 
   @override
   String get deleteAccountWhatRemoved =>
@@ -494,7 +494,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String orderRef(String ref) {
-    return 'طلب #$ref';
+    return 'طلب $ref';
   }
 
   @override
@@ -678,10 +678,103 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginTitle => 'تسجيل الدخول';
 
   @override
-  String get loginSubtitle => 'مرحبًا بعودتك، سجّل الدخول للمتابعة';
+  String get loginSubtitle => 'سجّل الدخول أو أنشئ حسابك للمتابعة';
 
   @override
   String get loginButton => 'دخول';
+
+  @override
+  String get continueWithGoogle => 'المتابعة عبر Google';
+
+  @override
+  String get continueWithApple => 'المتابعة عبر Apple';
+
+  @override
+  String get orSeparator => 'أو';
+
+  @override
+  String get verifyPhoneTitle => 'توثيق رقم الهاتف';
+
+  @override
+  String get verifyPhoneSubtitle => 'أدخل رقم هاتفك لتأكيد حسابك';
+
+  @override
+  String get changeNumber => 'تغيير الرقم';
+
+  @override
+  String get useDifferentAccount => 'الدخول بحساب آخر';
+
+  @override
+  String get completeProfileTitle => 'إكمال الملف الشخصي';
+
+  @override
+  String get completeProfileSubtitle => 'أدخل اسمك وبريدك الإلكتروني للمتابعة';
+
+  @override
+  String get firstNameLabel => 'الاسم الأول';
+
+  @override
+  String get middleNameLabel => 'الاسم الأوسط (اختياري)';
+
+  @override
+  String get lastNameLabel => 'اسم العائلة';
+
+  @override
+  String get continueButton => 'متابعة';
+
+  @override
+  String get deleteAccountSendCode => 'إرسال رمز التأكيد';
+
+  @override
+  String get passkeySignIn => 'الدخول عبر مفتاح المرور';
+
+  @override
+  String get passkeysTitle => 'مفاتيح المرور';
+
+  @override
+  String get passkeysDescription =>
+      'مفاتيح المرور تتيح دخولًا سريعًا وآمنًا ببصمتك أو وجهك أو رمز جهازك، بدون رموز تحقق.';
+
+  @override
+  String get passkeyAddButton => 'إضافة مفتاح مرور لهذا الجهاز';
+
+  @override
+  String get passkeyRegistered => 'تم تفعيل مفتاح المرور';
+
+  @override
+  String get passkeyNoDevices => 'لا توجد مفاتيح مرور مسجّلة بعد.';
+
+  @override
+  String get passkeyUnnamedDevice => 'جهاز غير مسمّى';
+
+  @override
+  String passkeyLastUsed(String date) {
+    return 'آخر استخدام: $date';
+  }
+
+  @override
+  String get passkeyDeleteTitle => 'حذف مفتاح المرور؟';
+
+  @override
+  String passkeyDeleteBody(String device) {
+    return 'لن تتمكن من الدخول السريع عبر «$device» بعد الحذف.';
+  }
+
+  @override
+  String get passkeyDeleteAction => 'حذف';
+
+  @override
+  String get passkeyNotSupported => 'هذا الجهاز لا يدعم مفاتيح المرور.';
+
+  @override
+  String get passkeyNoneOnDevice =>
+      'لا يوجد مفتاح مرور على هذا الجهاز. سجّل الدخول بطريقة أخرى ثم أضف مفتاحًا.';
+
+  @override
+  String get passkeyError => 'تعذّر استخدام مفتاح المرور. حاول مجددًا.';
+
+  @override
+  String get signInError => 'تعذّر تسجيل الدخول. حاول مرة أخرى.';
 
   @override
   String get forgotPasswordLink => 'نسيت كلمة المرور؟';

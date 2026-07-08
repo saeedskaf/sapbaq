@@ -98,6 +98,7 @@ class OrderDestination extends Equatable {
 class Order extends Equatable {
   final int id;
   final String reference;
+  final String code; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
   final String status;
   final List<OrderDestination> destinations;
   final String subtotal;
@@ -114,6 +115,7 @@ class Order extends Equatable {
     required this.subtotal,
     required this.discountAmount,
     required this.totalAmount,
+    this.code = '',
     this.customerNotes,
     this.createdAt,
   });
@@ -123,10 +125,15 @@ class Order extends Equatable {
   String get shortReference =>
       reference.length >= 8 ? reference.substring(0, 8) : reference;
 
+  /// What to show the user as the order number: the readable [code], falling
+  /// back to the reference prefix if the backend didn't send one.
+  String get displayCode => code.isNotEmpty ? code : '#$shortReference';
+
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'] as int,
       reference: (json['reference'] ?? '').toString(),
+      code: (json['code'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       destinations: (json['destinations'] as List<dynamic>? ?? const [])
           .map((e) =>

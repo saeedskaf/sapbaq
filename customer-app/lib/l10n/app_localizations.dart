@@ -227,7 +227,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccountConfirmBody.
   ///
   /// In ar, this message translates to:
-  /// **'سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. أدخل كلمة المرور للتأكيد.'**
+  /// **'سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. سنرسل رمز تأكيد إلى رقم هاتفك للمتابعة.'**
   String get deleteAccountConfirmBody;
 
   /// No description provided for @deleteAccountWhatRemoved.
@@ -1049,7 +1049,7 @@ abstract class AppLocalizations {
   /// No description provided for @orderRef.
   ///
   /// In ar, this message translates to:
-  /// **'طلب #{ref}'**
+  /// **'طلب {ref}'**
   String orderRef(String ref);
 
   /// No description provided for @destinationsCount.
@@ -1403,7 +1403,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In ar, this message translates to:
-  /// **'مرحبًا بعودتك، سجّل الدخول للمتابعة'**
+  /// **'سجّل الدخول أو أنشئ حسابك للمتابعة'**
   String get loginSubtitle;
 
   /// No description provided for @loginButton.
@@ -1411,6 +1411,180 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'دخول'**
   String get loginButton;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابعة عبر Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithApple.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابعة عبر Apple'**
+  String get continueWithApple;
+
+  /// No description provided for @orSeparator.
+  ///
+  /// In ar, this message translates to:
+  /// **'أو'**
+  String get orSeparator;
+
+  /// No description provided for @verifyPhoneTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيق رقم الهاتف'**
+  String get verifyPhoneTitle;
+
+  /// No description provided for @verifyPhoneSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رقم هاتفك لتأكيد حسابك'**
+  String get verifyPhoneSubtitle;
+
+  /// No description provided for @changeNumber.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الرقم'**
+  String get changeNumber;
+
+  /// No description provided for @useDifferentAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدخول بحساب آخر'**
+  String get useDifferentAccount;
+
+  /// No description provided for @completeProfileTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إكمال الملف الشخصي'**
+  String get completeProfileTitle;
+
+  /// No description provided for @completeProfileSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل اسمك وبريدك الإلكتروني للمتابعة'**
+  String get completeProfileSubtitle;
+
+  /// No description provided for @firstNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم الأول'**
+  String get firstNameLabel;
+
+  /// No description provided for @middleNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم الأوسط (اختياري)'**
+  String get middleNameLabel;
+
+  /// No description provided for @lastNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم العائلة'**
+  String get lastNameLabel;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة'**
+  String get continueButton;
+
+  /// No description provided for @deleteAccountSendCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال رمز التأكيد'**
+  String get deleteAccountSendCode;
+
+  /// No description provided for @passkeySignIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدخول عبر مفتاح المرور'**
+  String get passkeySignIn;
+
+  /// No description provided for @passkeysTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفاتيح المرور'**
+  String get passkeysTitle;
+
+  /// No description provided for @passkeysDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفاتيح المرور تتيح دخولًا سريعًا وآمنًا ببصمتك أو وجهك أو رمز جهازك، بدون رموز تحقق.'**
+  String get passkeysDescription;
+
+  /// No description provided for @passkeyAddButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة مفتاح مرور لهذا الجهاز'**
+  String get passkeyAddButton;
+
+  /// No description provided for @passkeyRegistered.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تفعيل مفتاح المرور'**
+  String get passkeyRegistered;
+
+  /// No description provided for @passkeyNoDevices.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مفاتيح مرور مسجّلة بعد.'**
+  String get passkeyNoDevices;
+
+  /// No description provided for @passkeyUnnamedDevice.
+  ///
+  /// In ar, this message translates to:
+  /// **'جهاز غير مسمّى'**
+  String get passkeyUnnamedDevice;
+
+  /// No description provided for @passkeyLastUsed.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر استخدام: {date}'**
+  String passkeyLastUsed(String date);
+
+  /// No description provided for @passkeyDeleteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف مفتاح المرور؟'**
+  String get passkeyDeleteTitle;
+
+  /// No description provided for @passkeyDeleteBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لن تتمكن من الدخول السريع عبر «{device}» بعد الحذف.'**
+  String passkeyDeleteBody(String device);
+
+  /// No description provided for @passkeyDeleteAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف'**
+  String get passkeyDeleteAction;
+
+  /// No description provided for @passkeyNotSupported.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الجهاز لا يدعم مفاتيح المرور.'**
+  String get passkeyNotSupported;
+
+  /// No description provided for @passkeyNoneOnDevice.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد مفتاح مرور على هذا الجهاز. سجّل الدخول بطريقة أخرى ثم أضف مفتاحًا.'**
+  String get passkeyNoneOnDevice;
+
+  /// No description provided for @passkeyError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر استخدام مفتاح المرور. حاول مجددًا.'**
+  String get passkeyError;
+
+  /// No description provided for @signInError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تسجيل الدخول. حاول مرة أخرى.'**
+  String get signInError;
 
   /// No description provided for @forgotPasswordLink.
   ///

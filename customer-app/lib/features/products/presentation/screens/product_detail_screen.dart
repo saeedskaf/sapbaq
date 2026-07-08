@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/auth/auth_guard.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/utils/media_url.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
@@ -268,14 +267,14 @@ class _ProductGalleryState extends State<_ProductGallery> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: context.colors.primary,
+                          color: context.colors.primaryFill,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextCustom(
                           text: widget.badge!,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
-                          color: ColorsCustom.textOnPrimary,
+                          color: context.colors.onPrimary,
                         ),
                       ),
                     ),
@@ -507,7 +506,7 @@ class _StepperBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: context.colors.primary,
+      color: context.colors.primaryFill,
       borderRadius: BorderRadius.circular(14),
       clipBehavior: Clip.antiAlias,
       child: SizedBox(

@@ -37,8 +37,8 @@ class ButtonCustom extends StatelessWidget {
     this.height = 48,
     this.width,
     this.icon,
-  }) : color = ColorsCustom.primary,
-       textColor = ColorsCustom.textOnPrimary,
+  }) : color = ColorsCustom.brandMint,
+       textColor = ColorsCustom.onMint,
        isOutlined = false;
 
   const ButtonCustom.secondary({
@@ -60,11 +60,11 @@ class ButtonCustom extends StatelessWidget {
 
     final Color buttonColor = isOutlined
         ? Colors.transparent
-        : (color ?? ColorsCustom.primary);
+        : (color ?? ColorsCustom.brandMint);
 
     final Color buttonTextColor = isOutlined
         ? (textColor ?? ColorsCustom.primary)
-        : (textColor ?? ColorsCustom.textOnPrimary);
+        : (textColor ?? ColorsCustom.onMint);
 
     final Color resolvedTextColor = isDisabled
         ? ColorsCustom.textHint

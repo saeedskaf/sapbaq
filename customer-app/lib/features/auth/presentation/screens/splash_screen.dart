@@ -9,13 +9,14 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Solid black with the unified logo (FLUTTER_TASKS items 1 + 16).
       body: Container(
-        decoration: const BoxDecoration(gradient: ColorsCustom.brandGradient),
+        color: Colors.black,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(AppAssets.logoFullOnDark, width: 220),
+              Image.asset(AppAssets.logoFull, width: 220),
               const SizedBox(height: 40),
               const SizedBox(
                 width: 28,

@@ -4,18 +4,32 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Auth
-  static const String signup = '/auth/signup/';
-  static const String verifyOtp = '/auth/verify-otp/';
-  static const String login = '/auth/login/';
-  static const String forgotPassword = '/auth/forgot-password/';
-  static const String resetPassword = '/auth/reset-password/';
+  // Auth — passwordless (Google / Apple / phone OTP). No passwords.
+  // Public (no token):
+  static const String otpRequest = '/auth/otp/request/';
+  static const String otpVerify = '/auth/otp/verify/';
+  static const String socialGoogle = '/auth/social/google/';
+  static const String socialApple = '/auth/social/apple/';
   static const String refresh = '/auth/refresh/';
+  // Authenticated (Bearer):
+  static const String phoneRequest = '/auth/phone/request/';
+  static const String phoneVerify = '/auth/phone/verify/';
+  static const String profileComplete = '/auth/profile/complete/';
   static const String me = '/auth/me/';
+  // Passkeys (WebAuthn). Login begin/complete are public; the rest need a token.
+  static const String passkeyRegisterBegin = '/auth/passkey/register/begin/';
+  static const String passkeyRegisterComplete =
+      '/auth/passkey/register/complete/';
+  static const String passkeyLoginBegin = '/auth/passkey/login/begin/';
+  static const String passkeyLoginComplete = '/auth/passkey/login/complete/';
+  static const String passkeyDevices = '/auth/passkey/devices/';
+  static String passkeyDevice(int id) => '/auth/passkey/devices/$id/';
 
   // Browse
   static const String banners = '/banners/';
   static const String showcase = '/showcase/'; // public media gallery
+  static const String showcaseSections =
+      '/showcase/sections/'; // gallery grouped by section
   static const String mosques = '/mosques/';
   static const String mosquesMap = '/mosques/map/';
   static String mosque(int id) => '/mosques/$id/';

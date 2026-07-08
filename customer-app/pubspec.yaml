@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ^3.11.0
@@ -76,6 +76,19 @@ dependencies:
   # Pick an image (gallery/camera) to attach to a support-ticket reply.
   image_picker: ^1.1.2
 
+  # Renders the official multicolor Google "G" mark (inline SVG) on the branded
+  # sign-in button — the mark stays multicolor in both themes per Google's spec.
+  flutter_svg: ^2.0.17
+
+  # Passwordless auth: social sign-in (Google/Apple) + phone OTP. No passwords.
+  google_sign_in: ^6.3.0
+  sign_in_with_apple: ^6.1.4
+  # SHA-256 of the Apple sign-in nonce (raw nonce sent to Apple, hash to server).
+  crypto: ^3.0.6
+  # Passkeys (WebAuthn) for fast daily sign-in. Server drives the challenge; this
+  # bridges the platform authenticator (Face ID / fingerprint / device PIN).
+  passkeys: ^2.4.0
+
 # Pin the iOS/macOS path_provider impl to 2.5.1 — the latest WITHOUT the
 # experimental `objective_c` native-assets dependency (2.5.0 & 2.6.0 add it,
 # which fails to load at runtime on stable Flutter). Pulled in via google_fonts.
@@ -97,17 +110,17 @@ dev_dependencies:
   #   dart run flutter_launcher_icons
   flutter_launcher_icons: ^0.14.4
 
-# Launcher icon: the mint Sapbaq arrow mark on near-black. Android uses an
-# adaptive icon (near-black background + the mark foreground); iOS flattens
-# onto near-black.
+# Launcher icon: the Sapbaq mark (mint arrows + white dots/dashes, no wordmark)
+# on black. Android uses an adaptive icon (black background + the mark
+# foreground); iOS flattens onto black.
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
-  background_color_ios: "#101513"
-  adaptive_icon_background: "#101513"
+  background_color_ios: "#000000"
+  adaptive_icon_background: "#000000"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
 
 # For information on the generic Dart part of this file, see the
@@ -126,7 +139,7 @@ flutter:
 
   assets:
     - assets/images/logo/
-    # Bundled Tajawal (Arabic) + Poppins (Latin) so google_fonts uses these
+    # Bundled IBM Plex Sans Arabic (Arabic) + Poppins (Latin) so google_fonts uses these
     # instead of fetching from fonts.gstatic.com at runtime (works offline).
     - assets/google_fonts/
 

@@ -147,7 +147,7 @@ class _FilterButton extends StatelessWidget {
         final active = cubit.hasActiveFilters;
         return Material(
           color: active
-              ? context.colors.primary
+              ? context.colors.primaryFill
               : context.colors.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
           clipBehavior: Clip.antiAlias,

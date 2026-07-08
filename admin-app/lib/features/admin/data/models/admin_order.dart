@@ -9,12 +9,14 @@ import 'package:sapbaq_admin/features/shared/data/models/payment.dart';
 class AdminOrderSummary extends Equatable {
   final int id;
   final String reference;
+  final String code; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
   final String status;
   final OrderCustomer? customer;
   final String totalAmount;
   final int destinationCount;
   final bool awaitingAssignment;
   final String? createdAt;
+  final String? statusUpdatedAt; // last status change (item 8)
 
   const AdminOrderSummary({
     required this.id,
@@ -23,17 +25,24 @@ class AdminOrderSummary extends Equatable {
     required this.totalAmount,
     required this.destinationCount,
     required this.awaitingAssignment,
+    this.code = '',
     this.customer,
     this.createdAt,
+    this.statusUpdatedAt,
   });
 
   String get shortReference =>
       reference.length >= 8 ? reference.substring(0, 8) : reference;
 
+  /// What to show the user as the order number: the readable [code], falling
+  /// back to the reference prefix if the backend didn't send one.
+  String get displayCode => code.isNotEmpty ? code : '#$shortReference';
+
   factory AdminOrderSummary.fromJson(Map<String, dynamic> json) {
     return AdminOrderSummary(
       id: json['id'] as int,
       reference: (json['reference'] ?? '').toString(),
+      code: (json['code'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       customer: json['customer'] is Map
           ? OrderCustomer.fromJson(
@@ -44,6 +53,7 @@ class AdminOrderSummary extends Equatable {
       destinationCount: json['destination_count'] as int? ?? 0,
       awaitingAssignment: json['awaiting_assignment'] as bool? ?? false,
       createdAt: json['created_at'] as String?,
+      statusUpdatedAt: json['status_updated_at'] as String?,
     );
   }
 
@@ -144,6 +154,7 @@ class AdminDestination extends Equatable {
 class AdminOrderDetail extends Equatable {
   final int id;
   final String reference;
+  final String code; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
   final String status;
   final OrderCustomer? customer;
   final String subtotal;
@@ -163,6 +174,7 @@ class AdminOrderDetail extends Equatable {
     required this.id,
     required this.reference,
     required this.status,
+    this.code = '',
     required this.subtotal,
     required this.discountAmount,
     required this.totalAmount,
@@ -181,6 +193,10 @@ class AdminOrderDetail extends Equatable {
   String get shortReference =>
       reference.length >= 8 ? reference.substring(0, 8) : reference;
 
+  /// What to show the user as the order number: the readable [code], falling
+  /// back to the reference prefix if the backend didn't send one.
+  String get displayCode => code.isNotEmpty ? code : '#$shortReference';
+
   /// Destinations still awaiting assignment (status PENDING).
   List<AdminDestination> get pendingDestinations =>
       destinations.where((d) => d.isPending).toList();
@@ -193,6 +209,7 @@ class AdminOrderDetail extends Equatable {
     return AdminOrderDetail(
       id: json['id'] as int,
       reference: (json['reference'] ?? '').toString(),
+      code: (json['code'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       customer: json['customer'] is Map
           ? OrderCustomer.fromJson(

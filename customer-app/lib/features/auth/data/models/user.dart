@@ -1,44 +1,86 @@
 import 'package:equatable/equatable.dart';
 
 /// Authenticated customer. Mirrors the API user object.
+///
+/// The account is passwordless (Google / Apple / phone OTP). [phone] is null
+/// for a fresh social sign-in until the user verifies a number; [profileCompleted]
+/// gates full app access (name + email + verified phone).
 class User extends Equatable {
   final int id;
-  final String phone;
-  final String fullName;
+  final String? phone;
+  final String firstName;
+  final String middleName;
+  final String lastName;
   final String email;
+  final bool emailVerified;
+  final bool profileCompleted;
   final String userType;
-  final bool isPhoneVerified;
   final String? dateJoined;
 
   const User({
     required this.id,
-    required this.phone,
-    required this.fullName,
+    this.phone,
+    this.firstName = '',
+    this.middleName = '',
+    this.lastName = '',
     this.email = '',
+    this.emailVerified = false,
+    this.profileCompleted = false,
     this.userType = 'CUSTOMER',
-    this.isPhoneVerified = false,
     this.dateJoined,
   });
 
+  /// Display name — the name parts joined, skipping blanks. Parsing already
+  /// falls back to splitting the server's `full_name`, so this stays populated
+  /// even when only the combined field is sent.
+  String get fullName => [firstName, middleName, lastName]
+      .where((p) => p.trim().isNotEmpty)
+      .join(' ')
+      .trim();
+
   factory User.fromJson(Map<String, dynamic> json) {
+    final parts = _namePartsFrom(json);
     return User(
       id: json['id'] as int,
-      phone: (json['phone'] ?? '').toString(),
-      fullName: (json['full_name'] ?? '').toString(),
+      phone: (json['phone'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : (json['phone'] as String),
+      firstName: parts.$1,
+      middleName: parts.$2,
+      lastName: parts.$3,
       email: (json['email'] ?? '').toString(),
+      emailVerified: json['email_verified'] as bool? ?? false,
+      profileCompleted: json['profile_completed'] as bool? ?? false,
       userType: (json['user_type'] ?? 'CUSTOMER').toString(),
-      isPhoneVerified: json['is_phone_verified'] as bool? ?? false,
       dateJoined: json['date_joined'] as String?,
     );
+  }
+
+  /// Prefer explicit name parts; fall back to splitting `full_name` so a display
+  /// name survives even if the server only sends the combined field.
+  static (String, String, String) _namePartsFrom(Map<String, dynamic> json) {
+    final first = (json['first_name'] ?? '').toString();
+    final middle = (json['middle_name'] ?? '').toString();
+    final last = (json['last_name'] ?? '').toString();
+    if (first.isNotEmpty || last.isNotEmpty) return (first, middle, last);
+    final full = (json['full_name'] ?? '').toString().trim();
+    if (full.isEmpty) return ('', '', '');
+    final tokens = full.split(RegExp(r'\s+'));
+    if (tokens.length == 1) return (tokens.first, '', '');
+    return (tokens.first, tokens.sublist(1, tokens.length - 1).join(' '), tokens.last);
   }
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'phone': phone,
+    'first_name': firstName,
+    'middle_name': middleName,
+    'last_name': lastName,
     'full_name': fullName,
     'email': email,
+    'email_verified': emailVerified,
+    'profile_completed': profileCompleted,
     'user_type': userType,
-    'is_phone_verified': isPhoneVerified,
     'date_joined': dateJoined,
   };
 
@@ -46,9 +88,12 @@ class User extends Equatable {
   List<Object?> get props => [
     id,
     phone,
-    fullName,
+    firstName,
+    middleName,
+    lastName,
     email,
+    emailVerified,
+    profileCompleted,
     userType,
-    isPhoneVerified,
   ];
 }

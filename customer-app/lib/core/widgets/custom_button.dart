@@ -60,7 +60,7 @@ class ButtonCustom extends StatelessWidget {
 
     final Color buttonColor = isOutlined
         ? Colors.transparent
-        : (color ?? context.colors.primary);
+        : (color ?? context.colors.primaryFill);
 
     final Color buttonTextColor = isOutlined
         ? (textColor ?? context.colors.primary)

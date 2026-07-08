@@ -4,5 +4,15 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<!-- Passkeys (WebAuthn): the RP ID = API domain. Pairs with the server's
+	     /.well-known/apple-app-site-association (webcredentials). -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:sapbaq.albairakgroup.com</string>
+	</array>
 </dict>
 </plist>

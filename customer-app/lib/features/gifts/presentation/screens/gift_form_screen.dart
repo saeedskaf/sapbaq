@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/utils/media_url.dart';
 import 'package:sapbaq/core/utils/form_validators.dart';
@@ -198,12 +197,12 @@ class _GiftFormScreenState extends State<GiftFormScreen> {
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: _selectedCategory?.id == category.id
-                            ? ColorsCustom.textOnPrimary
+                            ? context.colors.onPrimary
                             : context.colors.textSecondary,
                       ),
                       selected: _selectedCategory?.id == category.id,
                       showCheckmark: false,
-                      selectedColor: context.colors.primary,
+                      selectedColor: context.colors.primaryFill,
                       backgroundColor: context.colors.surfaceVariant,
                       side: BorderSide.none,
                       onSelected: (_) => _onCategorySelected(category),

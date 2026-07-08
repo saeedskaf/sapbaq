@@ -81,9 +81,10 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
                   n == null ? label : '$label ($n)';
               final labels = [
                 withCount(l10n.tabAwaiting, counts?.awaitingAssignment),
-                withCount(l10n.tabAll, counts?.all),
+                withCount(l10n.tabInProgress, counts?.inProgress),
                 withCount(l10n.tabDelivered, counts?.delivered),
                 withCount(l10n.tabCancelled, counts?.cancelled),
+                withCount(l10n.tabAll, counts?.all),
               ];
               return FilterTabs(
                 labels: labels,

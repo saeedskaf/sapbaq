@@ -13,10 +13,12 @@ import 'package:sapbaq/features/showcase/presentation/bloc/showcase_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 /// "الوسائط" tab — a public gallery of admin-uploaded photos/videos of
-/// charity work, laid out as a clean, uniform 2-column grid of cover-filled
-/// tiles. A title (when present) sits in a soft gradient caption over the
-/// image, and videos carry a play badge. Tapping opens the full, uncropped
-/// media: images in an in-app zoom viewer, videos in an in-app player.
+/// charity work, grouped into titled sections (FLUTTER_TASKS item 14). Each
+/// section renders a header followed by a uniform 2-column grid of
+/// cover-filled tiles. A title (when present) sits in a soft gradient caption
+/// over the image, and videos carry a play badge. Tapping opens the full,
+/// uncropped media: images in an in-app zoom viewer, videos in an in-app
+/// player.
 class ShowcaseScreen extends StatelessWidget {
   const ShowcaseScreen({super.key});
 
@@ -53,7 +55,7 @@ class ShowcaseScreen extends StatelessWidget {
                   onRetry: () => context.read<ShowcaseCubit>().load(),
                 );
               case LoadStatus.success:
-                if (state.items.isEmpty) {
+                if (state.isEmpty) {
                   return EmptyView(
                     message: l10n.emptyMedia,
                     icon: Icons.collections_outlined,
@@ -62,31 +64,83 @@ class ShowcaseScreen extends StatelessWidget {
                 return RefreshIndicator(
                   color: context.colors.primary,
                   onRefresh: () => context.read<ShowcaseCubit>().load(),
-                  child: GridView.builder(
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      8,
-                      16,
-                      floatingNavBarClearance(context),
-                    ),
+                  child: CustomScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          // Uniform square tiles for a clean, even gallery.
-                          childAspectRatio: 1,
+                    slivers: [
+                      for (final section in state.sections)
+                        if (section.items.isNotEmpty) ...[
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+                            sliver: SliverToBoxAdapter(
+                              child: _SectionHeader(
+                                title: section.title,
+                                description: section.description,
+                              ),
+                            ),
+                          ),
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            sliver: SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 12,
+                                    crossAxisSpacing: 12,
+                                    // Uniform square tiles for a clean grid.
+                                    childAspectRatio: 1,
+                                  ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, i) =>
+                                    _ShowcaseCard(item: section.items[i]),
+                                childCount: section.items.length,
+                              ),
+                            ),
+                          ),
+                        ],
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: floatingNavBarClearance(context),
                         ),
-                    itemCount: state.items.length,
-                    itemBuilder: (context, i) =>
-                        _ShowcaseCard(item: state.items[i]),
+                      ),
+                    ],
                   ),
                 );
             }
           },
         ),
       ),
+    );
+  }
+}
+
+/// Section title + optional description above each grid block.
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String description;
+  const _SectionHeader({required this.title, required this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextCustom(
+          text: title,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: context.colors.textPrimary,
+        ),
+        if (description.isNotEmpty) ...[
+          const SizedBox(height: 3),
+          TextCustom(
+            text: description,
+            fontSize: 12.5,
+            color: context.colors.textSecondary,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
     );
   }
 }

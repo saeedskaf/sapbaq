@@ -10,6 +10,7 @@ class DriverDestination extends Equatable {
   final int id;
   final int orderId;
   final String orderReference;
+  final String orderCode; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
   final String destinationType; // MOSQUE | MOST_NEEDED
   final String label;
   final String status; // ASSIGNED | IN_DELIVERY | DELIVERED | ...
@@ -32,6 +33,7 @@ class DriverDestination extends Equatable {
     required this.status,
     required this.subtotal,
     required this.items,
+    this.orderCode = '',
     this.mosque,
     this.customer,
     this.customerNotes,
@@ -56,11 +58,16 @@ class DriverDestination extends Equatable {
       ? orderReference.substring(0, 8)
       : orderReference;
 
+  /// What to show the user as the order number: the readable [orderCode],
+  /// falling back to the reference prefix if the backend didn't send one.
+  String get displayCode => orderCode.isNotEmpty ? orderCode : '#$shortReference';
+
   factory DriverDestination.fromJson(Map<String, dynamic> json) {
     return DriverDestination(
       id: json['id'] as int,
       orderId: json['order_id'] as int? ?? 0,
       orderReference: (json['order_reference'] ?? '').toString(),
+      orderCode: (json['order_code'] ?? '').toString(),
       destinationType: (json['destination_type'] ?? 'MOSQUE').toString(),
       label: (json['label'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),

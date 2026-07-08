@@ -9,11 +9,11 @@ import 'package:sapbaq/features/addresses/presentation/screens/address_form_scre
 import 'package:sapbaq/features/addresses/presentation/screens/addresses_screen.dart';
 import 'package:sapbaq/features/app_shell/presentation/app_shell.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:sapbaq/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/login_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/otp_screen.dart';
-import 'package:sapbaq/features/auth/presentation/screens/reset_password_screen.dart';
-import 'package:sapbaq/features/auth/presentation/screens/signup_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/passkey_devices_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/phone_verification_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/profile_completion_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/splash_screen.dart';
 import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
 import 'package:sapbaq/features/cart/presentation/screens/cart_screen.dart';
@@ -64,6 +64,7 @@ bool _isGuestBlocked(String location) {
       location == AppRoutes.addresses ||
       location == AppRoutes.addressForm ||
       location == AppRoutes.favorites ||
+      location == AppRoutes.passkeys ||
       location == AppRoutes.support ||
       location == AppRoutes.newTicket ||
       location.startsWith('/ticket/') ||
@@ -74,12 +75,10 @@ bool _isGuestBlocked(String location) {
 /// unknown → splash, unauthenticated → auth flow, guest → shell (account flows
 /// gated), authenticated → shell.
 GoRouter createRouter(AuthBloc authBloc) {
-  const authLocations = {
-    AppRoutes.login,
-    AppRoutes.signup,
-    AppRoutes.otp,
-    AppRoutes.forgotPassword,
-    AppRoutes.resetPassword,
+  const authLocations = {AppRoutes.login, AppRoutes.otp};
+  const onboardingLocations = {
+    AppRoutes.verifyPhone,
+    AppRoutes.completeProfile,
   };
 
   return GoRouter(
@@ -90,9 +89,24 @@ GoRouter createRouter(AuthBloc authBloc) {
       final location = state.matchedLocation;
       final atSplash = location == AppRoutes.splash;
       final inAuthFlow = authLocations.contains(location);
+      final inOnboarding = onboardingLocations.contains(location);
 
       if (status == AuthStatus.unknown) {
         return atSplash ? null : AppRoutes.splash;
+      }
+      if (status == AuthStatus.completingProfile) {
+        // Signed in but not usable yet: verify a phone (if missing) then
+        // complete the profile. Keep the user inside this flow.
+        final needsPhone = authBloc.state.user?.phone == null;
+        final target = needsPhone
+            ? AppRoutes.verifyPhone
+            : AppRoutes.completeProfile;
+        if (!inOnboarding) return target;
+        // Phone now verified → advance from the phone step to profile.
+        if (!needsPhone && location == AppRoutes.verifyPhone) {
+          return AppRoutes.completeProfile;
+        }
+        return null;
       }
       if (status == AuthStatus.unauthenticated) {
         return inAuthFlow ? null : AppRoutes.login;
@@ -105,7 +119,7 @@ GoRouter createRouter(AuthBloc authBloc) {
         return null;
       }
       // authenticated
-      if (atSplash || inAuthFlow) return AppRoutes.home;
+      if (atSplash || inAuthFlow || inOnboarding) return AppRoutes.home;
       return null;
     },
     routes: [
@@ -120,11 +134,6 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, _) => const LoginScreen(),
       ),
       GoRoute(
-        path: AppRoutes.signup,
-        name: AppRoutes.signupName,
-        builder: (_, _) => const SignupScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.otp,
         name: AppRoutes.otpName,
         builder: (_, state) => OtpScreen(
@@ -132,16 +141,14 @@ GoRouter createRouter(AuthBloc authBloc) {
         ),
       ),
       GoRoute(
-        path: AppRoutes.forgotPassword,
-        name: AppRoutes.forgotPasswordName,
-        builder: (_, _) => const ForgotPasswordScreen(),
+        path: AppRoutes.verifyPhone,
+        name: AppRoutes.verifyPhoneName,
+        builder: (_, _) => const PhoneVerificationScreen(),
       ),
       GoRoute(
-        path: AppRoutes.resetPassword,
-        name: AppRoutes.resetPasswordName,
-        builder: (_, state) => ResetPasswordScreen(
-          phone: state.uri.queryParameters['phone'] ?? '',
-        ),
+        path: AppRoutes.completeProfile,
+        name: AppRoutes.completeProfileName,
+        builder: (_, _) => const ProfileCompletionScreen(),
       ),
       // Donation flow + detail screens — full-screen over the shell (pushed).
       GoRoute(
@@ -228,6 +235,11 @@ GoRouter createRouter(AuthBloc authBloc) {
         path: AppRoutes.profile,
         name: AppRoutes.profileName,
         builder: (_, _) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.passkeys,
+        name: AppRoutes.passkeysName,
+        builder: (_, _) => const PasskeyDevicesScreen(),
       ),
       GoRoute(
         path: AppRoutes.appearance,

@@ -81,6 +81,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             user: await _repo.cachedUser(),
           ),
         );
+      case AuthStatus.completingProfile:
+        emit(
+          AuthState(
+            status: AuthStatus.completingProfile,
+            user: await _repo.cachedUser(),
+          ),
+        );
       case AuthStatus.unauthenticated:
         emit(const AuthState(status: AuthStatus.unauthenticated));
       case AuthStatus.guest:
@@ -94,12 +101,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthUserRefreshed event,
     Emitter<AuthState> emit,
   ) async {
-    if (state.status != AuthStatus.authenticated) return;
+    // Re-read the cached user while keeping the current status. Used after a
+    // profile edit (authenticated) and after phone verification mid-onboarding
+    // (completingProfile) so the router sees the freshly-set phone.
+    if (state.status != AuthStatus.authenticated &&
+        state.status != AuthStatus.completingProfile) {
+      return;
+    }
     emit(
-      AuthState(
-        status: AuthStatus.authenticated,
-        user: await _repo.cachedUser(),
-      ),
+      AuthState(status: state.status, user: await _repo.cachedUser()),
     );
   }
 

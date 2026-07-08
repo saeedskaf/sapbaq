@@ -46,7 +46,11 @@ class AppTheme {
         isDark ? ColorsCustom.darkTextSecondary : ColorsCustom.textSecondary;
     final textHint = isDark ? ColorsCustom.darkTextHint : ColorsCustom.textHint;
 
-    // Brand: primary is brightened on dark so it stays legible as a foreground.
+    // Brand foreground green: deep on light, the logo mint on dark. Visible
+    // brand FILLS (buttons, FAB, selection controls) are themed explicitly to
+    // the logo mint ([ColorsCustom.brandMint] + [ColorsCustom.onMint]) in both
+    // modes; the light ColorScheme keeps white onPrimary for Material
+    // internals that pair it with the deep-green scheme primary.
     final primary = isDark ? ColorsCustom.primaryOnDark : ColorsCustom.primary;
     final onPrimary =
         isDark ? ColorsCustom.darkOnPrimary : ColorsCustom.textOnPrimary;
@@ -55,8 +59,9 @@ class AppTheme {
 
     final overlayStyle = isDark ? statusBarStyleDark : statusBarStyleLight;
 
-    // Arabic-first: Tajawal renders Arabic cleanly and has a modern feel.
-    final textTheme = GoogleFonts.tajawalTextTheme()
+    // Arabic-first: IBM Plex Sans Arabic — clean UI Arabic whose vertical
+    // metrics match Poppins (1.5em line box), so the scripts align naturally.
+    final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme()
         .apply(bodyColor: textPrimary, displayColor: textPrimary);
 
     return ThemeData(
@@ -96,8 +101,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: onPrimary,
+          backgroundColor: ColorsCustom.brandMint,
+          foregroundColor: ColorsCustom.onMint,
           disabledBackgroundColor: border,
           disabledForegroundColor: textHint,
           elevation: 0,
@@ -132,12 +137,24 @@ class AppTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return primary;
+            return ColorsCustom.brandMint;
           }
           return surface;
         }),
+        checkColor: const WidgetStatePropertyAll(ColorsCustom.onMint),
         side: BorderSide(color: primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? surface : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? ColorsCustom.brandMint
+              : null,
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -177,9 +194,9 @@ class AppTheme {
           side: BorderSide(color: border, width: 0.5),
         ),
       ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: primary,
-        foregroundColor: onPrimary,
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: ColorsCustom.brandMint,
+        foregroundColor: ColorsCustom.onMint,
         elevation: 4,
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 0.5),

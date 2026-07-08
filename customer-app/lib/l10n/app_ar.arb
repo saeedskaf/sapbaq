@@ -23,7 +23,7 @@
   "contactWhatsapp": "واتساب",
   "contactEmail": "البريد الإلكتروني",
   "deleteAccount": "حذف الحساب",
-  "deleteAccountConfirmBody": "سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. أدخل كلمة المرور للتأكيد.",
+  "deleteAccountConfirmBody": "سيتم حذف بياناتك الشخصية بشكل دائم ولا يمكن استرجاع الحساب بعد الحذف. سنرسل رمز تأكيد إلى رقم هاتفك للمتابعة.",
   "deleteAccountWhatRemoved": "سيُحذف: معلوماتك الشخصية، سلّتك الحالية، وإشعاراتك.",
   "deleteAccountWhatKept": "يبقى: سجلّ طلباتك السابقة لأغراض محاسبية.",
   "deleteAccountConfirm": "حذف الحساب نهائيًا",
@@ -179,7 +179,7 @@
   "ordersTitle": "طلباتي",
   "orderDetailsTitle": "تفاصيل الطلب",
   "emptyOrders": "لا توجد طلبات بعد",
-  "orderRef": "طلب #{ref}",
+  "orderRef": "طلب {ref}",
   "@orderRef": {
     "placeholders": { "ref": { "type": "String" } }
   },
@@ -254,8 +254,47 @@
   "otpLabel": "رمز التحقق",
 
   "loginTitle": "تسجيل الدخول",
-  "loginSubtitle": "مرحبًا بعودتك، سجّل الدخول للمتابعة",
+  "loginSubtitle": "سجّل الدخول أو أنشئ حسابك للمتابعة",
   "loginButton": "دخول",
+
+  "continueWithGoogle": "المتابعة عبر Google",
+  "continueWithApple": "المتابعة عبر Apple",
+  "orSeparator": "أو",
+
+  "verifyPhoneTitle": "توثيق رقم الهاتف",
+  "verifyPhoneSubtitle": "أدخل رقم هاتفك لتأكيد حسابك",
+  "changeNumber": "تغيير الرقم",
+  "useDifferentAccount": "الدخول بحساب آخر",
+
+  "completeProfileTitle": "إكمال الملف الشخصي",
+  "completeProfileSubtitle": "أدخل اسمك وبريدك الإلكتروني للمتابعة",
+  "firstNameLabel": "الاسم الأول",
+  "middleNameLabel": "الاسم الأوسط (اختياري)",
+  "lastNameLabel": "اسم العائلة",
+  "continueButton": "متابعة",
+  "deleteAccountSendCode": "إرسال رمز التأكيد",
+
+  "passkeySignIn": "الدخول عبر مفتاح المرور",
+  "passkeysTitle": "مفاتيح المرور",
+  "passkeysDescription": "مفاتيح المرور تتيح دخولًا سريعًا وآمنًا ببصمتك أو وجهك أو رمز جهازك، بدون رموز تحقق.",
+  "passkeyAddButton": "إضافة مفتاح مرور لهذا الجهاز",
+  "passkeyRegistered": "تم تفعيل مفتاح المرور",
+  "passkeyNoDevices": "لا توجد مفاتيح مرور مسجّلة بعد.",
+  "passkeyUnnamedDevice": "جهاز غير مسمّى",
+  "passkeyLastUsed": "آخر استخدام: {date}",
+  "@passkeyLastUsed": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "passkeyDeleteTitle": "حذف مفتاح المرور؟",
+  "passkeyDeleteBody": "لن تتمكن من الدخول السريع عبر «{device}» بعد الحذف.",
+  "@passkeyDeleteBody": {
+    "placeholders": { "device": { "type": "String" } }
+  },
+  "passkeyDeleteAction": "حذف",
+  "passkeyNotSupported": "هذا الجهاز لا يدعم مفاتيح المرور.",
+  "passkeyNoneOnDevice": "لا يوجد مفتاح مرور على هذا الجهاز. سجّل الدخول بطريقة أخرى ثم أضف مفتاحًا.",
+  "passkeyError": "تعذّر استخدام مفتاح المرور. حاول مجددًا.",
+  "signInError": "تعذّر تسجيل الدخول. حاول مرة أخرى.",
   "forgotPasswordLink": "نسيت كلمة المرور؟",
   "noAccountQuestion": "ليس لديك حساب؟",
   "createAccountLink": "أنشئ حسابًا",

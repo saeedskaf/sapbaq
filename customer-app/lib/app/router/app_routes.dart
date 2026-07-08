@@ -9,17 +9,20 @@ class AppRoutes {
   static const String login = '/login';
   static const String loginName = 'login';
 
-  static const String signup = '/signup';
-  static const String signupName = 'signup';
-
   static const String otp = '/otp';
   static const String otpName = 'otp';
 
-  static const String forgotPassword = '/forgot-password';
-  static const String forgotPasswordName = 'forgot-password';
+  // First-use onboarding for a fresh account (needs_profile). A social user with
+  // no phone verifies one here; everyone then completes name/email.
+  static const String verifyPhone = '/verify-phone';
+  static const String verifyPhoneName = 'verify-phone';
 
-  static const String resetPassword = '/reset-password';
-  static const String resetPasswordName = 'reset-password';
+  static const String completeProfile = '/complete-profile';
+  static const String completeProfileName = 'complete-profile';
+
+  // Passkey management (from Profile → account).
+  static const String passkeys = '/passkeys';
+  static const String passkeysName = 'passkeys';
 
   // --- Authenticated shell tabs ---
   static const String home = '/'; // Donation entry (Home tab)

@@ -7,6 +7,7 @@ class Escalation extends Equatable {
   final int id;
   final int? order;
   final String orderReference;
+  final String orderCode; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
   final StaffRef? raisedBy;
   final StaffRef? targetUser;
   final String targetRole;
@@ -22,6 +23,7 @@ class Escalation extends Equatable {
     required this.status,
     this.order,
     this.orderReference = '',
+    this.orderCode = '',
     this.raisedBy,
     this.targetUser,
     this.targetRole = '',
@@ -36,6 +38,10 @@ class Escalation extends Equatable {
       ? orderReference.substring(0, 8)
       : orderReference;
 
+  /// What to show the user as the order number: the readable [orderCode],
+  /// falling back to the reference prefix if the backend didn't send one.
+  String get displayCode => orderCode.isNotEmpty ? orderCode : '#$shortReference';
+
   static StaffRef? _ref(dynamic v) =>
       v is Map ? StaffRef.fromJson(Map<String, dynamic>.from(v)) : null;
 
@@ -44,6 +50,7 @@ class Escalation extends Equatable {
       id: json['id'] as int? ?? 0,
       order: json['order'] as int?,
       orderReference: (json['order_reference'] ?? '').toString(),
+      orderCode: (json['order_code'] ?? '').toString(),
       raisedBy: _ref(json['raised_by']),
       targetUser: _ref(json['target_user']),
       targetRole: (json['target_role'] ?? '').toString(),

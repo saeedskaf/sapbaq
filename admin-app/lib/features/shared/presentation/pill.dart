@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
 /// A small rounded, color-tinted label (status badge, chip, role tag).
-///
-/// Tajawal sits high in its line box — it reserves extra descent space below the
-/// glyphs — so symmetric padding makes Arabic look top-heavy. We bias the top
-/// padding by ~0.25× the font size (e.g. +3px at 12px) so the glyphs read as
-/// vertically centered. This is the one place that's handled, so every pill in
-/// the app is consistent (and matches the customer app's status badge).
 class Pill extends StatelessWidget {
   final String text;
 
@@ -35,9 +29,8 @@ class Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topBias = fontSize * 0.25;
     return Container(
-      padding: EdgeInsets.fromLTRB(hPad, vPad + topBias, hPad, vPad),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: BoxDecoration(
         color: background ?? color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(radius),

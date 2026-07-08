@@ -36,21 +36,16 @@ class FilterTabs extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
-                color: selected ? ColorsCustom.primary : Colors.transparent,
+                color: selected ? ColorsCustom.brandMint : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              // Nudge down ~1.5px so the Arabic label centers in the pill
-              // (Tajawal sits high in its line box).
-              child: Transform.translate(
-                offset: const Offset(0, 1.5),
-                child: TextCustom(
-                  text: labels[i],
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: selected
-                      ? ColorsCustom.textOnPrimary
-                      : ColorsCustom.textHint,
-                ),
+              child: TextCustom(
+                text: labels[i],
+                fontSize: 14,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                color: selected
+                    ? ColorsCustom.onMint
+                    : ColorsCustom.textHint,
               ),
             ),
           );

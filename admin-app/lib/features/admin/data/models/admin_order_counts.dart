@@ -8,6 +8,7 @@ class AdminOrderCounts extends Equatable {
   final int delivered;
   final int cancelled;
   final int awaitingAssignment;
+  final int inProgress;
   final int all;
 
   const AdminOrderCounts({
@@ -16,6 +17,7 @@ class AdminOrderCounts extends Equatable {
     this.delivered = 0,
     this.cancelled = 0,
     this.awaitingAssignment = 0,
+    this.inProgress = 0,
     this.all = 0,
   });
 
@@ -27,6 +29,7 @@ class AdminOrderCounts extends Equatable {
       delivered: read('DELIVERED'),
       cancelled: read('CANCELLED'),
       awaitingAssignment: read('awaiting_assignment'),
+      inProgress: read('in_progress'),
       all: read('all'),
     );
   }
@@ -38,6 +41,7 @@ class AdminOrderCounts extends Equatable {
     delivered,
     cancelled,
     awaitingAssignment,
+    inProgress,
     all,
   ];
 }
