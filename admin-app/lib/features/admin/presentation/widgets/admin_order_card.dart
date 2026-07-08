@@ -58,7 +58,7 @@ class AdminOrderCard extends StatelessWidget {
               const SizedBox(width: 4),
               Flexible(
                 child: TextCustom(
-                  text: '#${order.shortReference}',
+                  text: order.displayCode,
                   fontSize: 12.5,
                   color: ColorsCustom.textSecondary,
                   maxLines: 1,
@@ -90,27 +90,59 @@ class AdminOrderCard extends StatelessWidget {
                   text: l10n.awaitingAssignmentBadge,
                   color: ColorsCustom.warning,
                   fontSize: 11,
-                )
-              else if (order.createdAt != null)
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.event_outlined,
-                      size: 14,
-                      color: ColorsCustom.textHint,
-                    ),
-                    const SizedBox(width: 4),
-                    TextCustom(
-                      text: formatShortDate(order.createdAt),
-                      fontSize: 12,
-                      color: ColorsCustom.textHint,
-                    ),
-                  ],
                 ),
             ],
           ),
+          // Two dates (FLUTTER_TASKS item 8): when the order was placed and
+          // when its status last changed.
+          if (order.createdAt != null || order.statusUpdatedAt != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (order.createdAt != null)
+                  _DateChip(
+                    icon: Icons.event_outlined,
+                    label: l10n.orderDateLabel,
+                    date: formatShortDate(order.createdAt),
+                  ),
+                if (order.createdAt != null && order.statusUpdatedAt != null)
+                  const SizedBox(width: 12),
+                if (order.statusUpdatedAt != null)
+                  _DateChip(
+                    icon: Icons.update_rounded,
+                    label: l10n.lastStatusUpdateLabel,
+                    date: formatShortDate(order.statusUpdatedAt),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
+    );
+  }
+}
+
+/// Compact icon + label + date pair used on the card footer.
+class _DateChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String date;
+
+  const _DateChip({required this.icon, required this.label, required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: ColorsCustom.textHint),
+        const SizedBox(width: 4),
+        TextCustom(
+          text: '$label: $date',
+          fontSize: 12,
+          color: ColorsCustom.textHint,
+        ),
+      ],
     );
   }
 }

@@ -23,6 +23,7 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     required this.textSecondary,
     required this.textHint,
     required this.primary,
+    required this.primaryFill,
     required this.onPrimary,
     required this.primaryTint,
     required this.inputFocusFill,
@@ -49,10 +50,15 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
   /// Hint / disabled / tertiary text.
   final Color textHint;
 
-  /// Brand accent as a foreground/fill on neutral surfaces (brightened on dark).
+  /// Brand green as a foreground (text/icons/borders) on neutral surfaces:
+  /// deep green on light for contrast, the logo mint on dark.
   final Color primary;
 
-  /// Foreground placed on top of [primary] fills.
+  /// Brand fill behind [onPrimary] content (buttons, highlighted chips,
+  /// active controls) — the exact logo mint in both modes.
+  final Color primaryFill;
+
+  /// Foreground placed on top of [primaryFill] — brand near-black green.
   final Color onPrimary;
 
   /// Tinted chip background behind primary-colored icons (the mint chip).
@@ -70,7 +76,8 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     textSecondary: ColorsCustom.textSecondary,
     textHint: ColorsCustom.textHint,
     primary: ColorsCustom.primary,
-    onPrimary: ColorsCustom.textOnPrimary,
+    primaryFill: ColorsCustom.brandMint,
+    onPrimary: ColorsCustom.onMint,
     primaryTint: ColorsCustom.secondaryLight,
     inputFocusFill: ColorsCustom.inputFocusFill,
   );
@@ -84,6 +91,7 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     textSecondary: ColorsCustom.darkTextSecondary,
     textHint: ColorsCustom.darkTextHint,
     primary: ColorsCustom.primaryOnDark,
+    primaryFill: ColorsCustom.brandMint,
     onPrimary: ColorsCustom.darkOnPrimary,
     primaryTint: ColorsCustom.darkPrimaryTint,
     inputFocusFill: ColorsCustom.darkSurfaceVariant,
@@ -99,6 +107,7 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     Color? textSecondary,
     Color? textHint,
     Color? primary,
+    Color? primaryFill,
     Color? onPrimary,
     Color? primaryTint,
     Color? inputFocusFill,
@@ -112,6 +121,7 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
       textSecondary: textSecondary ?? this.textSecondary,
       textHint: textHint ?? this.textHint,
       primary: primary ?? this.primary,
+      primaryFill: primaryFill ?? this.primaryFill,
       onPrimary: onPrimary ?? this.onPrimary,
       primaryTint: primaryTint ?? this.primaryTint,
       inputFocusFill: inputFocusFill ?? this.inputFocusFill,
@@ -130,6 +140,7 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textHint: Color.lerp(textHint, other.textHint, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
+      primaryFill: Color.lerp(primaryFill, other.primaryFill, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
       primaryTint: Color.lerp(primaryTint, other.primaryTint, t)!,
       inputFocusFill: Color.lerp(inputFocusFill, other.inputFocusFill, t)!,

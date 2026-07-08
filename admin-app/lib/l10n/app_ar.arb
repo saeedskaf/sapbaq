@@ -44,7 +44,7 @@
   "navDeliveries": "التوصيلات",
   "navNotifications": "الإشعارات",
   "navProfile": "حسابي",
-  "navCustomerSearch": "بحث الزبون",
+  "navCustomerSearch": "بحث العميل",
 
   "statusPending": "قيد الانتظار",
   "statusConfirmed": "مؤكَّد",
@@ -56,7 +56,7 @@
   "typeMosque": "مسجد محدد",
   "typeMostNeeded": "الأكثر حاجة",
 
-  "orderRefShort": "طلب #{ref}",
+  "orderRefShort": "طلب {ref}",
   "@orderRefShort": {
     "placeholders": { "ref": { "type": "String" } }
   },
@@ -74,7 +74,7 @@
   },
 
   "adminOrdersTitle": "الطلبات",
-  "searchOrdersHint": "ابحث برقم الزبون أو مرجع الطلب",
+  "searchOrdersHint": "ابحث برقم العميل أو رقم الطلب (ORD-…)",
   "emptyOrders": "لا توجد طلبات",
   "ordersCount": "{count} طلب",
   "@ordersCount": {
@@ -85,14 +85,17 @@
   "tabAll": "الكل",
   "tabDelivered": "تم التوصيل",
   "tabCancelled": "ملغاة",
+  "tabInProgress": "قيد التنفيذ",
+  "orderDateLabel": "تاريخ الطلب",
+  "lastStatusUpdateLabel": "آخر تحديث",
 
   "orderDetailsTitle": "تفاصيل الطلب",
   "giftLabel": "يحتوي على إهداء",
-  "customerLabel": "الزبون",
+  "customerLabel": "العميل",
   "paymentLabel": "الدفع",
   "paymentPaid": "مدفوع",
   "paymentUnpaid": "غير مدفوع",
-  "notesLabel": "ملاحظات الزبون",
+  "notesLabel": "ملاحظات العميل",
   "destinationsLabel": "الوجهات",
   "cancelReasonLabel": "سبب الإلغاء",
   "totalLabel": "الإجمالي",
@@ -158,6 +161,7 @@
   "fromGallery": "من المعرض",
   "addVideo": "فيديو",
   "proofNoteHint": "ملاحظة (اختياري)",
+  "proofNoteDefaultDelivered": "تم إيصال وتركيب الطلب في الموقع.",
   "uploadAndFinish": "رفع وإنهاء التوصيل",
   "pickFailed": "تعذّر اختيار الملف",
   "noProofSelected": "اختر صورة أو فيديو أولاً",
@@ -190,10 +194,11 @@
   "actionReassigned": "إعادة إسناد وجهة",
   "actionCancelled": "إلغاء طلب",
 
-  "customerLookupTitle": "بحث عن زبون",
+  "customerLookupTitle": "بحث عن عميل",
   "lookupHint": "ابحث برقم الهاتف أو الاسم",
-  "lookupPrompt": "ابحث عن زبون برقم الهاتف أو الاسم لعرض سجلّه",
-  "lookupNoResults": "لا يوجد زبون مطابق",
+  "lookupPrompt": "ابحث عن عميل برقم الهاتف أو الاسم أو المعرّف (ID) لعرض سجلّه",
+  "lookupIdHint": "ID",
+  "lookupNoResults": "لا يوجد عميل مطابق",
 
   "approvalsTitle": "صندوق الموافقات",
   "emptyApprovals": "لا توجد موافقات معلّقة",

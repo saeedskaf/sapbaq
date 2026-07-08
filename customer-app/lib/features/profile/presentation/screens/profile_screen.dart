@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
@@ -12,6 +13,7 @@ import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
+import 'package:sapbaq/features/auth/data/models/user.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
@@ -23,11 +25,7 @@ import 'package:sapbaq/l10n/app_localizations.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  Future<void> _editProfile(
-    BuildContext context,
-    String currentName,
-    String currentEmail,
-  ) async {
+  Future<void> _editProfile(BuildContext context, User user) async {
     final l10n = AppLocalizations.of(context)!;
     final updated = await showModalBottomSheet<bool>(
       context: context,
@@ -39,10 +37,7 @@ class ProfileScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _EditProfileSheet(
-        initialName: currentName,
-        initialEmail: currentEmail,
-      ),
+      builder: (_) => _EditProfileSheet(user: user),
     );
     if (updated == true && context.mounted) {
       ShowMessage.success(context, l10n.profileUpdated);
@@ -85,9 +80,10 @@ class ProfileScreen extends StatelessWidget {
           if (state.status == AuthStatus.guest) {
             return const _GuestProfileView();
           }
-          final name = state.user?.fullName ?? '';
-          final phone = state.user?.phone ?? '';
-          final email = state.user?.email ?? '';
+          final user = state.user;
+          final name = user?.fullName ?? '';
+          final phone = user?.phone ?? '';
+          final email = user?.email ?? '';
           return ListView(
             padding: EdgeInsets.fromLTRB(
               16,
@@ -100,7 +96,9 @@ class ProfileScreen extends StatelessWidget {
                 name: name,
                 phone: phone,
                 email: email,
-                onEdit: () => _editProfile(context, name, email),
+                onEdit: user == null
+                    ? null
+                    : () => _editProfile(context, user),
               ),
               const SizedBox(height: 22),
               _SectionLabel(l10n.accountSection),
@@ -116,6 +114,11 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.favorite_border_rounded,
                     label: l10n.favoritesTitle,
                     onTap: () => context.pushNamed(AppRoutes.favoritesName),
+                  ),
+                  _TileData(
+                    icon: Icons.vpn_key_outlined,
+                    label: l10n.passkeysTitle,
+                    onTap: () => context.pushNamed(AppRoutes.passkeysName),
                   ),
                 ],
               ),
@@ -214,7 +217,7 @@ class _IdentityCard extends StatelessWidget {
   final String name;
   final String phone;
   final String email;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
 
   const _IdentityCard({
     required this.name,
@@ -464,12 +467,8 @@ class _ProfileTile extends StatelessWidget {
 /// Bottom sheet to edit the user's name and email. Pops `true` on success so
 /// the caller can surface a confirmation on the profile scaffold.
 class _EditProfileSheet extends StatefulWidget {
-  final String initialName;
-  final String initialEmail;
-  const _EditProfileSheet({
-    required this.initialName,
-    required this.initialEmail,
-  });
+  final User user;
+  const _EditProfileSheet({required this.user});
 
   @override
   State<_EditProfileSheet> createState() => _EditProfileSheetState();
@@ -477,17 +476,25 @@ class _EditProfileSheet extends StatefulWidget {
 
 class _EditProfileSheetState extends State<_EditProfileSheet> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController = TextEditingController(
-    text: widget.initialName,
+  late final TextEditingController _firstName = TextEditingController(
+    text: widget.user.firstName,
+  );
+  late final TextEditingController _middleName = TextEditingController(
+    text: widget.user.middleName,
+  );
+  late final TextEditingController _lastName = TextEditingController(
+    text: widget.user.lastName,
   );
   late final TextEditingController _emailController = TextEditingController(
-    text: widget.initialEmail,
+    text: widget.user.email,
   );
   bool _busy = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstName.dispose();
+    _middleName.dispose();
+    _lastName.dispose();
     _emailController.dispose();
     super.dispose();
   }
@@ -502,7 +509,9 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
     setState(() => _busy = true);
     try {
       await repo.updateProfile(
-        fullName: _nameController.text.trim(),
+        firstName: _firstName.text.trim(),
+        middleName: _middleName.text.trim(),
+        lastName: _lastName.text.trim(),
         email: _emailController.text.trim(),
       );
       authBloc.add(const AuthUserRefreshed());
@@ -546,9 +555,23 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
             TextCustom.subheading(text: l10n.editProfile),
             const SizedBox(height: 16),
             FormFieldCustom(
-              controller: _nameController,
-              label: l10n.fullNameLabel,
-              validator: validators.fullNameValidator,
+              controller: _firstName,
+              label: l10n.firstNameLabel,
+              validator: validators.requiredValidator,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 12),
+            FormFieldCustom(
+              controller: _middleName,
+              label: l10n.middleNameLabel,
+              isRequired: false,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 12),
+            FormFieldCustom(
+              controller: _lastName,
+              label: l10n.lastNameLabel,
+              validator: validators.requiredValidator,
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 12),
@@ -556,7 +579,10 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
               controller: _emailController,
               label: l10n.emailLabel,
               keyboardType: TextInputType.emailAddress,
-              validator: validators.emailValidator,
+              validator: validators.combineValidators([
+                validators.requiredValidator,
+                validators.emailValidator,
+              ]),
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _save(),
             ),
@@ -577,9 +603,9 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
 // Delete-account sheet
 // ────────────────────────────────────────────────────────────────────────────
 
-/// Bottom sheet for permanent account deletion. Requires the user's password
-/// (the backend's second confirmation on top of the JWT). Performs the deletion
-/// itself; on success the session change redirects to login.
+/// Bottom sheet for permanent account deletion. The account is passwordless, so
+/// deletion is re-authenticated with a fresh OTP: send a code to the user's
+/// phone, then confirm with it. On success the session change redirects to login.
 class _DeleteAccountSheet extends StatefulWidget {
   const _DeleteAccountSheet();
 
@@ -589,14 +615,31 @@ class _DeleteAccountSheet extends StatefulWidget {
 
 class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _passwordController = TextEditingController();
+  final _codeController = TextEditingController();
   bool _busy = false;
-  String? _serverError;
+  bool _codeSent = false;
 
   @override
   void dispose() {
-    _passwordController.dispose();
+    _codeController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendCode() async {
+    final repo = context.read<AuthRepository>();
+    setState(() => _busy = true);
+    try {
+      await repo.requestDeleteOtp();
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _codeSent = true;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ShowMessage.error(context, e.message);
+    }
   }
 
   Future<void> _delete() async {
@@ -606,21 +649,13 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
     final repo = context.read<AuthRepository>();
     setState(() => _busy = true);
     try {
-      await repo.deleteAccount(password: _passwordController.text);
+      await repo.deleteAccount(code: _codeController.text.trim());
       if (mounted) navigator.pop();
       // Session is now unauthenticated → the router redirects to login.
     } on ApiException catch (e) {
       if (!mounted) return;
-      final fieldError = e.fieldError('password');
-      setState(() {
-        _busy = false;
-        _serverError = fieldError;
-      });
-      if (fieldError != null) {
-        _formKey.currentState?.validate();
-      } else {
-        ShowMessage.error(context, e.message);
-      }
+      setState(() => _busy = false);
+      ShowMessage.error(context, e.message);
     }
   }
 
@@ -676,30 +711,39 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
             const SizedBox(height: 6),
             _DeleteBullet(text: l10n.deleteAccountWhatKept),
             const SizedBox(height: 18),
-            FormFieldCustom(
-              controller: _passwordController,
-              label: l10n.passwordLabel,
-              isPassword: true,
-              textInputAction: TextInputAction.done,
-              onChanged: (_) {
-                if (_serverError != null) setState(() => _serverError = null);
-              },
-              onSubmitted: (_) => _delete(),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return l10n.passwordRequired;
-                }
-                return _serverError;
-              },
-            ),
-            const SizedBox(height: 20),
-            ButtonCustom(
-              text: l10n.deleteAccountConfirm,
-              color: ColorsCustom.error,
-              textColor: ColorsCustom.textOnPrimary,
-              isLoading: _busy,
-              onPressed: _delete,
-            ),
+            if (!_codeSent) ...[
+              ButtonCustom(
+                text: l10n.deleteAccountSendCode,
+                color: ColorsCustom.error,
+                textColor: ColorsCustom.textOnPrimary,
+                isLoading: _busy,
+                onPressed: _busy ? null : _sendCode,
+              ),
+            ] else ...[
+              FormFieldCustom(
+                controller: _codeController,
+                label: l10n.otpLabel,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textInputAction: TextInputAction.done,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onSubmitted: (_) => _delete(),
+                validator: (value) {
+                  if (value == null || value.trim().length != 6) {
+                    return l10n.otpInvalid;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              ButtonCustom(
+                text: l10n.deleteAccountConfirm,
+                color: ColorsCustom.error,
+                textColor: ColorsCustom.textOnPrimary,
+                isLoading: _busy,
+                onPressed: _busy ? null : _delete,
+              ),
+            ],
             const SizedBox(height: 10),
             ButtonCustom.secondary(
               text: l10n.cancelButton,
@@ -801,16 +845,6 @@ class _GuestProfileView extends StatelessWidget {
                 color: context.colors.surface,
                 textColor: context.colors.primary,
                 onPressed: () => context.pushNamed(AppRoutes.loginName),
-              ),
-              const SizedBox(height: 6),
-              TextButton(
-                onPressed: () => context.pushNamed(AppRoutes.signupName),
-                child: TextCustom(
-                  text: l10n.createAccountLink,
-                  color: ColorsCustom.textOnPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
               ),
             ],
           ),

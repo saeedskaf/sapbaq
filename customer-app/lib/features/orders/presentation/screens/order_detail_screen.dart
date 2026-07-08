@@ -212,7 +212,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: TextCustom.heading(
-                  text: l10n.orderRef(order.shortReference),
+                  text: l10n.orderRef(order.displayCode),
                   fontSize: 18,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -685,10 +685,10 @@ class _DriverTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (driver.phone.isNotEmpty) ...[
+                if (driver.phone case final phone? when phone.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   TextCustom(
-                    text: driver.phone,
+                    text: phone,
                     fontSize: 13,
                     color: context.colors.textSecondary,
                   ),
@@ -881,18 +881,18 @@ class _ProofThumb extends StatelessWidget {
   }
 }
 
-/// Cover for a video proof: the brand mark on a brand-green fill (videos have no
-/// server-side thumbnail, so we show the logo instead of a blank tile).
+/// Cover for a video proof: the brand mark card (videos have no server-side
+/// thumbnail, so we show the logo instead of a blank tile).
 class _VideoCover extends StatelessWidget {
   const _VideoCover();
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: context.colors.primary,
+      color: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Image.asset(AppAssets.logoMarkWhite, fit: BoxFit.contain),
+        child: Image.asset(AppAssets.logoMark, fit: BoxFit.contain),
       ),
     );
   }

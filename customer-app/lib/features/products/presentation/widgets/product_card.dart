@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/utils/media_url.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
@@ -161,14 +160,14 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: context.colors.primary,
+        color: context.colors.primaryFill,
         borderRadius: BorderRadius.circular(6),
       ),
       child: TextCustom(
         text: text,
         fontSize: 10,
         fontWeight: FontWeight.w800,
-        color: ColorsCustom.textOnPrimary,
+        color: context.colors.onPrimary,
       ),
     );
   }

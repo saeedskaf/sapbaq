@@ -22,7 +22,7 @@ class DriverDestinationCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final area = destination.mosque?.area ?? '';
     final meta = [
-      l10n.orderRefShort(destination.shortReference),
+      l10n.orderRefShort(destination.displayCode),
       if (area.isNotEmpty) area,
     ].join(' · ');
 

@@ -2,22 +2,24 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
-import 'package:sapbaq/features/showcase/data/models/showcase_item.dart';
+import 'package:sapbaq/features/showcase/data/models/showcase_section.dart';
 import 'package:sapbaq/features/showcase/data/showcase_repository.dart';
 
 class ShowcaseState extends Equatable {
   final LoadStatus status;
-  final List<ShowcaseItem> items;
+  final List<ShowcaseSection> sections;
   final String? message;
 
   const ShowcaseState({
     this.status = LoadStatus.initial,
-    this.items = const [],
+    this.sections = const [],
     this.message,
   });
 
+  bool get isEmpty => sections.every((s) => s.items.isEmpty);
+
   @override
-  List<Object?> get props => [status, items, message];
+  List<Object?> get props => [status, sections, message];
 }
 
 class ShowcaseCubit extends Cubit<ShowcaseState> {
@@ -27,8 +29,8 @@ class ShowcaseCubit extends Cubit<ShowcaseState> {
   Future<void> load() async {
     emit(const ShowcaseState(status: LoadStatus.loading));
     try {
-      final items = await _repo.fetchShowcase();
-      emit(ShowcaseState(status: LoadStatus.success, items: items));
+      final sections = await _repo.fetchSections();
+      emit(ShowcaseState(status: LoadStatus.success, sections: sections));
     } on ApiException catch (e) {
       emit(ShowcaseState(status: LoadStatus.failure, message: e.message));
     }

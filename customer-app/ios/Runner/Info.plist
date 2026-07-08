@@ -11,6 +11,10 @@
 	<string>نحتاج الوصول إلى صورك لإرفاق صورة بتذكرة الدعم.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>نحتاج الوصول إلى الكاميرا لالتقاط صورة لإرفاقها بتذكرة الدعم.</string>
+	<!-- Maps (google_maps_flutter) uses location to center the map on the user
+	     and show nearby mosques. -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>نستخدم موقعك لعرض المساجد القريبة منك على الخريطة وتحديد موقعك عليها.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -79,6 +83,19 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+	</array>
+	<!-- Google Sign-In callback URL scheme (REVERSED_CLIENT_ID from
+	     GoogleService-Info.plist, Firebase project `sapbaq`). -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.113479519511-6uo9roltjc35gfvu9oobuh4asni13nnu</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

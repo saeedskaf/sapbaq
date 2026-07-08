@@ -86,14 +86,14 @@ class _EscalationsViewState extends State<_EscalationsView> {
       appBar: AppBar(title: TextCustom.subheading(text: l10n.escalationsTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _raise(context),
-        backgroundColor: ColorsCustom.primary,
-        foregroundColor: ColorsCustom.textOnPrimary,
+        backgroundColor: ColorsCustom.brandMint,
+        foregroundColor: ColorsCustom.onMint,
         icon: const Icon(Icons.campaign_outlined),
         label: TextCustom(
           text: l10n.raiseEscalationTitle,
           fontSize: 14,
           fontWeight: FontWeight.w700,
-          color: ColorsCustom.textOnPrimary,
+          color: ColorsCustom.onMint,
         ),
       ),
       body: BlocConsumer<EscalationsCubit, EscalationsState>(
@@ -192,7 +192,7 @@ class _EscalationCard extends StatelessWidget {
             const SizedBox(height: 8),
             _MetaRow(
               icon: Icons.confirmation_number_outlined,
-              text: l10n.orderRefShort(escalation.shortReference),
+              text: l10n.orderRefShort(escalation.displayCode),
             ),
           ],
           if (escalation.raisedBy != null) ...[

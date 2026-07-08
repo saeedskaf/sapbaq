@@ -16,8 +16,9 @@ class AppTheme {
   static final _buttonBorderRadius = BorderRadius.circular(14);
 
   static ThemeData get light {
-    // Arabic-first: Tajawal renders Arabic cleanly and has a modern feel.
-    final textTheme = GoogleFonts.tajawalTextTheme();
+    // Arabic-first: IBM Plex Sans Arabic — clean UI Arabic whose vertical
+    // metrics match Poppins (1.5em line box), so the scripts align naturally.
+    final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme();
 
     return ThemeData(
       useMaterial3: true,
@@ -51,8 +52,9 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: ColorsCustom.primary,
-          foregroundColor: ColorsCustom.textOnPrimary,
+          // Brand fill is the logo mint, which needs a dark foreground.
+          backgroundColor: ColorsCustom.brandMint,
+          foregroundColor: ColorsCustom.onMint,
           disabledBackgroundColor: ColorsCustom.border,
           disabledForegroundColor: ColorsCustom.textHint,
           elevation: 0,
@@ -87,12 +89,25 @@ class AppTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return ColorsCustom.primary;
+            return ColorsCustom.brandMint;
           }
           return ColorsCustom.surface;
         }),
+        checkColor: const WidgetStatePropertyAll(ColorsCustom.onMint),
         side: const BorderSide(color: ColorsCustom.primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? ColorsCustom.surface
+              : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? ColorsCustom.brandMint
+              : null,
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -135,8 +150,8 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: ColorsCustom.primary,
-        foregroundColor: ColorsCustom.textOnPrimary,
+        backgroundColor: ColorsCustom.brandMint,
+        foregroundColor: ColorsCustom.onMint,
         elevation: 4,
       ),
       dividerTheme: const DividerThemeData(

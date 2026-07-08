@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#8ACCAB</color>
+    <color name="ic_launcher_background">#87CDAA</color>
     <!-- Tint applied to the status-bar notification icon (brand green). -->
     <color name="notification_accent">#8ACCAB</color>
 </resources>

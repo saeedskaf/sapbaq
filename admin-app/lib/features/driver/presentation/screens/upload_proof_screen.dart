@@ -44,6 +44,19 @@ class _UploadProofView extends StatefulWidget {
 class _UploadProofViewState extends State<_UploadProofView> {
   final _picker = ImagePicker();
   final _noteController = TextEditingController();
+  bool _notePrefilled = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Default note matching the "delivered/documented" action (FLUTTER_TASKS
+    // item 11) — the driver can edit or clear it before uploading.
+    if (!_notePrefilled) {
+      _notePrefilled = true;
+      _noteController.text =
+          AppLocalizations.of(context)!.proofNoteDefaultDelivered;
+    }
+  }
 
   @override
   void dispose() {

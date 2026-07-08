@@ -115,7 +115,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navProfile => 'حسابي';
 
   @override
-  String get navCustomerSearch => 'بحث الزبون';
+  String get navCustomerSearch => 'بحث العميل';
 
   @override
   String get statusPending => 'قيد الانتظار';
@@ -146,7 +146,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String orderRefShort(String ref) {
-    return 'طلب #$ref';
+    return 'طلب $ref';
   }
 
   @override
@@ -168,7 +168,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminOrdersTitle => 'الطلبات';
 
   @override
-  String get searchOrdersHint => 'ابحث برقم الزبون أو مرجع الطلب';
+  String get searchOrdersHint => 'ابحث برقم العميل أو رقم الطلب (ORD-…)';
 
   @override
   String get emptyOrders => 'لا توجد طلبات';
@@ -194,13 +194,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabCancelled => 'ملغاة';
 
   @override
+  String get tabInProgress => 'قيد التنفيذ';
+
+  @override
+  String get orderDateLabel => 'تاريخ الطلب';
+
+  @override
+  String get lastStatusUpdateLabel => 'آخر تحديث';
+
+  @override
   String get orderDetailsTitle => 'تفاصيل الطلب';
 
   @override
   String get giftLabel => 'يحتوي على إهداء';
 
   @override
-  String get customerLabel => 'الزبون';
+  String get customerLabel => 'العميل';
 
   @override
   String get paymentLabel => 'الدفع';
@@ -212,7 +221,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paymentUnpaid => 'غير مدفوع';
 
   @override
-  String get notesLabel => 'ملاحظات الزبون';
+  String get notesLabel => 'ملاحظات العميل';
 
   @override
   String get destinationsLabel => 'الوجهات';
@@ -402,6 +411,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get proofNoteHint => 'ملاحظة (اختياري)';
 
   @override
+  String get proofNoteDefaultDelivered => 'تم إيصال وتركيب الطلب في الموقع.';
+
+  @override
   String get uploadAndFinish => 'رفع وإنهاء التوصيل';
 
   @override
@@ -482,16 +494,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get actionCancelled => 'إلغاء طلب';
 
   @override
-  String get customerLookupTitle => 'بحث عن زبون';
+  String get customerLookupTitle => 'بحث عن عميل';
 
   @override
   String get lookupHint => 'ابحث برقم الهاتف أو الاسم';
 
   @override
-  String get lookupPrompt => 'ابحث عن زبون برقم الهاتف أو الاسم لعرض سجلّه';
+  String get lookupPrompt =>
+      'ابحث عن عميل برقم الهاتف أو الاسم أو المعرّف (ID) لعرض سجلّه';
 
   @override
-  String get lookupNoResults => 'لا يوجد زبون مطابق';
+  String get lookupIdHint => 'ID';
+
+  @override
+  String get lookupNoResults => 'لا يوجد عميل مطابق';
 
   @override
   String get approvalsTitle => 'صندوق الموافقات';

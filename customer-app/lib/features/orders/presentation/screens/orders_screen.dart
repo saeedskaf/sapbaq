@@ -168,7 +168,7 @@ class _OrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextCustom(
-                            text: l10n.orderRef(order.shortReference),
+                            text: l10n.orderRef(order.displayCode),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             maxLines: 1,

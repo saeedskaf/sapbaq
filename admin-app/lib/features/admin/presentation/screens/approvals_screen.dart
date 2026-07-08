@@ -184,7 +184,7 @@ class _ApprovalCard extends StatelessWidget {
               ),
               if (approval.targetType == 'Order' && approval.targetId != null)
                 Pill(
-                  text: l10n.orderRefShort('${approval.targetId}'),
+                  text: l10n.orderRefShort('#${approval.targetId}'),
                   color: ColorsCustom.primary,
                   background: ColorsCustom.surfaceVariant,
                   fontSize: 11,

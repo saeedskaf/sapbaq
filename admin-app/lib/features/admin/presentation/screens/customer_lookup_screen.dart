@@ -36,10 +36,12 @@ class _LookupView extends StatefulWidget {
 
 class _LookupViewState extends State<_LookupView> {
   final _controller = TextEditingController();
+  final _idController = TextEditingController();
 
   @override
   void dispose() {
     _controller.dispose();
+    _idController.dispose();
     super.dispose();
   }
 
@@ -54,30 +56,59 @@ class _LookupViewState extends State<_LookupView> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: TextField(
-              controller: _controller,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (q) =>
-                  context.read<CustomerLookupCubit>().search(q),
-              decoration: InputDecoration(
-                hintText: l10n.lookupHint,
-                prefixIcon: const Icon(
-                  Icons.search_rounded,
-                  color: ColorsCustom.textHint,
-                ),
-                suffixIcon: _controller.text.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(
-                          Icons.close_rounded,
-                          color: ColorsCustom.textHint,
-                        ),
-                        onPressed: () {
-                          _controller.clear();
-                          context.read<CustomerLookupCubit>().search('');
-                        },
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (q) {
+                      _idController.clear();
+                      context.read<CustomerLookupCubit>().search(q);
+                    },
+                    decoration: InputDecoration(
+                      hintText: l10n.lookupHint,
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        color: ColorsCustom.textHint,
                       ),
-              ),
+                      suffixIcon: _controller.text.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: ColorsCustom.textHint,
+                              ),
+                              onPressed: () {
+                                _controller.clear();
+                                context.read<CustomerLookupCubit>().search('');
+                              },
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Dedicated customer-ID lookup (`?id=`, FLUTTER_TASKS item 3).
+                SizedBox(
+                  width: 110,
+                  child: TextField(
+                    controller: _idController,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (q) {
+                      _controller.clear();
+                      context.read<CustomerLookupCubit>().searchById(q);
+                    },
+                    decoration: InputDecoration(
+                      hintText: l10n.lookupIdHint,
+                      prefixIcon: const Icon(
+                        Icons.tag_rounded,
+                        color: ColorsCustom.textHint,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -107,7 +138,7 @@ class _LookupViewState extends State<_LookupView> {
         return ErrorView(
           message: state.message ?? l10n.genericError,
           retryLabel: l10n.retry,
-          onRetry: () => context.read<CustomerLookupCubit>().search(state.query),
+          onRetry: () => context.read<CustomerLookupCubit>().retry(),
         );
       case LoadStatus.success:
         if (state.results.isEmpty) {

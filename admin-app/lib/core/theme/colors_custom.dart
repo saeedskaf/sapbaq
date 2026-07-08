@@ -13,8 +13,14 @@ class ColorsCustom {
   static const Color primaryDark = Color(0xFF14573A);
   static const Color primaryLight = Color(0xFF4FA87D);
 
-  // Logo mint — the brand mark's chevron color
-  static const Color brandMint = Color(0xFF8ACCAB);
+  // Logo mint — the exact flat green of the logo mark (sampled from the
+  // customer app's assets/images/logo/sapbaq_logo_mark.png). This is the
+  // brand's primary fill: buttons and highlighted surfaces use it with
+  // [onMint] on top.
+  static const Color brandMint = Color(0xFF87CDAA);
+
+  /// Foreground on [brandMint] fills — brand near-black green.
+  static const Color onMint = Color(0xFF06130D);
 
   // Accent — warm gold
   static const Color secondary = Color(0xFFCFA13E);

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
@@ -224,7 +223,7 @@ class _CategoryTabs extends StatelessWidget {
                 heightFactor: 1,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: context.colors.primary,
+                    color: context.colors.primaryFill,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -247,7 +246,7 @@ class _CategoryTabs extends StatelessWidget {
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: i == selectedIndex
-                                ? ColorsCustom.textOnPrimary
+                                ? context.colors.onPrimary
                                 : context.colors.textPrimary,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

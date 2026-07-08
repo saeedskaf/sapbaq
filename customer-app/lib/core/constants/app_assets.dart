@@ -4,18 +4,13 @@ class AppAssets {
 
   static const String _logoDir = 'assets/images/logo';
 
-  /// Sapbaq (سَبّاق) — full lockup (Arabic + Latin wordmark with the arrow mark).
-  /// `OnDark` keeps the white text for dark/colored fills; `OnLight` uses
-  /// dark-ink text for white/light surfaces.
-  static const String logoFullOnDark = '$_logoDir/sapbaq_logo_full_on_dark.png';
-  static const String logoFullOnLight =
-      '$_logoDir/sapbaq_logo_full_on_light.png';
+  /// Sapbaq brand lockup — a self-contained card (baked background). The
+  /// customer app ships the primary variant (black card, green arrows, white
+  /// wordmark + dots + dashes). Because the card carries its own background it
+  /// is used as-is in BOTH light and dark mode — no theme switching.
+  static const String logoFull = '$_logoDir/sapbaq_logo_full.png';
 
-  /// Sapbaq arrow mark only (chevrons + dots + speed lines).
-  static const String logoMarkOnDark = '$_logoDir/sapbaq_logo_mark_on_dark.png';
-  static const String logoMarkOnLight =
-      '$_logoDir/sapbaq_logo_mark_on_light.png';
-
-  /// Monochrome all-white mark — for watermarks on brand-colored fills.
-  static const String logoMarkWhite = '$_logoDir/sapbaq_logo_mark_white.png';
+  /// The same lockup WITHOUT the wordmark (the launch-icon mark: arrows + dots
+  /// + dashes on the brand card). Used in-app only for the video-proof cover.
+  static const String logoMark = '$_logoDir/sapbaq_logo_mark.png';
 }

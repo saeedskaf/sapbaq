@@ -78,11 +78,6 @@ class GuestGateView extends StatelessWidget {
               text: l10n.loginButton,
               onPressed: () => context.pushNamed(AppRoutes.loginName),
             ),
-            const SizedBox(height: 10),
-            ButtonCustom.secondary(
-              text: l10n.createAccountLink,
-              onPressed: () => context.pushNamed(AppRoutes.signupName),
-            ),
           ],
         ),
       ),
@@ -156,11 +151,6 @@ class _LoginRequiredSheet extends StatelessWidget {
           ButtonCustom.primary(
             text: l10n.loginButton,
             onPressed: () => _go(context, AppRoutes.loginName),
-          ),
-          const SizedBox(height: 10),
-          ButtonCustom.secondary(
-            text: l10n.createAccountLink,
-            onPressed: () => _go(context, AppRoutes.signupName),
           ),
         ],
       ),

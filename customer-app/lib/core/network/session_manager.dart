@@ -1,6 +1,14 @@
 import 'dart:async';
 
-enum AuthStatus { unknown, authenticated, unauthenticated, guest }
+/// [completingProfile]: signed in (valid tokens) but the account isn't usable
+/// yet — the user must verify a phone and/or complete their profile first.
+enum AuthStatus {
+  unknown,
+  authenticated,
+  completingProfile,
+  unauthenticated,
+  guest,
+}
 
 /// App-wide session signal.
 ///
@@ -20,6 +28,7 @@ class SessionManager {
   }
 
   void authenticated() => setStatus(AuthStatus.authenticated);
+  void completingProfile() => setStatus(AuthStatus.completingProfile);
   void unauthenticated() => setStatus(AuthStatus.unauthenticated);
   void guest() => setStatus(AuthStatus.guest);
 

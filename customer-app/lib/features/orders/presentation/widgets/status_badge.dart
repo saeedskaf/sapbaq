@@ -55,7 +55,7 @@ class StatusBadge extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final color = orderStatusColor(context, status);
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(20),

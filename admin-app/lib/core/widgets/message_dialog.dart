@@ -7,29 +7,38 @@ class ShowMessage {
     BuildContext context,
     String message, {
     Color? backgroundColor,
+    Color? foregroundColor,
     IconData? icon,
     Duration duration = const Duration(seconds: 3),
   }) {
+    // Default banner is the brand mint, which needs a dark foreground; the
+    // saturated status fills (success/error) pass their own white foreground.
+    final bg = backgroundColor ?? ColorsCustom.brandMint;
+    final fg =
+        foregroundColor ??
+        (backgroundColor == null
+            ? ColorsCustom.onMint
+            : ColorsCustom.textOnPrimary);
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, color: ColorsCustom.textOnPrimary, size: 20),
+              Icon(icon, color: fg, size: 20),
               const SizedBox(width: 12),
             ],
             Expanded(
               child: TextCustom(
                 text: message,
-                color: ColorsCustom.textOnPrimary,
+                color: fg,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-        backgroundColor: backgroundColor ?? ColorsCustom.primary,
+        backgroundColor: bg,
         duration: duration,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -60,7 +69,8 @@ class ShowMessage {
     show(
       context,
       message,
-      backgroundColor: ColorsCustom.primary,
+      backgroundColor: ColorsCustom.brandMint,
+      foregroundColor: ColorsCustom.onMint,
       icon: Icons.info_outline_rounded,
     );
   }

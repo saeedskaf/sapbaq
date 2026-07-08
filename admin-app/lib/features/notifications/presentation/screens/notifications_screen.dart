@@ -161,11 +161,13 @@ class _NotificationTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
+                // Bodies are now multi-line — second line carries the order
+                // code + mosque name (FLUTTER_TASKS item 15); don't clip it.
                 TextCustom(
                   text: notification.body,
                   fontSize: 13,
                   color: ColorsCustom.textSecondary,
-                  maxLines: 2,
+                  maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (notification.createdAt != null) ...[

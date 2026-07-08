@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// No description provided for @navCustomerSearch.
   ///
   /// In ar, this message translates to:
-  /// **'بحث الزبون'**
+  /// **'بحث العميل'**
   String get navCustomerSearch;
 
   /// No description provided for @statusPending.
@@ -367,7 +367,7 @@ abstract class AppLocalizations {
   /// No description provided for @orderRefShort.
   ///
   /// In ar, this message translates to:
-  /// **'طلب #{ref}'**
+  /// **'طلب {ref}'**
   String orderRefShort(String ref);
 
   /// No description provided for @destinationsCount.
@@ -397,7 +397,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchOrdersHint.
   ///
   /// In ar, this message translates to:
-  /// **'ابحث برقم الزبون أو مرجع الطلب'**
+  /// **'ابحث برقم العميل أو رقم الطلب (ORD-…)'**
   String get searchOrdersHint;
 
   /// No description provided for @emptyOrders.
@@ -442,6 +442,24 @@ abstract class AppLocalizations {
   /// **'ملغاة'**
   String get tabCancelled;
 
+  /// No description provided for @tabInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد التنفيذ'**
+  String get tabInProgress;
+
+  /// No description provided for @orderDateLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ الطلب'**
+  String get orderDateLabel;
+
+  /// No description provided for @lastStatusUpdateLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر تحديث'**
+  String get lastStatusUpdateLabel;
+
   /// No description provided for @orderDetailsTitle.
   ///
   /// In ar, this message translates to:
@@ -457,7 +475,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerLabel.
   ///
   /// In ar, this message translates to:
-  /// **'الزبون'**
+  /// **'العميل'**
   String get customerLabel;
 
   /// No description provided for @paymentLabel.
@@ -481,7 +499,7 @@ abstract class AppLocalizations {
   /// No description provided for @notesLabel.
   ///
   /// In ar, this message translates to:
-  /// **'ملاحظات الزبون'**
+  /// **'ملاحظات العميل'**
   String get notesLabel;
 
   /// No description provided for @destinationsLabel.
@@ -856,6 +874,12 @@ abstract class AppLocalizations {
   /// **'ملاحظة (اختياري)'**
   String get proofNoteHint;
 
+  /// No description provided for @proofNoteDefaultDelivered.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إيصال وتركيب الطلب في الموقع.'**
+  String get proofNoteDefaultDelivered;
+
   /// No description provided for @uploadAndFinish.
   ///
   /// In ar, this message translates to:
@@ -1015,7 +1039,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerLookupTitle.
   ///
   /// In ar, this message translates to:
-  /// **'بحث عن زبون'**
+  /// **'بحث عن عميل'**
   String get customerLookupTitle;
 
   /// No description provided for @lookupHint.
@@ -1027,13 +1051,19 @@ abstract class AppLocalizations {
   /// No description provided for @lookupPrompt.
   ///
   /// In ar, this message translates to:
-  /// **'ابحث عن زبون برقم الهاتف أو الاسم لعرض سجلّه'**
+  /// **'ابحث عن عميل برقم الهاتف أو الاسم أو المعرّف (ID) لعرض سجلّه'**
   String get lookupPrompt;
+
+  /// No description provided for @lookupIdHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ID'**
+  String get lookupIdHint;
 
   /// No description provided for @lookupNoResults.
   ///
   /// In ar, this message translates to:
-  /// **'لا يوجد زبون مطابق'**
+  /// **'لا يوجد عميل مطابق'**
   String get lookupNoResults;
 
   /// No description provided for @approvalsTitle.

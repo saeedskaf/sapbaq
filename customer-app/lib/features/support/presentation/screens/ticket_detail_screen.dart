@@ -259,7 +259,7 @@ class _MessageBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isMine
-                    ? context.colors.primary
+                    ? context.colors.primaryFill
                     : context.colors.surfaceVariant,
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -425,7 +425,7 @@ class _ReplyBar extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Material(
-                color: context.colors.primary,
+                color: context.colors.primaryFill,
                 shape: const CircleBorder(),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(

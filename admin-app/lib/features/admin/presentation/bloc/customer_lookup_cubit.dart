@@ -9,12 +9,16 @@ class CustomerLookupState extends Equatable {
   final LoadStatus status;
   final List<CustomerLookupResult> results;
   final String query;
+
+  /// Whether [query] is a customer ID (`?id=`) rather than a phone/name.
+  final bool byId;
   final String? message;
 
   const CustomerLookupState({
     this.status = LoadStatus.initial,
     this.results = const [],
     this.query = '',
+    this.byId = false,
     this.message,
   });
 
@@ -22,18 +26,20 @@ class CustomerLookupState extends Equatable {
     LoadStatus? status,
     List<CustomerLookupResult>? results,
     String? query,
+    bool? byId,
     String? message,
   }) {
     return CustomerLookupState(
       status: status ?? this.status,
       results: results ?? this.results,
       query: query ?? this.query,
+      byId: byId ?? this.byId,
       message: message,
     );
   }
 
   @override
-  List<Object?> get props => [status, results, query, message];
+  List<Object?> get props => [status, results, query, byId, message];
 }
 
 class CustomerLookupCubit extends Cubit<CustomerLookupState> {
@@ -53,6 +59,7 @@ class CustomerLookupCubit extends Cubit<CustomerLookupState> {
     emit(state.copyWith(
       status: LoadStatus.loading,
       query: query,
+      byId: false,
       message: null,
     ));
     final isPhone = _phonePattern.hasMatch(query);
@@ -66,4 +73,34 @@ class CustomerLookupCubit extends Cubit<CustomerLookupState> {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
   }
+
+  /// Lookup by the numeric customer ID (`?id=`, FLUTTER_TASKS item 3).
+  Future<void> searchById(String raw) async {
+    final query = raw.trim();
+    if (query.isEmpty) {
+      emit(const CustomerLookupState());
+      return;
+    }
+    final id = int.tryParse(query);
+    emit(state.copyWith(
+      status: LoadStatus.loading,
+      query: query,
+      byId: true,
+      message: null,
+    ));
+    if (id == null) {
+      emit(state.copyWith(status: LoadStatus.success, results: const []));
+      return;
+    }
+    try {
+      final results = await _repo.lookupCustomers(id: id);
+      emit(state.copyWith(status: LoadStatus.success, results: results));
+    } on ApiException catch (e) {
+      emit(state.copyWith(status: LoadStatus.failure, message: e.message));
+    }
+  }
+
+  /// Re-run the last search (used by the error view's retry).
+  Future<void> retry() =>
+      state.byId ? searchById(state.query) : search(state.query);
 }

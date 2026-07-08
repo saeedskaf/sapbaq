@@ -34,11 +34,12 @@ class AuthInterceptor extends QueuedInterceptor {
         )..interceptors.add(LocaleInterceptor(language));
 
   static const Set<String> _publicPaths = {
-    ApiEndpoints.signup,
-    ApiEndpoints.verifyOtp,
-    ApiEndpoints.login,
-    ApiEndpoints.forgotPassword,
-    ApiEndpoints.resetPassword,
+    ApiEndpoints.otpRequest,
+    ApiEndpoints.otpVerify,
+    ApiEndpoints.socialGoogle,
+    ApiEndpoints.socialApple,
+    ApiEndpoints.passkeyLoginBegin,
+    ApiEndpoints.passkeyLoginComplete,
     ApiEndpoints.refresh,
   };
 
@@ -73,11 +74,20 @@ class AuthInterceptor extends QueuedInterceptor {
       return;
     }
 
-    // A concurrent request may have already refreshed the token.
+    // A 401 only means an expired session for a signed-in user. In guest mode
+    // there is no token, so a protected endpoint returning 401 must NOT clear
+    // the session and bounce the user to login — surface the error and let the
+    // caller handle it (e.g. an empty section).
     final current = await _storage.getAccessToken();
+    if (current == null || current.isEmpty) {
+      handler.next(err);
+      return;
+    }
+
+    // A concurrent request may have already refreshed the token.
     final used = (err.requestOptions.headers['Authorization'] as String?)
         ?.replaceFirst('Bearer ', '');
-    if (current != null && current.isNotEmpty && current != used) {
+    if (current != used) {
       await _retry(err, handler, current);
       return;
     }

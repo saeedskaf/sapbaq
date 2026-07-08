@@ -74,7 +74,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountConfirmBody =>
-      'Your personal data will be permanently deleted and the account cannot be recovered afterwards. Enter your password to confirm.';
+      'Your personal data will be permanently deleted and the account cannot be recovered afterwards. We\'ll send a confirmation code to your phone to continue.';
 
   @override
   String get deleteAccountWhatRemoved =>
@@ -497,7 +497,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String orderRef(String ref) {
-    return 'Order #$ref';
+    return 'Order $ref';
   }
 
   @override
@@ -689,10 +689,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginTitle => 'Log in';
 
   @override
-  String get loginSubtitle => 'Welcome back, log in to continue';
+  String get loginSubtitle => 'Log in or create your account to continue';
 
   @override
   String get loginButton => 'Log in';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get orSeparator => 'or';
+
+  @override
+  String get verifyPhoneTitle => 'Verify your phone';
+
+  @override
+  String get verifyPhoneSubtitle =>
+      'Enter your phone number to confirm your account';
+
+  @override
+  String get changeNumber => 'Change number';
+
+  @override
+  String get useDifferentAccount => 'Use a different account';
+
+  @override
+  String get completeProfileTitle => 'Complete your profile';
+
+  @override
+  String get completeProfileSubtitle => 'Enter your name and email to continue';
+
+  @override
+  String get firstNameLabel => 'First name';
+
+  @override
+  String get middleNameLabel => 'Middle name (optional)';
+
+  @override
+  String get lastNameLabel => 'Last name';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get deleteAccountSendCode => 'Send confirmation code';
+
+  @override
+  String get passkeySignIn => 'Sign in with a passkey';
+
+  @override
+  String get passkeysTitle => 'Passkeys';
+
+  @override
+  String get passkeysDescription =>
+      'Passkeys let you sign in fast and securely with your fingerprint, face, or device PIN — no codes needed.';
+
+  @override
+  String get passkeyAddButton => 'Add a passkey for this device';
+
+  @override
+  String get passkeyRegistered => 'Passkey enabled';
+
+  @override
+  String get passkeyNoDevices => 'No passkeys registered yet.';
+
+  @override
+  String get passkeyUnnamedDevice => 'Unnamed device';
+
+  @override
+  String passkeyLastUsed(String date) {
+    return 'Last used: $date';
+  }
+
+  @override
+  String get passkeyDeleteTitle => 'Delete passkey?';
+
+  @override
+  String passkeyDeleteBody(String device) {
+    return 'You won\'t be able to sign in quickly with \"$device\" after deleting it.';
+  }
+
+  @override
+  String get passkeyDeleteAction => 'Delete';
+
+  @override
+  String get passkeyNotSupported => 'This device doesn\'t support passkeys.';
+
+  @override
+  String get passkeyNoneOnDevice =>
+      'No passkey found on this device. Sign in another way, then add one.';
+
+  @override
+  String get passkeyError => 'Couldn\'t use the passkey. Please try again.';
+
+  @override
+  String get signInError => 'Sign-in failed. Please try again.';
 
   @override
   String get forgotPasswordLink => 'Forgot your password?';
