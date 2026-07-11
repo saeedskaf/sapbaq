@@ -233,5 +233,20 @@
   "profileTitle": "حسابي",
   "roleAdmin": "مدير",
   "roleDriver": "ورشة توصيل",
-  "logout": "تسجيل الخروج"
+  "logout": "تسجيل الخروج",
+  "userFallback": "مستخدم",
+
+  "settingsLanguage": "اللغة",
+  "languageTitle": "اللغة",
+  "languageArabic": "العربية",
+  "languageEnglish": "English",
+
+  "settingsAppearance": "المظهر",
+  "appearanceTitle": "المظهر",
+  "themeSystem": "حسب إعدادات الجهاز",
+  "themeLight": "فاتح",
+  "themeDark": "داكن",
+
+  "notificationChannelName": "إشعارات ســـبّاقـــ",
+  "notificationChannelDescription": "تعيينات الطلبات وتحديثات التوصيل."
 }

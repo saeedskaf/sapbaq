@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/features/shared/presentation/pill.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -27,24 +28,23 @@ String statusLabel(AppLocalizations l10n, String status) {
   }
 }
 
-Color statusColor(String status) {
+/// Reduced, brand-coherent status palette: amber = waiting/needs action,
+/// brand green = in progress, success green = done, red = cancelled.
+Color statusColor(BuildContext context, String status) {
   switch (status) {
     case 'PENDING':
       return ColorsCustom.warning;
     case 'CONFIRMED':
-      return ColorsCustom.info;
     case 'ASSIGNED_TO_TEAM':
-      return ColorsCustom.secondary;
     case 'ASSIGNED':
-      return ColorsCustom.primaryLight;
     case 'IN_DELIVERY':
-      return ColorsCustom.primary;
+      return context.colors.primary;
     case 'DELIVERED':
       return ColorsCustom.success;
     case 'CANCELLED':
       return ColorsCustom.error;
     default:
-      return ColorsCustom.textHint;
+      return context.colors.textHint;
   }
 }
 
@@ -61,6 +61,9 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Pill(text: statusLabel(l10n, status), color: statusColor(status));
+    return Pill(
+      text: statusLabel(l10n, status),
+      color: statusColor(context, status),
+    );
   }
 }

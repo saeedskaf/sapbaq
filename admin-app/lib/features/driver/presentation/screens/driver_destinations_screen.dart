@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
@@ -59,12 +59,6 @@ class _DriverDestinationsViewState extends State<_DriverDestinationsView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tabLabels = [
-      l10n.tabNew,
-      l10n.tabAccepted,
-      l10n.tabInDelivery,
-      l10n.tabCompleted,
-    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -73,94 +67,105 @@ class _DriverDestinationsViewState extends State<_DriverDestinationsView> {
       body: Column(
         children: [
           const SizedBox(height: 8),
-          BlocSelector<DriverDestinationsCubit, DriverDestinationsState,
-              DriverTab>(
-            selector: (state) => state.tab,
-            builder: (context, tab) => FilterTabs(
-              labels: tabLabels,
-              selectedIndex: DriverTab.values.indexOf(tab),
-              onChanged: (i) => context
-                  .read<DriverDestinationsCubit>()
-                  .setTab(DriverTab.values[i]),
-            ),
+          BlocBuilder<DriverDestinationsCubit, DriverDestinationsState>(
+            buildWhen: (a, b) => a.tab != b.tab || a.counts != b.counts,
+            builder: (context, state) {
+              final counts = state.counts;
+              String withCount(String label, int? n) =>
+                  n == null ? label : '$label ($n)';
+              final labels = [
+                withCount(l10n.tabNew, counts?.newJobs),
+                withCount(l10n.tabAccepted, counts?.accepted),
+                withCount(l10n.tabInDelivery, counts?.inDelivery),
+                withCount(l10n.tabCompleted, counts?.completed),
+              ];
+              return FilterTabs(
+                labels: labels,
+                selectedIndex: DriverTab.values.indexOf(state.tab),
+                onChanged: (i) => context.read<DriverDestinationsCubit>().setTab(
+                  DriverTab.values[i],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: BlocBuilder<DriverDestinationsCubit,
-                DriverDestinationsState>(
-              builder: (context, state) {
-                if (state.status == LoadStatus.loading) {
-                  return const LoadingView();
-                }
-                if (state.status == LoadStatus.failure) {
-                  return ErrorView(
-                    message: state.message ?? l10n.genericError,
-                    retryLabel: l10n.retry,
-                    onRetry: () => context.read<DriverDestinationsCubit>().load(),
-                  );
-                }
-                final visible = state.visible;
-                if (visible.isEmpty) {
-                  return RefreshIndicator(
-                    color: ColorsCustom.primary,
-                    onRefresh: () =>
-                        context.read<DriverDestinationsCubit>().load(),
-                    child: ListView(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: EmptyView(
-                            message: l10n.emptyDeliveries,
-                            icon: Icons.local_shipping_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return RefreshIndicator(
-                  color: ColorsCustom.primary,
-                  onRefresh: () =>
-                      context.read<DriverDestinationsCubit>().load(),
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      0,
-                      16,
-                      floatingNavBarClearance(context),
-                    ),
-                    itemCount: visible.length + (state.hasMore ? 1 : 0),
-                    itemBuilder: (context, i) {
-                      if (i >= visible.length) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: ColorsCustom.primary,
-                            ),
-                          ),
-                        );
-                      }
-                      final dest = visible[i];
-                      return DriverDestinationCard(
-                        destination: dest,
-                        onTap: () async {
-                          await context.pushNamed(
-                            AppRoutes.driverDestinationName,
-                            pathParameters: {'id': '${dest.id}'},
-                          );
-                          // Refresh on return — status may have changed.
-                          if (context.mounted) {
-                            context.read<DriverDestinationsCubit>().load();
-                          }
-                        },
+            child:
+                BlocBuilder<DriverDestinationsCubit, DriverDestinationsState>(
+                  builder: (context, state) {
+                    if (state.status == LoadStatus.loading) {
+                      return const LoadingView();
+                    }
+                    if (state.status == LoadStatus.failure) {
+                      return ErrorView(
+                        message: state.message ?? l10n.genericError,
+                        retryLabel: l10n.retry,
+                        onRetry: () =>
+                            context.read<DriverDestinationsCubit>().load(),
                       );
-                    },
-                  ),
-                );
-              },
-            ),
+                    }
+                    final visible = state.visible;
+                    if (visible.isEmpty) {
+                      return RefreshIndicator(
+                        color: context.colors.primary,
+                        onRefresh: () =>
+                            context.read<DriverDestinationsCubit>().load(),
+                        child: ListView(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: EmptyView(
+                                message: l10n.emptyDeliveries,
+                                icon: Icons.local_shipping_outlined,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return RefreshIndicator(
+                      color: context.colors.primary,
+                      onRefresh: () =>
+                          context.read<DriverDestinationsCubit>().load(),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          floatingNavBarClearance(context),
+                        ),
+                        itemCount: visible.length + (state.hasMore ? 1 : 0),
+                        itemBuilder: (context, i) {
+                          if (i >= visible.length) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                            );
+                          }
+                          final dest = visible[i];
+                          return DriverDestinationCard(
+                            destination: dest,
+                            onTap: () async {
+                              await context.pushNamed(
+                                AppRoutes.driverDestinationName,
+                                pathParameters: {'id': '${dest.id}'},
+                              );
+                              // Refresh on return — status may have changed.
+                              if (context.mounted) {
+                                context.read<DriverDestinationsCubit>().load();
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
           ),
         ],
       ),

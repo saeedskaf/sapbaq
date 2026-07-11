@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
@@ -62,7 +63,9 @@ class _EscalationsViewState extends State<_EscalationsView> {
   Future<void> _resolve(BuildContext context, Escalation e) async {
     final l10n = AppLocalizations.of(context)!;
     final ok = await context.read<EscalationsCubit>().resolve(e.id);
-    if (ok && context.mounted) ShowMessage.success(context, l10n.resolveSuccess);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.resolveSuccess);
+    }
   }
 
   Future<void> _raise(BuildContext context) async {
@@ -76,7 +79,9 @@ class _EscalationsViewState extends State<_EscalationsView> {
     );
     if (reason == null || reason.isEmpty) return;
     final ok = await cubit.raise(reason);
-    if (ok && context.mounted) ShowMessage.success(context, l10n.escalationRaised);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.escalationRaised);
+    }
   }
 
   @override
@@ -98,7 +103,8 @@ class _EscalationsViewState extends State<_EscalationsView> {
       ),
       body: BlocConsumer<EscalationsCubit, EscalationsState>(
         listenWhen: (a, b) => a.message != b.message && b.message != null,
-        listener: (context, state) => ShowMessage.error(context, state.message!),
+        listener: (context, state) =>
+            ShowMessage.error(context, state.message!),
         builder: (context, state) {
           if (state.status == LoadStatus.loading) {
             return const LoadingView();
@@ -117,7 +123,7 @@ class _EscalationsViewState extends State<_EscalationsView> {
             );
           }
           return RefreshIndicator(
-            color: ColorsCustom.primary,
+            color: context.colors.primary,
             onRefresh: () => context.read<EscalationsCubit>().load(),
             child: ListView.builder(
               controller: _scrollController,
@@ -125,11 +131,11 @@ class _EscalationsViewState extends State<_EscalationsView> {
               itemCount: state.items.length + (state.hasMore ? 1 : 0),
               itemBuilder: (context, i) {
                 if (i >= state.items.length) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: ColorsCustom.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                   );
@@ -183,7 +189,7 @@ class _EscalationCard extends StatelessWidget {
               Pill(
                 text: open ? l10n.statusOpen : l10n.statusResolved,
                 color: open ? ColorsCustom.warning : ColorsCustom.success,
-                background: ColorsCustom.surfaceVariant,
+                background: context.colors.surfaceVariant,
                 fontSize: 11,
               ),
             ],
@@ -213,10 +219,12 @@ class _EscalationCard extends StatelessWidget {
           if (open) ...[
             const SizedBox(height: 14),
             if (busy)
-              const Center(
+              Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 6),
-                  child: CircularProgressIndicator(color: ColorsCustom.primary),
+                  child: CircularProgressIndicator(
+                    color: context.colors.primary,
+                  ),
                 ),
               )
             else
@@ -241,13 +249,13 @@ class _MetaRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 15, color: ColorsCustom.textHint),
+        Icon(icon, size: 15, color: context.colors.textHint),
         const SizedBox(width: 6),
         Expanded(
           child: TextCustom(
             text: text,
             fontSize: 13,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],

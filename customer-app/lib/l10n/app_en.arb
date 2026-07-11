@@ -297,6 +297,56 @@
   "otpSentTo": "Enter the verification code sent to {phone}",
   "verifyButton": "Verify",
   "resendCode": "Resend code",
+  "resendCodeIn": "Resend in {seconds}s",
+
+  "notMe": "Not me?",
+  "phoneKuwaitOnly": "Only Kuwait (+965) numbers are supported for now",
+
+  "welcomeBackTitle": "Welcome back",
+  "enterPasscodeSubtitle": "Enter your passcode for {phone}",
+  "passcodeWrong": "Incorrect passcode, try again",
+  "forgotPasscode": "Forgot passcode?",
+
+  "deviceTrustTitle": "Trust this device",
+  "deviceTrustSubtitle": "We sent a verification code to {phone} to trust this device",
+
+  "forgotPasscodeTitle": "Reset passcode",
+  "forgotPasscodeSubtitle": "We sent a verification code to {phone}",
+  "newPasscodeLabel": "New passcode",
+  "confirmPasscodeLabel": "Confirm passcode",
+  "resetPasscodeButton": "Set new passcode",
+
+  "passcodeMismatch": "Passcodes don't match",
+  "passcodeLength": "The passcode must be 4 digits",
+  "passcodeTooSimple": "Choose a stronger passcode (avoid repeats or sequences)",
+
+  "setPasscodeTitle": "Set your passcode",
+  "setPasscodeSubtitle": "Choose a 4-digit passcode for quick sign-in",
+  "confirmPasscodeSubtitle": "Re-enter the passcode to confirm",
+
+  "biometricTitle": "Enable biometrics",
+  "biometricSubtitle": "Unlock the app with your fingerprint or face instead of typing the passcode",
+  "biometricEnable": "Enable biometrics",
+  "biometricSkip": "Not now",
+  "biometricReason": "Unlock your Sapbaq session",
+  "biometricUnlockSetting": "Biometric unlock (Face ID / fingerprint)",
+
+  "lockTitle": "Enter your passcode",
+  "lockGreeting": "Hi, {name}",
+  "lockSubtitle": "Enter your passcode to continue",
+  "unlockWithBiometrics": "Unlock with biometrics",
+
+  "trustedDevicesTitle": "Trusted devices",
+  "trustedDevicesDescription": "These devices sign in with your passcode, without a verification code. Remove any you don't recognize.",
+  "trustedDevicesEmpty": "No trusted devices yet.",
+  "trustedDevicesError": "Couldn't load devices.",
+  "trustedDeviceUnnamed": "Unnamed device",
+  "trustedDeviceCurrent": "Current",
+  "trustedDeviceThis": "This device",
+  "trustedDeviceLastUsed": "Last used: {date}",
+  "revokeDeviceTitle": "Remove device?",
+  "revokeDeviceBody": "\"{device}\" will need a new verification code the next time it signs in.",
+  "revokeDeviceAction": "Remove",
 
   "forgotPasswordTitle": "Forgot password",
   "forgotPasswordSubtitle": "Enter your phone number and we'll send you a verification code",
@@ -325,5 +375,8 @@
   "otpOnlyNumbers": "The verification code must contain digits only",
 
   "fieldRequired": "This field is required",
-  "emailInvalid": "Please enter a valid email address"
+  "emailInvalid": "Please enter a valid email address",
+
+  "notificationChannelName": "Sapbaq notifications",
+  "notificationChannelDescription": "Order updates, gifts and announcements."
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
@@ -55,7 +56,7 @@ class _DashboardView extends StatelessWidget {
           final canLookup = user?.canLookupCustomerHistory ?? false;
           final canSuspend = user?.canSuspendProductAvailability ?? false;
           return RefreshIndicator(
-            color: ColorsCustom.primary,
+            color: context.colors.primary,
             onRefresh: () => context.read<DashboardCubit>().load(),
             child: ListView(
               padding: EdgeInsets.fromLTRB(
@@ -86,16 +87,16 @@ class _DashboardView extends StatelessWidget {
                 _DashboardTile(
                   icon: Icons.campaign_outlined,
                   label: l10n.escalationsTitle,
-                  onTap: () => context.pushNamed(AppRoutes.adminEscalationsName),
+                  onTap: () =>
+                      context.pushNamed(AppRoutes.adminEscalationsName),
                 ),
                 if (canLookup) ...[
                   const SizedBox(height: 12),
                   _DashboardTile(
                     icon: Icons.person_search_outlined,
                     label: l10n.customerLookupTitle,
-                    onTap: () => context.pushNamed(
-                      AppRoutes.adminCustomerLookupName,
-                    ),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.adminCustomerLookupName),
                   ),
                 ],
                 if (canSuspend) ...[
@@ -103,8 +104,7 @@ class _DashboardView extends StatelessWidget {
                   _DashboardTile(
                     icon: Icons.inventory_2_outlined,
                     label: l10n.productsTitle,
-                    onTap: () =>
-                        context.pushNamed(AppRoutes.adminProductsName),
+                    onTap: () => context.pushNamed(AppRoutes.adminProductsName),
                   ),
                 ],
               ],
@@ -134,13 +134,13 @@ class _StatGrid extends StatelessWidget {
         label: l10n.dashAwaiting,
         value: orders.awaitingAssignment,
         icon: Icons.assignment_late_outlined,
-        color: ColorsCustom.secondary,
+        color: context.colors.primary,
       ),
       _StatTile(
         label: l10n.dashAssigned,
         value: orders.assigned,
         icon: Icons.local_shipping_outlined,
-        color: ColorsCustom.primary,
+        color: context.colors.primary,
       ),
       _StatTile(
         label: l10n.dashCompleted,
@@ -158,7 +158,7 @@ class _StatGrid extends StatelessWidget {
         label: l10n.dashAll,
         value: orders.all,
         icon: Icons.receipt_long_outlined,
-        color: ColorsCustom.textSecondary,
+        color: context.colors.textSecondary,
       ),
     ];
     return LayoutBuilder(
@@ -169,8 +169,7 @@ class _StatGrid extends StatelessWidget {
           spacing: gap,
           runSpacing: gap,
           children: [
-            for (final tile in tiles)
-              SizedBox(width: tileWidth, child: tile),
+            for (final tile in tiles) SizedBox(width: tileWidth, child: tile),
           ],
         );
       },
@@ -220,7 +219,7 @@ class _StatTile extends StatelessWidget {
                 TextCustom(
                   text: label,
                   fontSize: 12,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -257,7 +256,7 @@ class _CompletionCard extends StatelessWidget {
                 text: '$pct%',
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: ColorsCustom.primary,
+                color: context.colors.primary,
               ),
             ],
           ),
@@ -267,8 +266,8 @@ class _CompletionCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: rate.clamp(0, 1).toDouble(),
               minHeight: 8,
-              backgroundColor: ColorsCustom.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation(ColorsCustom.primary),
+              backgroundColor: context.colors.surfaceVariant,
+              valueColor: AlwaysStoppedAnimation(context.colors.primary),
             ),
           ),
         ],
@@ -307,10 +306,7 @@ class _SlaCard extends StatelessWidget {
             value: _minutes(sla.avgMinutesToDeliver),
           ),
           const SizedBox(height: 8),
-          _SlaRow(
-            label: l10n.slaSample,
-            value: '${sla.deliveredSample}',
-          ),
+          _SlaRow(label: l10n.slaSample, value: '${sla.deliveredSample}'),
         ],
       ),
     );
@@ -330,7 +326,7 @@ class _SlaRow extends StatelessWidget {
           child: TextCustom(
             text: label,
             fontSize: 13.5,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
         TextCustom(text: value, fontSize: 14, fontWeight: FontWeight.w700),
@@ -362,10 +358,10 @@ class _DashboardTile extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ColorsCustom.secondaryLight,
+              color: context.colors.primaryTint,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: ColorsCustom.primary, size: 20),
+            child: Icon(icon, color: context.colors.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -375,9 +371,9 @@ class _DashboardTile extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right_rounded,
-            color: ColorsCustom.textHint,
+            color: context.colors.textHint,
             size: 22,
           ),
         ],

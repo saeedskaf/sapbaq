@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
@@ -9,7 +9,7 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: ColorsCustom.primary));
+      Center(child: CircularProgressIndicator(color: context.colors.primary));
 }
 
 /// Centered error state with a retry action.
@@ -33,15 +33,15 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: 56,
-              color: ColorsCustom.textHint,
+              color: context.colors.textHint,
             ),
             const SizedBox(height: 16),
             TextCustom.body(
               text: message,
-              color: ColorsCustom.textSecondary,
+              color: context.colors.textSecondary,
               fontSize: 15,
               textAlign: TextAlign.center,
             ),
@@ -77,11 +77,11 @@ class EmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: ColorsCustom.textHint),
+            Icon(icon, size: 56, color: context.colors.textHint),
             const SizedBox(height: 16),
             TextCustom.body(
               text: message,
-              color: ColorsCustom.textSecondary,
+              color: context.colors.textSecondary,
               fontSize: 15,
               textAlign: TextAlign.center,
             ),

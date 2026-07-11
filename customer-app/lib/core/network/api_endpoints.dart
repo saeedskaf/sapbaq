@@ -4,13 +4,26 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Auth — passwordless (Google / Apple / phone OTP). No passwords.
+  // Auth — phone OTP + 4-digit passcode + device trust (Sapbaq_AUTH_Flow).
+  // Google / Apple sign-in still supported. No passwords.
   // Public (no token):
+  static const String otpCheckNumber = '/auth/otp/check-number/';
   static const String otpRequest = '/auth/otp/request/';
   static const String otpVerify = '/auth/otp/verify/';
   static const String socialGoogle = '/auth/social/google/';
   static const String socialApple = '/auth/social/apple/';
   static const String refresh = '/auth/refresh/';
+  // Passcode (daily login) — public login/forgot, Bearer set:
+  static const String passcodeLogin = '/auth/passcode/login/';
+  static const String passcodeSet = '/auth/passcode/set/';
+  static const String passcodeForgotRequest = '/auth/passcode/forgot/request/';
+  static const String passcodeForgotReset = '/auth/passcode/forgot/reset/';
+  // Device trust for a new/unrecognized device (public):
+  static const String deviceTrustRequest = '/auth/device/trust/request/';
+  static const String deviceTrustVerify = '/auth/device/trust/verify/';
+  // Trusted-device management (Bearer): list + revoke.
+  static const String deviceTrusted = '/auth/device/trusted/';
+  static String deviceTrustedItem(int id) => '/auth/device/trusted/$id/';
   // Authenticated (Bearer):
   static const String phoneRequest = '/auth/phone/request/';
   static const String phoneVerify = '/auth/phone/verify/';

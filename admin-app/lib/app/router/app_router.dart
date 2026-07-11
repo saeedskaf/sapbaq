@@ -21,6 +21,8 @@ import 'package:sapbaq_admin/features/driver/presentation/screens/driver_destina
 import 'package:sapbaq_admin/features/driver/presentation/screens/driver_destinations_screen.dart';
 import 'package:sapbaq_admin/features/driver/presentation/screens/upload_proof_screen.dart';
 import 'package:sapbaq_admin/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:sapbaq_admin/features/profile/presentation/screens/appearance_screen.dart';
+import 'package:sapbaq_admin/features/profile/presentation/screens/language_screen.dart';
 import 'package:sapbaq_admin/features/profile/presentation/screens/profile_screen.dart';
 
 int _idOf(GoRouterState state) =>
@@ -100,6 +102,20 @@ GoRouter createRouter(AuthBloc authBloc) {
         path: AppRoutes.unauthorized,
         name: AppRoutes.unauthorizedName,
         builder: (_, _) => const UnauthorizedScreen(),
+      ),
+
+      // Language settings — pushed over any role's profile shell.
+      GoRoute(
+        path: AppRoutes.settingsLanguage,
+        name: AppRoutes.settingsLanguageName,
+        builder: (_, _) => const LanguageScreen(),
+      ),
+
+      // Appearance (light/dark) settings — pushed over any role's profile shell.
+      GoRoute(
+        path: AppRoutes.settingsAppearance,
+        name: AppRoutes.settingsAppearanceName,
+        builder: (_, _) => const AppearanceScreen(),
       ),
 
       // Admin full-screen routes (over the shell).

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
@@ -89,9 +89,9 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
               return FilterTabs(
                 labels: labels,
                 selectedIndex: AdminOrdersTab.values.indexOf(state.tab),
-                onChanged: (i) => context
-                    .read<AdminOrdersCubit>()
-                    .setTab(AdminOrdersTab.values[i]),
+                onChanged: (i) => context.read<AdminOrdersCubit>().setTab(
+                  AdminOrdersTab.values[i],
+                ),
               );
             },
           ),
@@ -110,7 +110,7 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
                     text: l10n.ordersCount(state.total),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: ColorsCustom.textHint,
+                    color: context.colors.textHint,
                   ),
                 ),
               );
@@ -136,7 +136,7 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
                   );
                 }
                 return RefreshIndicator(
-                  color: ColorsCustom.primary,
+                  color: context.colors.primary,
                   onRefresh: () => context.read<AdminOrdersCubit>().load(),
                   child: ListView.builder(
                     controller: _scrollController,
@@ -149,11 +149,11 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
                     itemCount: state.orders.length + (state.hasMore ? 1 : 0),
                     itemBuilder: (context, i) {
                       if (i >= state.orders.length) {
-                        return const Padding(
+                        return Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: ColorsCustom.primary,
+                              color: context.colors.primary,
                             ),
                           ),
                         );
@@ -197,11 +197,11 @@ class _SearchField extends StatelessWidget {
       onSubmitted: onSubmitted,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: const Icon(Icons.search_rounded, color: ColorsCustom.textHint),
+        prefixIcon: Icon(Icons.search_rounded, color: context.colors.textHint),
         suffixIcon: controller.text.isEmpty
             ? null
             : IconButton(
-                icon: const Icon(Icons.close_rounded, color: ColorsCustom.textHint),
+                icon: Icon(Icons.close_rounded, color: context.colors.textHint),
                 onPressed: () {
                   controller.clear();
                   onSubmitted('');

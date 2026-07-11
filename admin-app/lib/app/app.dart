@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_router.dart';
-import 'package:sapbaq_admin/core/constants/app_constants.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
 import 'package:sapbaq_admin/core/notifications/push_notification_service.dart';
+import 'package:sapbaq_admin/core/settings/settings_cubit.dart';
+import 'package:sapbaq_admin/core/settings/settings_service.dart';
 import 'package:sapbaq_admin/core/theme/app_theme.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/auth/data/auth_repository.dart';
@@ -21,12 +23,16 @@ import 'package:sapbaq_admin/l10n/app_localizations.dart';
 class SapbaqAdminApp extends StatefulWidget {
   final Dio dio;
   final AuthRepository authRepository;
+  final SettingsService settingsService;
+  final ValueNotifier<String> languageCode;
   final PushNotificationService pushNotifications;
 
   const SapbaqAdminApp({
     super.key,
     required this.dio,
     required this.authRepository,
+    required this.settingsService,
+    required this.languageCode,
     required this.pushNotifications,
   });
 
@@ -36,6 +42,7 @@ class SapbaqAdminApp extends StatefulWidget {
 
 class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
   late final AuthBloc _authBloc;
+  late final SettingsCubit _settingsCubit;
   late final GoRouter _router;
   StreamSubscription<AuthState>? _authStatusSub;
 
@@ -44,6 +51,10 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
     super.initState();
     _authBloc = AuthBloc(widget.authRepository)
       ..add(const AuthSubscriptionRequested());
+    _settingsCubit = SettingsCubit(
+      service: widget.settingsService,
+      languageCode: widget.languageCode,
+    );
     _router = createRouter(_authBloc);
 
     // Deep-link a tapped notification once the session is authenticated (§14):
@@ -71,12 +82,12 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
     _authStatusSub?.cancel();
     widget.pushNotifications.pendingRoute.removeListener(_maybeNavigatePending);
     _authBloc.close();
+    _settingsCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Arabic-only app. Locale is fixed to 'ar' so layout is always RTL.
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: widget.authRepository),
@@ -90,16 +101,46 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
           create: (_) => NotificationsRepository(widget.dio),
         ),
       ],
-      child: BlocProvider.value(
-        value: _authBloc,
-        child: MaterialApp.router(
-          title: 'Sapbaq Admin',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          locale: const Locale(AppConstants.languageCode),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: _router,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: _authBloc),
+          BlocProvider.value(value: _settingsCubit),
+        ],
+        // Rebuild on a language switch so MaterialApp adopts the new locale
+        // (and flips RTL/LTR) without a restart. The listener also re-applies
+        // the Android notification channel's localized name, which is what the
+        // user sees in the system notification settings.
+        child: BlocListener<SettingsCubit, SettingsState>(
+          listenWhen: (a, b) => a.locale != b.locale,
+          listener: (_, settings) => widget.pushNotifications
+              .updateChannelLocalization(settings.locale),
+          child: BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, settings) {
+              return MaterialApp.router(
+                title: 'Sapbaq Admin',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: settings.themeMode,
+                locale: settings.locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                routerConfig: _router,
+                // Sensible status-bar icon brightness for screens without an
+                // AppBar (splash); AppBar screens still override this.
+                builder: (context, child) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  return AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: isDark
+                        ? AppTheme.statusBarStyleDark
+                        : AppTheme.statusBarStyleLight,
+                    child: child ?? const SizedBox.shrink(),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

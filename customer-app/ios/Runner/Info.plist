@@ -15,6 +15,10 @@
 	     and show nearby mosques. -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>نستخدم موقعك لعرض المساجد القريبة منك على الخريطة وتحديد موقعك عليها.</string>
+	<!-- Face ID unlocks your saved session so you can sign in without re-typing
+	     your passcode (local_auth). -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>نستخدم Face ID لفتح جلستك بأمان بدل إدخال الرمز في كل مرة.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

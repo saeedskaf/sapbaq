@@ -9,12 +9,17 @@ import 'package:sapbaq/features/addresses/presentation/screens/address_form_scre
 import 'package:sapbaq/features/addresses/presentation/screens/addresses_screen.dart';
 import 'package:sapbaq/features/app_shell/presentation/app_shell.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:sapbaq/features/auth/presentation/screens/device_trust_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/forgot_passcode_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/lock_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/login_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/otp_screen.dart';
-import 'package:sapbaq/features/auth/presentation/screens/passkey_devices_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/passcode_login_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/phone_verification_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/profile_completion_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/set_passcode_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/splash_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/trusted_devices_screen.dart';
 import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
 import 'package:sapbaq/features/cart/presentation/screens/cart_screen.dart';
 import 'package:sapbaq/features/cart/presentation/screens/checkout_screen.dart';
@@ -64,7 +69,7 @@ bool _isGuestBlocked(String location) {
       location == AppRoutes.addresses ||
       location == AppRoutes.addressForm ||
       location == AppRoutes.favorites ||
-      location == AppRoutes.passkeys ||
+      location == AppRoutes.trustedDevices ||
       location == AppRoutes.support ||
       location == AppRoutes.newTicket ||
       location.startsWith('/ticket/') ||
@@ -72,13 +77,24 @@ bool _isGuestBlocked(String location) {
 }
 
 /// Builds the app router. Redirects are driven by [AuthBloc] state:
-/// unknown → splash, unauthenticated → auth flow, guest → shell (account flows
+/// unknown → splash, unauthenticated → auth flow, completingProfile/
+/// settingPasscode → onboarding, locked → unlock, guest → shell (account flows
 /// gated), authenticated → shell.
 GoRouter createRouter(AuthBloc authBloc) {
-  const authLocations = {AppRoutes.login, AppRoutes.otp};
+  // Pre-session sign-in screens (status still unauthenticated until a session
+  // is issued at the end of the flow).
+  const authLocations = {
+    AppRoutes.login,
+    AppRoutes.otp,
+    AppRoutes.passcodeLogin,
+    AppRoutes.deviceTrust,
+    AppRoutes.forgotPasscode,
+  };
+  // Session present but not yet usable (finishing onboarding).
   const onboardingLocations = {
     AppRoutes.verifyPhone,
     AppRoutes.completeProfile,
+    AppRoutes.setPasscode,
   };
 
   return GoRouter(
@@ -88,6 +104,7 @@ GoRouter createRouter(AuthBloc authBloc) {
       final status = authBloc.state.status;
       final location = state.matchedLocation;
       final atSplash = location == AppRoutes.splash;
+      final atLock = location == AppRoutes.lock;
       final inAuthFlow = authLocations.contains(location);
       final inOnboarding = onboardingLocations.contains(location);
 
@@ -101,12 +118,23 @@ GoRouter createRouter(AuthBloc authBloc) {
         final target = needsPhone
             ? AppRoutes.verifyPhone
             : AppRoutes.completeProfile;
-        if (!inOnboarding) return target;
+        if (location != AppRoutes.verifyPhone &&
+            location != AppRoutes.completeProfile) {
+          return target;
+        }
         // Phone now verified → advance from the phone step to profile.
         if (!needsPhone && location == AppRoutes.verifyPhone) {
           return AppRoutes.completeProfile;
         }
         return null;
+      }
+      if (status == AuthStatus.settingPasscode) {
+        return location == AppRoutes.setPasscode ? null : AppRoutes.setPasscode;
+      }
+      if (status == AuthStatus.locked) {
+        // Unlock screen — but allow passcode recovery to be opened over it.
+        if (atLock || location == AppRoutes.forgotPasscode) return null;
+        return AppRoutes.lock;
       }
       if (status == AuthStatus.unauthenticated) {
         return inAuthFlow ? null : AppRoutes.login;
@@ -119,7 +147,9 @@ GoRouter createRouter(AuthBloc authBloc) {
         return null;
       }
       // authenticated
-      if (atSplash || inAuthFlow || inOnboarding) return AppRoutes.home;
+      if (atSplash || atLock || inAuthFlow || inOnboarding) {
+        return AppRoutes.home;
+      }
       return null;
     },
     routes: [
@@ -141,6 +171,33 @@ GoRouter createRouter(AuthBloc authBloc) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.passcodeLogin,
+        name: AppRoutes.passcodeLoginName,
+        builder: (_, state) => PasscodeLoginScreen(
+          phone: state.uri.queryParameters['phone'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.deviceTrust,
+        name: AppRoutes.deviceTrustName,
+        builder: (_, state) => DeviceTrustScreen(
+          phone: state.uri.queryParameters['phone'] ?? '',
+          passcode: state.extra as String? ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPasscode,
+        name: AppRoutes.forgotPasscodeName,
+        builder: (_, state) => ForgotPasscodeScreen(
+          phone: state.uri.queryParameters['phone'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.lock,
+        name: AppRoutes.lockName,
+        builder: (_, _) => const LockScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.verifyPhone,
         name: AppRoutes.verifyPhoneName,
         builder: (_, _) => const PhoneVerificationScreen(),
@@ -149,6 +206,11 @@ GoRouter createRouter(AuthBloc authBloc) {
         path: AppRoutes.completeProfile,
         name: AppRoutes.completeProfileName,
         builder: (_, _) => const ProfileCompletionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.setPasscode,
+        name: AppRoutes.setPasscodeName,
+        builder: (_, _) => const SetPasscodeScreen(),
       ),
       // Donation flow + detail screens — full-screen over the shell (pushed).
       GoRoute(
@@ -237,11 +299,6 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, _) => const ProfileScreen(),
       ),
       GoRoute(
-        path: AppRoutes.passkeys,
-        name: AppRoutes.passkeysName,
-        builder: (_, _) => const PasskeyDevicesScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.appearance,
         name: AppRoutes.appearanceName,
         builder: (_, _) => const AppearanceScreen(),
@@ -271,6 +328,11 @@ GoRouter createRouter(AuthBloc authBloc) {
         path: AppRoutes.favorites,
         name: AppRoutes.favoritesName,
         builder: (_, _) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.trustedDevices,
+        name: AppRoutes.trustedDevicesName,
+        builder: (_, _) => const TrustedDevicesScreen(),
       ),
       GoRoute(
         path: AppRoutes.support,

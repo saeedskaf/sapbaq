@@ -2,61 +2,121 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 
+/// Builds the app's [ThemeData] for both brightnesses from a single
+/// brightness-parameterized builder, so light and dark stay in lockstep and
+/// only differ by their resolved neutral/brand tokens.
 class AppTheme {
   AppTheme._();
 
-  static const statusBarStyle = SystemUiOverlayStyle(
+  /// Status-bar overlay for light surfaces (dark icons).
+  static const statusBarStyleLight = SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
   );
 
+  /// Status-bar overlay for dark surfaces (light icons).
+  static const statusBarStyleDark = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+  );
+
   static final _borderRadius = BorderRadius.circular(12);
   static final _buttonBorderRadius = BorderRadius.circular(14);
 
-  static ThemeData get light {
-    // Arabic-first: IBM Plex Sans Arabic — clean UI Arabic whose vertical
-    // metrics match Poppins (1.5em line box), so the scripts align naturally.
-    final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme();
+  static ThemeData get light => _themeFor(Brightness.light);
+  static ThemeData get dark => _themeFor(Brightness.dark);
+
+  static ThemeData _themeFor(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+
+    // Resolved neutral tokens for this brightness.
+    final background = isDark
+        ? ColorsCustom.darkBackground
+        : ColorsCustom.background;
+    final surface = isDark ? ColorsCustom.darkSurface : ColorsCustom.surface;
+    final surfaceVariant = isDark
+        ? ColorsCustom.darkSurfaceVariant
+        : ColorsCustom.surfaceVariant;
+    final border = isDark ? ColorsCustom.darkBorder : ColorsCustom.border;
+    final textPrimary = isDark
+        ? ColorsCustom.darkTextPrimary
+        : ColorsCustom.textPrimary;
+    final textSecondary = isDark
+        ? ColorsCustom.darkTextSecondary
+        : ColorsCustom.textSecondary;
+    final textHint = isDark ? ColorsCustom.darkTextHint : ColorsCustom.textHint;
+
+    // Brand foreground green: deep on light, the logo mint on dark. Visible
+    // brand FILLS (buttons, FAB, selection controls) are themed explicitly to
+    // the logo mint ([ColorsCustom.brandMint] + [ColorsCustom.onMint]) in both
+    // modes; the light ColorScheme keeps white onPrimary for Material internals
+    // that pair it with the deep-green scheme primary.
+    final primary = isDark ? ColorsCustom.primaryOnDark : ColorsCustom.primary;
+    final onPrimary = isDark
+        ? ColorsCustom.darkOnPrimary
+        : ColorsCustom.textOnPrimary;
+    final primaryTint = isDark
+        ? ColorsCustom.darkPrimaryTint
+        : ColorsCustom.secondaryLight;
+
+    final overlayStyle = isDark ? statusBarStyleDark : statusBarStyleLight;
+
+    // Arabic-first: Cairo (Arabic UI) + Poppins (Latin), each used with its
+    // natural metrics — no per-script height/baseline hacks. The brand wordmark
+    // stays in Tajawal via TextCustom, independent of this base theme.
+    final textTheme = GoogleFonts.cairoTextTheme().apply(
+      bodyColor: textPrimary,
+      displayColor: textPrimary,
+    );
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: ColorsCustom.background,
-      colorScheme: const ColorScheme.light(
-        primary: ColorsCustom.primary,
-        secondary: ColorsCustom.secondary,
-        tertiary: ColorsCustom.secondaryLight,
-        surface: ColorsCustom.surface,
+      brightness: brightness,
+      extensions: <ThemeExtension<dynamic>>[
+        isDark ? ThemeColors.dark : ThemeColors.light,
+      ],
+      scaffoldBackgroundColor: background,
+      colorScheme: ColorScheme(
+        brightness: brightness,
+        primary: primary,
+        onPrimary: onPrimary,
+        secondary: ColorsCustom.brandMint,
+        onSecondary: ColorsCustom.onMint,
+        tertiary: primaryTint,
+        onTertiary: textPrimary,
+        surface: surface,
+        onSurface: textPrimary,
         error: ColorsCustom.error,
-        onPrimary: ColorsCustom.textOnPrimary,
-        onSecondary: ColorsCustom.textOnPrimary,
-        outline: ColorsCustom.border,
-        surfaceContainerHighest: ColorsCustom.surfaceVariant,
+        onError: ColorsCustom.textOnPrimary,
+        outline: border,
+        surfaceContainerHighest: surfaceVariant,
       ),
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         // Seamless with the scaffold background — no hard line under the bar.
-        backgroundColor: ColorsCustom.background,
-        foregroundColor: ColorsCustom.textPrimary,
+        backgroundColor: background,
+        foregroundColor: textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         surfaceTintColor: Colors.transparent,
         titleTextStyle: textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w700,
-          color: ColorsCustom.textPrimary,
+          color: textPrimary,
         ),
-        systemOverlayStyle: statusBarStyle,
+        systemOverlayStyle: overlayStyle,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           // Brand fill is the logo mint, which needs a dark foreground.
           backgroundColor: ColorsCustom.brandMint,
           foregroundColor: ColorsCustom.onMint,
-          disabledBackgroundColor: ColorsCustom.border,
-          disabledForegroundColor: ColorsCustom.textHint,
+          disabledBackgroundColor: border,
+          disabledForegroundColor: textHint,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: _buttonBorderRadius),
@@ -68,8 +128,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: ColorsCustom.primary,
-          side: const BorderSide(color: ColorsCustom.primary, width: 1.5),
+          foregroundColor: primary,
+          side: BorderSide(color: primary, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: _buttonBorderRadius),
           textStyle: textTheme.labelLarge?.copyWith(
@@ -80,7 +140,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: ColorsCustom.primary,
+          foregroundColor: primary,
           textStyle: textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -91,17 +151,15 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return ColorsCustom.brandMint;
           }
-          return ColorsCustom.surface;
+          return surface;
         }),
         checkColor: const WidgetStatePropertyAll(ColorsCustom.onMint),
-        side: const BorderSide(color: ColorsCustom.primary, width: 1.5),
+        side: BorderSide(color: primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? ColorsCustom.surface
-              : null,
+          (states) => states.contains(WidgetState.selected) ? surface : null,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -111,22 +169,22 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: ColorsCustom.surfaceVariant,
+        fillColor: surfaceVariant,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: const BorderSide(color: ColorsCustom.border, width: 0.5),
+          borderSide: BorderSide(color: border, width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: const BorderSide(color: ColorsCustom.border, width: 0.5),
+          borderSide: BorderSide(color: border, width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: const BorderSide(color: ColorsCustom.primary, width: 1.5),
+          borderSide: BorderSide(color: primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
@@ -136,17 +194,15 @@ class AppTheme {
           borderRadius: _borderRadius,
           borderSide: const BorderSide(color: ColorsCustom.error, width: 1.5),
         ),
-        hintStyle: textTheme.bodyMedium?.copyWith(color: ColorsCustom.textHint),
-        labelStyle: textTheme.bodyMedium?.copyWith(
-          color: ColorsCustom.textSecondary,
-        ),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: textHint),
+        labelStyle: textTheme.bodyMedium?.copyWith(color: textSecondary),
       ),
       cardTheme: CardThemeData(
-        color: ColorsCustom.surface,
+        color: surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: ColorsCustom.border, width: 0.5),
+          side: BorderSide(color: border, width: 0.5),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -154,12 +210,12 @@ class AppTheme {
         foregroundColor: ColorsCustom.onMint,
         elevation: 4,
       ),
-      dividerTheme: const DividerThemeData(
-        color: ColorsCustom.border,
-        thickness: 0.5,
-      ),
+      dividerTheme: DividerThemeData(color: border, thickness: 0.5),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: ColorsCustom.textPrimary,
+        backgroundColor: isDark ? surfaceVariant : ColorsCustom.textPrimary,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: isDark ? textPrimary : ColorsCustom.surface,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: _borderRadius),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/shared/data/models/mosque.dart';
@@ -20,7 +21,7 @@ class SectionLabel extends StatelessWidget {
       text: text,
       fontSize: 12,
       fontWeight: FontWeight.w800,
-      color: ColorsCustom.textHint,
+      color: context.colors.textHint,
     );
   }
 }
@@ -38,11 +39,7 @@ class SectionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionLabel(title),
-          const SizedBox(height: 10),
-          child,
-        ],
+        children: [SectionLabel(title), const SizedBox(height: 10), child],
       ),
     );
   }
@@ -103,7 +100,10 @@ class DestinationSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final location = mosque == null
         ? ''
-        : [mosque!.area, mosque!.address].where((s) => s.isNotEmpty).join(' — ');
+        : [
+            mosque!.area,
+            mosque!.address,
+          ].where((s) => s.isNotEmpty).join(' — ');
 
     return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -128,7 +128,7 @@ class DestinationSection extends StatelessWidget {
                     TextCustom(
                       text: destinationTypeLabel(l10n, destinationType),
                       fontSize: 12.5,
-                      color: ColorsCustom.textHint,
+                      color: context.colors.textHint,
                     ),
                   ],
                 ),
@@ -177,14 +177,14 @@ class DestinationSection extends StatelessWidget {
                   _DestinationAction(
                     icon: Icons.map_outlined,
                     label: l10n.openLocation,
-                    color: ColorsCustom.primary,
+                    color: context.colors.primary,
                     onPressed: onOpenLocation!,
                   ),
                 if (onDistribute != null)
                   _DestinationAction(
                     icon: Icons.engineering_outlined,
                     label: l10n.distributeToHandler,
-                    color: ColorsCustom.primary,
+                    color: context.colors.primary,
                     onPressed: onDistribute!,
                   ),
                 if (onComplete != null)
@@ -198,7 +198,7 @@ class DestinationSection extends StatelessWidget {
                   _DestinationAction(
                     icon: Icons.swap_horiz_rounded,
                     label: l10n.reassignButton,
-                    color: ColorsCustom.secondary,
+                    color: context.colors.primary,
                     onPressed: onReassign!,
                   ),
               ],
@@ -214,14 +214,14 @@ class DestinationSection extends StatelessWidget {
               TextCustom(
                 text: l10n.subtotalLabel,
                 fontSize: 13,
-                color: ColorsCustom.textSecondary,
+                color: context.colors.textSecondary,
               ),
               const Spacer(),
               TextCustom(
                 text: l10n.priceKwd(subtotal),
                 fontSize: 14.5,
                 fontWeight: FontWeight.w800,
-                color: ColorsCustom.primary,
+                color: context.colors.primary,
               ),
             ],
           ),
@@ -329,7 +329,7 @@ class DestinationStatusTimeline extends StatelessWidget {
             time: formatShortDateTime(_timeFor(_steps[i])),
             done: current >= 0 && i <= current,
             isLast: i == _steps.length - 1,
-            color: ColorsCustom.primary,
+            color: context.colors.primary,
           ),
       ],
     );
@@ -354,7 +354,7 @@ class _TimelineStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dotColor = done ? color : ColorsCustom.border;
+    final dotColor = done ? color : context.colors.border;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,10 +365,15 @@ class _TimelineStep extends StatelessWidget {
                 width: 9,
                 height: 9,
                 margin: const EdgeInsets.only(top: 3),
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
+                ),
               ),
               if (!isLast)
-                Expanded(child: Container(width: 2, color: ColorsCustom.border)),
+                Expanded(
+                  child: Container(width: 2, color: context.colors.border),
+                ),
             ],
           ),
           const SizedBox(width: 10),
@@ -383,15 +388,15 @@ class _TimelineStep extends StatelessWidget {
                       fontSize: 13,
                       fontWeight: done ? FontWeight.w700 : FontWeight.w500,
                       color: done
-                          ? ColorsCustom.textPrimary
-                          : ColorsCustom.textHint,
+                          ? context.colors.textPrimary
+                          : context.colors.textHint,
                     ),
                   ),
                   if (done && time.isNotEmpty)
                     TextCustom(
                       text: time,
                       fontSize: 11.5,
-                      color: ColorsCustom.textHint,
+                      color: context.colors.textHint,
                     ),
                 ],
               ),
@@ -414,13 +419,13 @@ class _MetaLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: ColorsCustom.textHint),
+        Icon(icon, size: 16, color: context.colors.textHint),
         const SizedBox(width: 6),
         Expanded(
           child: TextCustom(
             text: text,
             fontSize: 13,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -441,8 +446,8 @@ class _ItemRow extends StatelessWidget {
         children: [
           Pill(
             text: '×${item.quantity}',
-            color: ColorsCustom.primary,
-            background: ColorsCustom.surfaceVariant,
+            color: context.colors.primary,
+            background: context.colors.surfaceVariant,
             fontSize: 12,
             radius: 8,
             hPad: 8,
@@ -461,7 +466,7 @@ class _ItemRow extends StatelessWidget {
             text: l10n.priceKwd(item.lineTotal),
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ],
       ),

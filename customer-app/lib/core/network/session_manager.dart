@@ -1,11 +1,17 @@
 import 'dart:async';
 
-/// [completingProfile]: signed in (valid tokens) but the account isn't usable
-/// yet — the user must verify a phone and/or complete their profile first.
+/// Onboarding/entry gates layered on top of a valid session:
+/// - [completingProfile]: signed in but the account isn't usable yet — verify a
+///   phone (if missing) and complete name/email.
+/// - [settingPasscode]: profile done but no 4-digit passcode set yet.
+/// - [locked]: a fully set-up session persisted from a previous launch — must be
+///   unlocked with biometrics or the passcode before the app opens.
 enum AuthStatus {
   unknown,
   authenticated,
   completingProfile,
+  settingPasscode,
+  locked,
   unauthenticated,
   guest,
 }
@@ -29,6 +35,8 @@ class SessionManager {
 
   void authenticated() => setStatus(AuthStatus.authenticated);
   void completingProfile() => setStatus(AuthStatus.completingProfile);
+  void settingPasscode() => setStatus(AuthStatus.settingPasscode);
+  void locked() => setStatus(AuthStatus.locked);
   void unauthenticated() => setStatus(AuthStatus.unauthenticated);
   void guest() => setStatus(AuthStatus.guest);
 

@@ -8,6 +8,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:sapbaq_admin/core/constants/app_constants.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -38,7 +39,7 @@ class _FieldLabel extends StatelessWidget {
             text: text,
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: ColorsCustom.textPrimary,
+            color: context.colors.textPrimary,
           ),
           if (isRequired) ...[
             const SizedBox(width: 4),
@@ -178,11 +179,11 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
     FontWeight? weight,
   }) {
     final isArabic = _isArabic(widget.hintText ?? widget.label ?? '');
-    final font = isArabic ? GoogleFonts.ibmPlexSansArabic : GoogleFonts.poppins;
+    final font = isArabic ? GoogleFonts.cairo : GoogleFonts.poppins;
     return font(
       fontSize: fontSize,
       fontWeight: weight ?? FontWeight.w500,
-      color: color ?? ColorsCustom.textPrimary,
+      color: color ?? context.colors.textPrimary,
       height: 1.5,
       letterSpacing: 0,
     );
@@ -191,8 +192,8 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
   @override
   Widget build(BuildContext context) {
     final Color iconColor = _isFocused
-        ? ColorsCustom.primary
-        : ColorsCustom.textHint;
+        ? context.colors.primary
+        : context.colors.textHint;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,28 +217,30 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
           validator: widget.validator,
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
-          cursorColor: ColorsCustom.primary,
+          cursorColor: context.colors.primary,
           style: _textStyle(
             fontSize: 15,
             color: widget.enabled
-                ? ColorsCustom.textPrimary
-                : ColorsCustom.textHint,
+                ? context.colors.textPrimary
+                : context.colors.textHint,
           ),
           decoration: InputDecoration(
             filled: true,
             fillColor: !widget.enabled
-                ? ColorsCustom.surfaceVariant
-                : (_isFocused ? ColorsCustom.inputFocusFill : ColorsCustom.surface),
+                ? context.colors.surfaceVariant
+                : (_isFocused
+                      ? context.colors.inputFocusFill
+                      : context.colors.surface),
             hintText: widget.hintText,
             hintStyle: _textStyle(
               fontSize: 15,
-              color: ColorsCustom.textHint,
+              color: context.colors.textHint,
               weight: FontWeight.w400,
             ),
             prefixText: widget.prefixText,
             prefixStyle: _textStyle(
               fontSize: 15,
-              color: ColorsCustom.textSecondary,
+              color: context.colors.textSecondary,
             ),
             prefixIcon: widget.prefixIcon == null
                 ? null
@@ -252,12 +255,12 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
               horizontal: 16,
               vertical: 16,
             ),
-            border: _border(ColorsCustom.border),
-            enabledBorder: _border(ColorsCustom.border),
-            focusedBorder: _border(ColorsCustom.primary, width: 1.5),
+            border: _border(context.colors.border),
+            enabledBorder: _border(context.colors.border),
+            focusedBorder: _border(context.colors.primary, width: 1.5),
             errorBorder: _border(ColorsCustom.error),
             focusedErrorBorder: _border(ColorsCustom.error, width: 1.5),
-            disabledBorder: _border(ColorsCustom.border, width: 0.5),
+            disabledBorder: _border(context.colors.border, width: 0.5),
             errorStyle: _textStyle(
               fontSize: 13,
               color: ColorsCustom.error,
@@ -331,10 +334,10 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
     Color? color,
     FontWeight? weight,
   }) {
-    return GoogleFonts.ibmPlexSansArabic(
+    return GoogleFonts.cairo(
       fontSize: fontSize,
       fontWeight: weight ?? FontWeight.w500,
-      color: color ?? ColorsCustom.textPrimary,
+      color: color ?? context.colors.textPrimary,
       height: 1.5,
       letterSpacing: 0,
     );
@@ -347,12 +350,12 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
     final Color borderColor = hasError
         ? ColorsCustom.error
         : _isFocused
-        ? ColorsCustom.primary
-        : ColorsCustom.border;
+        ? context.colors.primary
+        : context.colors.border;
     final double borderWidth = hasError || _isFocused ? 1.5 : 1.0;
     final Color fillColor = hasError
-        ? ColorsCustom.surface
-        : (_isFocused ? ColorsCustom.inputFocusFill : ColorsCustom.surface);
+        ? context.colors.surface
+        : (_isFocused ? context.colors.inputFocusFill : context.colors.surface);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,48 +387,48 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
                 showCountryFlag: true,
                 showDropdownIcon: true,
                 dropdownIconPosition: IconPosition.trailing,
-                dropdownIcon: const Icon(
+                dropdownIcon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: ColorsCustom.textHint,
+                  color: context.colors.textHint,
                   size: 20,
                 ),
                 style: _textStyle(fontSize: 15),
                 dropdownTextStyle: _textStyle(
                   fontSize: 15,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 flagsButtonPadding: const EdgeInsets.symmetric(horizontal: 12),
                 pickerDialogStyle: PickerDialogStyle(
-                  backgroundColor: ColorsCustom.surface,
+                  backgroundColor: context.colors.surface,
                   countryNameStyle: _textStyle(
                     fontSize: 15,
-                    color: ColorsCustom.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   countryCodeStyle: _textStyle(
                     fontSize: 14,
-                    color: ColorsCustom.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
-                  searchFieldCursorColor: ColorsCustom.primary,
+                  searchFieldCursorColor: context.colors.primary,
                   searchFieldInputDecoration: InputDecoration(
                     hintText: l10n.searchCountry,
                     hintStyle: _textStyle(
                       fontSize: 15,
-                      color: ColorsCustom.textHint,
+                      color: context.colors.textHint,
                       weight: FontWeight.w400,
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search_rounded,
-                      color: ColorsCustom.textHint,
+                      color: context.colors.textHint,
                       size: 20,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(_kRadius),
-                      borderSide: const BorderSide(color: ColorsCustom.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(_kRadius),
-                      borderSide: const BorderSide(
-                        color: ColorsCustom.primary,
+                      borderSide: BorderSide(
+                        color: context.colors.primary,
                         width: 1.5,
                       ),
                     ),
@@ -435,7 +438,7 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
                   hintText: widget.hintText,
                   hintStyle: _textStyle(
                     fontSize: 15,
-                    color: ColorsCustom.textHint,
+                    color: context.colors.textHint,
                     weight: FontWeight.normal,
                   ),
                   filled: false,

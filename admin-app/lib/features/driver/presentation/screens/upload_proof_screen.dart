@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
@@ -53,8 +54,9 @@ class _UploadProofViewState extends State<_UploadProofView> {
     // item 11) — the driver can edit or clear it before uploading.
     if (!_notePrefilled) {
       _notePrefilled = true;
-      _noteController.text =
-          AppLocalizations.of(context)!.proofNoteDefaultDelivered;
+      _noteController.text = AppLocalizations.of(
+        context,
+      )!.proofNoteDefaultDelivered;
     }
   }
 
@@ -123,7 +125,7 @@ class _UploadProofViewState extends State<_UploadProofView> {
               children: [
                 TextCustom.body(
                   text: l10n.proofHint,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                   fontSize: 14,
                 ),
                 const SizedBox(height: 16),
@@ -209,7 +211,7 @@ class _SourceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ColorsCustom.surfaceVariant,
+      color: context.colors.surfaceVariant,
       borderRadius: BorderRadius.circular(14),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -218,13 +220,13 @@ class _SourceButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(
             children: [
-              Icon(icon, color: ColorsCustom.primary, size: 26),
+              Icon(icon, color: context.colors.primary, size: 26),
               const SizedBox(height: 8),
               TextCustom(
                 text: label,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: ColorsCustom.textSecondary,
+                color: context.colors.textSecondary,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -249,16 +251,16 @@ class _ProofThumb extends StatelessWidget {
           width: 90,
           height: 90,
           decoration: BoxDecoration(
-            color: ColorsCustom.surfaceVariant,
+            color: context.colors.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: ColorsCustom.border),
+            border: Border.all(color: context.colors.border),
           ),
           clipBehavior: Clip.antiAlias,
           child: isVideo
-              ? const Center(
+              ? Center(
                   child: Icon(
                     Icons.play_circle_outline_rounded,
-                    color: ColorsCustom.primary,
+                    color: context.colors.primary,
                     size: 34,
                   ),
                 )

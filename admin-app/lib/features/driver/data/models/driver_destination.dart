@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/features/shared/data/models/mosque.dart';
 import 'package:sapbaq_admin/features/shared/data/models/order_customer.dart';
 import 'package:sapbaq_admin/features/shared/data/models/order_item.dart';
@@ -19,6 +20,7 @@ class DriverDestination extends Equatable {
   final String? customerNotes;
   final String subtotal;
   final List<OrderItem> items;
+  final List<DeliveryProof> proofs;
   final String? assignedAt;
   final String? acceptedAt;
   final String? inDeliveryAt;
@@ -33,6 +35,7 @@ class DriverDestination extends Equatable {
     required this.status,
     required this.subtotal,
     required this.items,
+    this.proofs = const [],
     this.orderCode = '',
     this.mosque,
     this.customer,
@@ -84,6 +87,11 @@ class DriverDestination extends Equatable {
       items: (json['items'] as List<dynamic>? ?? const [])
           .map((e) => OrderItem.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      proofs: (json['proofs'] as List<dynamic>? ?? const [])
+          .map(
+            (e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
+          .toList(),
       assignedAt: json['assigned_at'] as String?,
       acceptedAt: json['accepted_at'] as String?,
       inDeliveryAt: json['in_delivery_at'] as String?,
@@ -92,5 +100,12 @@ class DriverDestination extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, status, acceptedAt, inDeliveryAt, deliveredAt];
+  List<Object?> get props => [
+    id,
+    status,
+    acceptedAt,
+    inDeliveryAt,
+    deliveredAt,
+    proofs,
+  ];
 }

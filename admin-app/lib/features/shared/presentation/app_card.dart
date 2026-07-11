@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 
 /// The one card surface used across the app: a borderless white panel lifted by
 /// a single soft shadow (no hairline borders). Keeping every card identical is
@@ -44,7 +44,7 @@ class AppCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: br,
         child: Material(
-          color: color ?? ColorsCustom.surface,
+          color: color ?? context.colors.surface,
           child: onTap == null
               ? content
               : InkWell(onTap: onTap, child: content),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
 import 'package:sapbaq_admin/core/widgets/reason_sheet.dart';
@@ -21,7 +22,8 @@ class ProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ProductsCubit(context.read<AdminRepository>())..load(),
+      create: (context) =>
+          ProductsCubit(context.read<AdminRepository>())..load(),
       child: const _ProductsView(),
     );
   }
@@ -92,16 +94,16 @@ class _ProductsViewState extends State<_ProductsView> {
               onSubmitted: (q) => context.read<ProductsCubit>().search(q),
               decoration: InputDecoration(
                 hintText: l10n.searchProductsHint,
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: ColorsCustom.textHint,
+                  color: context.colors.textHint,
                 ),
                 suffixIcon: _searchController.text.isEmpty
                     ? null
                     : IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
-                          color: ColorsCustom.textHint,
+                          color: context.colors.textHint,
                         ),
                         onPressed: () {
                           _searchController.clear();
@@ -134,7 +136,7 @@ class _ProductsViewState extends State<_ProductsView> {
                   );
                 }
                 return RefreshIndicator(
-                  color: ColorsCustom.primary,
+                  color: context.colors.primary,
                   onRefresh: () => context.read<ProductsCubit>().load(),
                   child: ListView.builder(
                     controller: _scrollController,
@@ -142,11 +144,11 @@ class _ProductsViewState extends State<_ProductsView> {
                     itemCount: state.items.length + (state.hasMore ? 1 : 0),
                     itemBuilder: (context, i) {
                       if (i >= state.items.length) {
-                        return const Padding(
+                        return Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: ColorsCustom.primary,
+                              color: context.colors.primary,
                             ),
                           ),
                         );
@@ -207,20 +209,20 @@ class _ProductRow extends StatelessWidget {
                         child: TextCustom(
                           text: product.categoryName,
                           fontSize: 12,
-                          color: ColorsCustom.textHint,
+                          color: context.colors.textHint,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const TextCustom(text: '·', color: ColorsCustom.textHint),
+                      TextCustom(text: '·', color: context.colors.textHint),
                       const SizedBox(width: 6),
                     ],
                     TextCustom(
                       text: l10n.priceKwd(product.price),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
-                      color: ColorsCustom.primary,
+                      color: context.colors.primary,
                     ),
                   ],
                 ),
@@ -228,8 +230,8 @@ class _ProductRow extends StatelessWidget {
                   const SizedBox(height: 6),
                   Pill(
                     text: l10n.productInactive,
-                    color: ColorsCustom.textSecondary,
-                    background: ColorsCustom.surfaceVariant,
+                    color: context.colors.textSecondary,
+                    background: context.colors.surfaceVariant,
                     fontSize: 10.5,
                   ),
                 ] else if (!product.isAvailable) ...[
@@ -237,7 +239,7 @@ class _ProductRow extends StatelessWidget {
                   Pill(
                     text: l10n.productSuspended,
                     color: ColorsCustom.error,
-                    background: ColorsCustom.surfaceVariant,
+                    background: context.colors.surfaceVariant,
                     fontSize: 10.5,
                   ),
                 ],
@@ -246,7 +248,7 @@ class _ProductRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           if (busy)
-            const SizedBox(
+            SizedBox(
               width: 40,
               height: 24,
               child: Center(
@@ -255,7 +257,7 @@ class _ProductRow extends StatelessWidget {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: ColorsCustom.primary,
+                    color: context.colors.primary,
                   ),
                 ),
               ),

@@ -2,7 +2,7 @@ name: sapbaq_admin
 description: "Sapbaq Admin & Driver — management and delivery companion for the Sapbaq ecosystem."
 publish_to: 'none'
 
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ^3.11.0
@@ -30,6 +30,9 @@ dependencies:
   # Pinned to 9.x: v10's iOS impl uses the experimental `objective_c` native
   # assets, which fail to load on stable Flutter (dlopen objective_c.framework).
   flutter_secure_storage: ^9.2.4
+
+  # Persists non-sensitive UI preferences (selected language) across launches.
+  shared_preferences: ^2.5.5
 
   # Localization & UI
   intl: ^0.20.2
@@ -89,6 +92,7 @@ flutter:
 
   assets:
     - assets/images/logo/
-    # Bundled IBM Plex Sans Arabic (Arabic) + Poppins (Latin) so google_fonts uses these
-    # instead of fetching from fonts.gstatic.com at runtime (works offline).
+    # Bundled Cairo (Arabic UI) + Tajawal (brand wordmark) + Poppins (Latin) so
+    # google_fonts uses these instead of fetching from fonts.gstatic.com at
+    # runtime (works offline).
     - assets/google_fonts/

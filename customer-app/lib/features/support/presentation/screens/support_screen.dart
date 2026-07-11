@@ -33,7 +33,7 @@ String ticketStatusLabel(AppLocalizations l10n, String status) {
 Color ticketStatusColor(BuildContext context, String status) {
   switch (status) {
     case 'OPEN':
-      return ColorsCustom.info;
+      return context.colors.primary;
     case 'IN_PROGRESS':
       return ColorsCustom.warning;
     case 'RESOLVED':

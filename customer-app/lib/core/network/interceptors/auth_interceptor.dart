@@ -34,10 +34,16 @@ class AuthInterceptor extends QueuedInterceptor {
         )..interceptors.add(LocaleInterceptor(language));
 
   static const Set<String> _publicPaths = {
+    ApiEndpoints.otpCheckNumber,
     ApiEndpoints.otpRequest,
     ApiEndpoints.otpVerify,
     ApiEndpoints.socialGoogle,
     ApiEndpoints.socialApple,
+    ApiEndpoints.passcodeLogin,
+    ApiEndpoints.passcodeForgotRequest,
+    ApiEndpoints.passcodeForgotReset,
+    ApiEndpoints.deviceTrustRequest,
+    ApiEndpoints.deviceTrustVerify,
     ApiEndpoints.passkeyLoginBegin,
     ApiEndpoints.passkeyLoginComplete,
     ApiEndpoints.refresh,

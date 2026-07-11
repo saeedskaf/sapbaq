@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
 class LoadingModal {
@@ -18,7 +18,7 @@ class LoadingModal {
       builder: (context) => PopScope(
         canPop: false,
         child: Dialog(
-          backgroundColor: ColorsCustom.surface,
+          backgroundColor: context.colors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -27,11 +27,11 @@ class LoadingModal {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 40,
                   height: 40,
                   child: CircularProgressIndicator(
-                    color: ColorsCustom.primary,
+                    color: context.colors.primary,
                     strokeWidth: 3,
                   ),
                 ),
@@ -41,7 +41,7 @@ class LoadingModal {
                     text: message,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: ColorsCustom.textPrimary,
+                    color: context.colors.textPrimary,
                     textAlign: TextAlign.center,
                   ),
                 ],

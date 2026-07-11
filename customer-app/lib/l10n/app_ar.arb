@@ -318,6 +318,77 @@
   },
   "verifyButton": "تأكيد",
   "resendCode": "إعادة إرسال الرمز",
+  "resendCodeIn": "إعادة الإرسال خلال {seconds} ثانية",
+  "@resendCodeIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+
+  "notMe": "لست أنا؟",
+  "phoneKuwaitOnly": "يُقبل رقم كويتي (+965) فقط حاليًا",
+
+  "welcomeBackTitle": "مرحبًا بعودتك",
+  "enterPasscodeSubtitle": "أدخل رمزك السري لحساب {phone}",
+  "@enterPasscodeSubtitle": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "passcodeWrong": "الرمز غير صحيح، حاول مجددًا",
+  "forgotPasscode": "نسيت الرمز؟",
+
+  "deviceTrustTitle": "توثيق جهاز جديد",
+  "deviceTrustSubtitle": "أرسلنا رمز تحقق إلى {phone} لتوثيق هذا الجهاز",
+  "@deviceTrustSubtitle": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+
+  "forgotPasscodeTitle": "إعادة تعيين الرمز",
+  "forgotPasscodeSubtitle": "أرسلنا رمز تحقق إلى {phone}",
+  "@forgotPasscodeSubtitle": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "newPasscodeLabel": "الرمز الجديد",
+  "confirmPasscodeLabel": "تأكيد الرمز",
+  "resetPasscodeButton": "تعيين الرمز الجديد",
+
+  "passcodeMismatch": "الرمزان غير متطابقين",
+  "passcodeLength": "يجب أن يتكوّن الرمز من 4 أرقام",
+  "passcodeTooSimple": "اختر رمزًا أقوى (تجنّب التكرار أو التسلسل)",
+
+  "setPasscodeTitle": "اضبط رمزك السري",
+  "setPasscodeSubtitle": "اختر رمزًا من 4 أرقام لتسجيل الدخول السريع",
+  "confirmPasscodeSubtitle": "أعد إدخال الرمز للتأكيد",
+
+  "biometricTitle": "تفعيل البصمة",
+  "biometricSubtitle": "افتح التطبيق ببصمتك أو وجهك بدل إدخال الرمز في كل مرة",
+  "biometricEnable": "تفعيل البصمة",
+  "biometricSkip": "ليس الآن",
+  "biometricReason": "افتح جلستك في ســـبّاقـــ",
+  "biometricUnlockSetting": "الفتح بالبصمة (Face ID / بصمة الإصبع)",
+
+  "lockTitle": "أدخل رمزك السري",
+  "lockGreeting": "مرحبًا، {name}",
+  "@lockGreeting": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "lockSubtitle": "أدخل رمزك السري للمتابعة",
+  "unlockWithBiometrics": "الفتح بالبصمة",
+
+  "trustedDevicesTitle": "الأجهزة الموثوقة",
+  "trustedDevicesDescription": "هذه الأجهزة تدخل حسابك بالرمز بلا رمز تحقق. أزِل أي جهاز لا تعرفه.",
+  "trustedDevicesEmpty": "لا توجد أجهزة موثوقة بعد.",
+  "trustedDevicesError": "تعذّر تحميل الأجهزة.",
+  "trustedDeviceUnnamed": "جهاز غير مسمّى",
+  "trustedDeviceCurrent": "الحالي",
+  "trustedDeviceThis": "هذا الجهاز",
+  "trustedDeviceLastUsed": "آخر استخدام: {date}",
+  "@trustedDeviceLastUsed": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "revokeDeviceTitle": "إزالة الجهاز؟",
+  "revokeDeviceBody": "سيحتاج «{device}» إلى رمز تحقق جديد عند الدخول مرة أخرى.",
+  "@revokeDeviceBody": {
+    "placeholders": { "device": { "type": "String" } }
+  },
+  "revokeDeviceAction": "إزالة",
 
   "forgotPasswordTitle": "نسيت كلمة المرور",
   "forgotPasswordSubtitle": "أدخل رقم هاتفك وسنرسل لك رمز تحقق",
@@ -346,5 +417,8 @@
   "otpOnlyNumbers": "يجب أن يحتوي رمز التحقق على أرقام فقط",
 
   "fieldRequired": "هذا الحقل مطلوب",
-  "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح"
+  "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+
+  "notificationChannelName": "إشعارات ســـبّاقـــ",
+  "notificationChannelDescription": "تحديثات الطلبات والهدايا والإعلانات."
 }

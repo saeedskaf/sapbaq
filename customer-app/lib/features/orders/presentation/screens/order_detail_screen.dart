@@ -387,7 +387,7 @@ class _Stars extends StatelessWidget {
           Icon(
             i <= rating ? Icons.star_rounded : Icons.star_outline_rounded,
             size: 22,
-            color: ColorsCustom.accentGold,
+            color: ColorsCustom.warning,
           ),
       ],
     );
@@ -813,6 +813,33 @@ class _ProofStrip extends StatelessWidget {
             itemBuilder: (context, i) => _ProofThumb(proof: proofs[i]),
           ),
         ),
+        // The delivery note belongs to the delivery, not to any one image
+        // (there can be several photos). Show each distinct note once here,
+        // inside the proofs section, rather than over a single image.
+        for (final note in {
+          for (final p in proofs)
+            if (p.note.trim().isNotEmpty) p.note.trim(),
+        }) ...[
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.sticky_note_2_outlined,
+                size: 14,
+                color: context.colors.textHint,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: TextCustom(
+                  text: note,
+                  fontSize: 12.5,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -949,7 +976,10 @@ void _showProof(BuildContext context, DeliveryProof proof, String url) {
                     ),
             ),
           ),
-          if (proof.note.isNotEmpty || proof.uploadedAt != null) ...[
+          // The delivery note is shown once in the proofs section, not here —
+          // it belongs to the whole delivery, not to this single image. The
+          // caption keeps only this photo's own upload time.
+          if (proof.uploadedAt != null) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -957,25 +987,10 @@ void _showProof(BuildContext context, DeliveryProof proof, String url) {
                 color: Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (proof.note.isNotEmpty)
-                    TextCustom(
-                      text: proof.note,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  if (proof.uploadedAt != null) ...[
-                    if (proof.note.isNotEmpty) const SizedBox(height: 4),
-                    TextCustom(
-                      text: _formatProofDate(proof.uploadedAt!),
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
-                  ],
-                ],
+              child: TextCustom(
+                text: _formatProofDate(proof.uploadedAt!),
+                fontSize: 12,
+                color: Colors.white70,
               ),
             ),
           ],
@@ -1107,7 +1122,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                             ? Icons.star_rounded
                             : Icons.star_outline_rounded,
                         size: 40,
-                        color: ColorsCustom.accentGold,
+                        color: ColorsCustom.warning,
                       ),
                     ),
                   ),

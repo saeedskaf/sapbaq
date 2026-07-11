@@ -34,6 +34,12 @@ class ApiException implements Exception {
               : const {},
         );
       }
+      // DRF-style body (the auth endpoints use this): `{ "detail": "..." }` or
+      // `{ "field": ["msg"], ... }`. Surface the server's message and keep field
+      // errors so [fieldError] works (e.g. the OTP resend wait-time on `phone`).
+      if (data is Map) {
+        return _fromDrf(Map<String, dynamic>.from(data), response.statusCode);
+      }
       return ApiException(
         statusCode: response.statusCode ?? 0,
         code: 'unknown',
@@ -44,6 +50,37 @@ class ApiException implements Exception {
       statusCode: 0,
       code: _codeForType(e.type),
       message: _messageForType(e.type),
+    );
+  }
+
+  /// Parse a DRF error body. Field errors populate [details] (so [fieldError]
+  /// keeps working); the display message prefers `detail`, then the first field
+  /// message, then a localized status fallback. The 401 message stays localized
+  /// regardless of the server text (that path surfaces on session death).
+  static ApiException _fromDrf(Map<String, dynamic> data, int? status) {
+    final detail = data['detail'];
+    final fields = <String, dynamic>{};
+    String? firstFieldMsg;
+    data.forEach((key, value) {
+      if (key == 'detail') return;
+      fields[key] = value;
+      if (firstFieldMsg == null) {
+        if (value is List && value.isNotEmpty) {
+          firstFieldMsg = value.first.toString();
+        } else if (value is String && value.isNotEmpty) {
+          firstFieldMsg = value;
+        }
+      }
+    });
+    final serverMsg =
+        (detail is String && detail.isNotEmpty) ? detail : firstFieldMsg;
+    return ApiException(
+      statusCode: status ?? 0,
+      code: 'unknown',
+      message: status == 401
+          ? _messageForStatus(401)
+          : (serverMsg ?? _messageForStatus(status)),
+      details: fields,
     );
   }
 

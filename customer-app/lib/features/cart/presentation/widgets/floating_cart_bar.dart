@@ -80,7 +80,7 @@ class FloatingCartBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: ColorsCustom.brandGradient,
+          color: ColorsCustom.primary,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Material(

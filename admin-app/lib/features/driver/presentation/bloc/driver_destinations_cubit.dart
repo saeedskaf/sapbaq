@@ -4,6 +4,7 @@ import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/network/api_exception.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
+import 'package:sapbaq_admin/features/driver/data/models/driver_tab_counts.dart';
 
 /// Driver deliveries tabs. New + Accepted both come from the ASSIGNED status
 /// (split client-side by `accepted_at`); In-delivery comes from IN_DELIVERY;
@@ -30,6 +31,10 @@ class DriverDestinationsState extends Equatable {
   final bool loadingMore;
   final String? message;
 
+  /// Per-tab counts for the tab badges. Null until the first counts fetch
+  /// resolves; persists across tab switches (optional chrome).
+  final DriverTabCounts? counts;
+
   const DriverDestinationsState({
     this.status = LoadStatus.initial,
     this.destinations = const [],
@@ -37,6 +42,7 @@ class DriverDestinationsState extends Equatable {
     this.hasMore = false,
     this.loadingMore = false,
     this.message,
+    this.counts,
   });
 
   /// Destinations visible under the active tab (client-side split of ASSIGNED).
@@ -60,6 +66,7 @@ class DriverDestinationsState extends Equatable {
     bool? hasMore,
     bool? loadingMore,
     String? message,
+    DriverTabCounts? counts,
   }) {
     return DriverDestinationsState(
       status: status ?? this.status,
@@ -68,12 +75,13 @@ class DriverDestinationsState extends Equatable {
       hasMore: hasMore ?? this.hasMore,
       loadingMore: loadingMore ?? this.loadingMore,
       message: message,
+      counts: counts ?? this.counts,
     );
   }
 
   @override
   List<Object?> get props =>
-      [status, destinations, tab, hasMore, loadingMore, message];
+      [status, destinations, tab, hasMore, loadingMore, message, counts];
 }
 
 class DriverDestinationsCubit extends Cubit<DriverDestinationsState> {
@@ -113,8 +121,20 @@ class DriverDestinationsCubit extends Cubit<DriverDestinationsState> {
         destinations: page.results,
         hasMore: page.hasMore,
       ));
+      _refreshCounts();
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
+    }
+  }
+
+  /// Refresh the tab counts in the background. Counts are optional chrome, so a
+  /// failure is swallowed — the last known counts (or none) stay.
+  Future<void> _refreshCounts() async {
+    try {
+      final counts = await _repo.fetchCounts();
+      if (!isClosed) emit(state.copyWith(counts: counts));
+    } on ApiException {
+      // ignore — keep the last known counts (or none).
     }
   }
 

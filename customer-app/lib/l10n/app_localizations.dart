@@ -1694,6 +1694,252 @@ abstract class AppLocalizations {
   /// **'إعادة إرسال الرمز'**
   String get resendCode;
 
+  /// No description provided for @resendCodeIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الإرسال خلال {seconds} ثانية'**
+  String resendCodeIn(int seconds);
+
+  /// No description provided for @notMe.
+  ///
+  /// In ar, this message translates to:
+  /// **'لست أنا؟'**
+  String get notMe;
+
+  /// No description provided for @phoneKuwaitOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُقبل رقم كويتي (+965) فقط حاليًا'**
+  String get phoneKuwaitOnly;
+
+  /// No description provided for @welcomeBackTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرحبًا بعودتك'**
+  String get welcomeBackTitle;
+
+  /// No description provided for @enterPasscodeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمزك السري لحساب {phone}'**
+  String enterPasscodeSubtitle(String phone);
+
+  /// No description provided for @passcodeWrong.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز غير صحيح، حاول مجددًا'**
+  String get passcodeWrong;
+
+  /// No description provided for @forgotPasscode.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت الرمز؟'**
+  String get forgotPasscode;
+
+  /// No description provided for @deviceTrustTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيق جهاز جديد'**
+  String get deviceTrustTitle;
+
+  /// No description provided for @deviceTrustSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسلنا رمز تحقق إلى {phone} لتوثيق هذا الجهاز'**
+  String deviceTrustSubtitle(String phone);
+
+  /// No description provided for @forgotPasscodeTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة تعيين الرمز'**
+  String get forgotPasscodeTitle;
+
+  /// No description provided for @forgotPasscodeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسلنا رمز تحقق إلى {phone}'**
+  String forgotPasscodeSubtitle(String phone);
+
+  /// No description provided for @newPasscodeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز الجديد'**
+  String get newPasscodeLabel;
+
+  /// No description provided for @confirmPasscodeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الرمز'**
+  String get confirmPasscodeLabel;
+
+  /// No description provided for @resetPasscodeButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين الرمز الجديد'**
+  String get resetPasscodeButton;
+
+  /// No description provided for @passcodeMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمزان غير متطابقين'**
+  String get passcodeMismatch;
+
+  /// No description provided for @passcodeLength.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب أن يتكوّن الرمز من 4 أرقام'**
+  String get passcodeLength;
+
+  /// No description provided for @passcodeTooSimple.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر رمزًا أقوى (تجنّب التكرار أو التسلسل)'**
+  String get passcodeTooSimple;
+
+  /// No description provided for @setPasscodeTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اضبط رمزك السري'**
+  String get setPasscodeTitle;
+
+  /// No description provided for @setPasscodeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر رمزًا من 4 أرقام لتسجيل الدخول السريع'**
+  String get setPasscodeSubtitle;
+
+  /// No description provided for @confirmPasscodeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد إدخال الرمز للتأكيد'**
+  String get confirmPasscodeSubtitle;
+
+  /// No description provided for @biometricTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل البصمة'**
+  String get biometricTitle;
+
+  /// No description provided for @biometricSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح التطبيق ببصمتك أو وجهك بدل إدخال الرمز في كل مرة'**
+  String get biometricSubtitle;
+
+  /// No description provided for @biometricEnable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل البصمة'**
+  String get biometricEnable;
+
+  /// No description provided for @biometricSkip.
+  ///
+  /// In ar, this message translates to:
+  /// **'ليس الآن'**
+  String get biometricSkip;
+
+  /// No description provided for @biometricReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح جلستك في ســـبّاقـــ'**
+  String get biometricReason;
+
+  /// No description provided for @biometricUnlockSetting.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفتح بالبصمة (Face ID / بصمة الإصبع)'**
+  String get biometricUnlockSetting;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمزك السري'**
+  String get lockTitle;
+
+  /// No description provided for @lockGreeting.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرحبًا، {name}'**
+  String lockGreeting(String name);
+
+  /// No description provided for @lockSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمزك السري للمتابعة'**
+  String get lockSubtitle;
+
+  /// No description provided for @unlockWithBiometrics.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفتح بالبصمة'**
+  String get unlockWithBiometrics;
+
+  /// No description provided for @trustedDevicesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأجهزة الموثوقة'**
+  String get trustedDevicesTitle;
+
+  /// No description provided for @trustedDevicesDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذه الأجهزة تدخل حسابك بالرمز بلا رمز تحقق. أزِل أي جهاز لا تعرفه.'**
+  String get trustedDevicesDescription;
+
+  /// No description provided for @trustedDevicesEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد أجهزة موثوقة بعد.'**
+  String get trustedDevicesEmpty;
+
+  /// No description provided for @trustedDevicesError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تحميل الأجهزة.'**
+  String get trustedDevicesError;
+
+  /// No description provided for @trustedDeviceUnnamed.
+  ///
+  /// In ar, this message translates to:
+  /// **'جهاز غير مسمّى'**
+  String get trustedDeviceUnnamed;
+
+  /// No description provided for @trustedDeviceCurrent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالي'**
+  String get trustedDeviceCurrent;
+
+  /// No description provided for @trustedDeviceThis.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الجهاز'**
+  String get trustedDeviceThis;
+
+  /// No description provided for @trustedDeviceLastUsed.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر استخدام: {date}'**
+  String trustedDeviceLastUsed(String date);
+
+  /// No description provided for @revokeDeviceTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة الجهاز؟'**
+  String get revokeDeviceTitle;
+
+  /// No description provided for @revokeDeviceBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيحتاج «{device}» إلى رمز تحقق جديد عند الدخول مرة أخرى.'**
+  String revokeDeviceBody(String device);
+
+  /// No description provided for @revokeDeviceAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة'**
+  String get revokeDeviceAction;
+
   /// No description provided for @forgotPasswordTitle.
   ///
   /// In ar, this message translates to:
@@ -1825,6 +2071,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'يرجى إدخال بريد إلكتروني صحيح'**
   String get emailInvalid;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In ar, this message translates to:
+  /// **'إشعارات ســـبّاقـــ'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationChannelDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديثات الطلبات والهدايا والإعلانات.'**
+  String get notificationChannelDescription;
 }
 
 class _AppLocalizationsDelegate

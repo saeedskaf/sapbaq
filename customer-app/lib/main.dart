@@ -64,7 +64,7 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await pushNotifications.init();
+    await pushNotifications.init(locale: settingsService.locale);
   } catch (error) {
     debugPrint('Push notifications disabled: $error');
   }

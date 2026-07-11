@@ -9,9 +9,9 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Solid black with the unified logo (FLUTTER_TASKS items 1 + 16).
+      // Solid ink with the unified logo (FLUTTER_TASKS items 1 + 16).
       body: Container(
-        color: Colors.black,
+        color: ColorsCustom.ink,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

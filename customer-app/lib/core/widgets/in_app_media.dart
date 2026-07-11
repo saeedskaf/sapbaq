@@ -67,12 +67,23 @@ class _ImageViewerState extends State<_ImageViewer>
   static const double _doubleTapScale = 2.5;
 
   final TransformationController _transform = TransformationController();
-  late final AnimationController _zoomAnimation = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 200),
-  )..addListener(_applyZoomFrame);
+  // Created eagerly in initState (not a lazy `late final`): the controller's
+  // ticker reads an inherited widget (TickerMode) via `context`. Deferring
+  // creation until first use would fire that lookup inside dispose() when the
+  // image is opened and closed without ever double-tap-zooming, throwing
+  // "Looking up a deactivated widget's ancestor is unsafe".
+  late final AnimationController _zoomAnimation;
   Animation<Matrix4>? _zoomFrames;
   Offset _doubleTapPosition = Offset.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _zoomAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(_applyZoomFrame);
+  }
 
   @override
   void dispose() {

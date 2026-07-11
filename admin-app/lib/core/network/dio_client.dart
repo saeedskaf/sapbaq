@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sapbaq_admin/core/config/environment.dart';
+import 'package:sapbaq_admin/core/constants/app_constants.dart';
 import 'package:sapbaq_admin/core/network/interceptors/auth_interceptor.dart';
 import 'package:sapbaq_admin/core/network/interceptors/error_interceptor.dart';
+import 'package:sapbaq_admin/core/network/interceptors/locale_interceptor.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
 import 'package:sapbaq_admin/core/storage/secure_storage.dart';
 
@@ -13,6 +15,7 @@ class DioClient {
   static Dio create({
     required SecureStorage storage,
     required SessionManager session,
+    ValueListenable<String>? language,
   }) {
     final dio = Dio(
       BaseOptions(
@@ -23,11 +26,16 @@ class DioClient {
         headers: const {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Accept-Language': 'ar',
+          'Accept-Language': AppConstants.defaultLanguageCode,
         },
       ),
     );
 
+    // Stamp the live UI language on every request (overrides the static default
+    // above). Falls back to the default when no notifier is supplied.
+    if (language != null) {
+      dio.interceptors.add(LocaleInterceptor(language));
+    }
     dio.interceptors.add(
       AuthInterceptor(
         storage: storage,

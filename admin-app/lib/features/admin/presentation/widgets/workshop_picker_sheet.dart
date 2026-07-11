@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/admin/data/models/workshop.dart';
 import 'package:sapbaq_admin/features/shared/presentation/pill.dart';
@@ -32,7 +33,7 @@ class WorkshopPickerSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: ColorsCustom.border,
+              color: context.colors.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -44,10 +45,8 @@ class WorkshopPickerSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: sorted.length,
-              separatorBuilder: (_, _) => const Divider(
-                height: 1,
-                color: ColorsCustom.border,
-              ),
+              separatorBuilder: (_, _) =>
+                  Divider(height: 1, color: context.colors.border),
               itemBuilder: (context, i) {
                 final w = sorted[i];
                 return ListTile(
@@ -57,13 +56,13 @@ class WorkshopPickerSheet extends StatelessWidget {
                     width: 42,
                     height: 42,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: ColorsCustom.secondaryLight,
+                    decoration: BoxDecoration(
+                      color: context.colors.primaryTint,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.engineering_outlined,
-                      color: ColorsCustom.primary,
+                      color: context.colors.primary,
                       size: 22,
                     ),
                   ),
@@ -77,14 +76,14 @@ class WorkshopPickerSheet extends StatelessWidget {
                   subtitle: TextCustom(
                     text: w.phone,
                     fontSize: 12,
-                    color: ColorsCustom.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                   trailing: Pill(
                     text: l10n.workshopActiveLoad(w.activeLoad),
                     color: w.activeLoad == 0
                         ? ColorsCustom.success
-                        : ColorsCustom.textSecondary,
-                    background: ColorsCustom.surfaceVariant,
+                        : context.colors.textSecondary,
+                    background: context.colors.surfaceVariant,
                     fontSize: 11,
                   ),
                 );

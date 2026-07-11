@@ -12,6 +12,22 @@ class AppRoutes {
   static const String otp = '/otp';
   static const String otpName = 'otp';
 
+  // Returning sign-in: enter the 4-digit passcode (registered + passcode set).
+  static const String passcodeLogin = '/passcode';
+  static const String passcodeLoginName = 'passcode-login';
+
+  // New/unrecognized device (428): OTP to establish device trust.
+  static const String deviceTrust = '/device-trust';
+  static const String deviceTrustName = 'device-trust';
+
+  // Passcode recovery (forgot / locked): OTP then a new passcode.
+  static const String forgotPasscode = '/forgot-passcode';
+  static const String forgotPasscodeName = 'forgot-passcode';
+
+  // App-entry unlock for a persisted session (biometric or passcode).
+  static const String lock = '/lock';
+  static const String lockName = 'lock';
+
   // First-use onboarding for a fresh account (needs_profile). A social user with
   // no phone verifies one here; everyone then completes name/email.
   static const String verifyPhone = '/verify-phone';
@@ -20,9 +36,9 @@ class AppRoutes {
   static const String completeProfile = '/complete-profile';
   static const String completeProfileName = 'complete-profile';
 
-  // Passkey management (from Profile → account).
-  static const String passkeys = '/passkeys';
-  static const String passkeysName = 'passkeys';
+  // Set the 4-digit passcode (end of onboarding), then opt into biometrics.
+  static const String setPasscode = '/set-passcode';
+  static const String setPasscodeName = 'set-passcode';
 
   // --- Authenticated shell tabs ---
   static const String home = '/'; // Donation entry (Home tab)
@@ -104,6 +120,10 @@ class AppRoutes {
   // Favorite mosques (A.3).
   static const String favorites = '/favorites';
   static const String favoritesName = 'favorites';
+
+  // Trusted-device management (from Profile → account).
+  static const String trustedDevices = '/trusted-devices';
+  static const String trustedDevicesName = 'trusted-devices';
 
   // Support tickets (A.3).
   static const String support = '/support';

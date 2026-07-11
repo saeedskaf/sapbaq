@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/bloc/form_status.dart';
-import 'package:sapbaq/core/network/session_manager.dart';
+import 'package:sapbaq/core/theme/theme_colors.dart';
+import 'package:sapbaq/core/utils/bidi.dart';
 import 'package:sapbaq/core/utils/form_validators.dart';
+import 'package:sapbaq/core/utils/resend_cooldown.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
-import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/otp_cubit.dart';
+import 'package:sapbaq/features/auth/presentation/widgets/auth_flow_listener.dart';
 import 'package:sapbaq/features/auth/presentation/widgets/auth_scaffold.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
-/// Login-OTP code step. On a verified code the repository publishes the session
-/// and this screen routes to the app (or the profile-completion flow when the
-/// backend flags `needs_profile`).
+/// Verifies the OTP that establishes a phone (sign-up, or a legacy account that
+/// still needs a passcode). On success the repository publishes the session and
+/// the router advances to profile completion / passcode setup. The resend
+/// button is disabled for 60s after each send (Sapbaq_AUTH_Flow §8).
 class OtpScreen extends StatefulWidget {
   final String phone;
 
@@ -31,10 +32,19 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _codeController = TextEditingController();
+  final ResendCooldown _cooldown = ResendCooldown();
+
+  @override
+  void initState() {
+    super.initState();
+    // A code was just sent before we navigated here — start the cooldown.
+    _cooldown.start();
+  }
 
   @override
   void dispose() {
     _codeController.dispose();
+    _cooldown.dispose();
     super.dispose();
   }
 
@@ -47,21 +57,9 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 
-  void _navigateForStatus(BuildContext context, AuthState state) {
-    switch (state.status) {
-      case AuthStatus.completingProfile:
-        context.goNamed(
-          state.user?.phone == null
-              ? AppRoutes.verifyPhoneName
-              : AppRoutes.completeProfileName,
-        );
-      case AuthStatus.authenticated:
-        context.goNamed(AppRoutes.homeName);
-      case AuthStatus.guest:
-      case AuthStatus.unknown:
-      case AuthStatus.unauthenticated:
-        break;
-    }
+  void _resend(BuildContext context) {
+    context.read<OtpCubit>().resend(phone: widget.phone);
+    _cooldown.start();
   }
 
   @override
@@ -71,12 +69,9 @@ class _OtpScreenState extends State<OtpScreen> {
 
     return BlocProvider(
       create: (_) => OtpCubit(context.read<AuthRepository>()),
-      child: BlocListener<AuthBloc, AuthState>(
-        listenWhen: (a, b) =>
-            a.status != b.status &&
-            (b.status == AuthStatus.authenticated ||
-                b.status == AuthStatus.completingProfile),
-        listener: _navigateForStatus,
+      // Pushed over /login → the router redirect can't advance it; move forward
+      // explicitly when the verified session resolves.
+      child: AuthFlowListener(
         child: BlocConsumer<OtpCubit, OtpState>(
           listener: (context, state) {
             if (state.status == FormStatus.failure && state.message != null) {
@@ -87,7 +82,7 @@ class _OtpScreenState extends State<OtpScreen> {
             final loading = state.status == FormStatus.submitting;
             return AuthScaffold(
               title: l10n.otpTitle,
-              subtitle: l10n.otpSentTo(widget.phone),
+              subtitle: l10n.otpSentTo(ltrIsolate(widget.phone)),
               children: [
                 Form(
                   key: _formKey,
@@ -114,17 +109,26 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                       const SizedBox(height: 8),
                       Center(
-                        child: TextButton(
-                          onPressed: loading
-                              ? null
-                              : () => context.read<OtpCubit>().resend(
-                                  phone: widget.phone,
-                                ),
-                          child: TextCustom(
-                            text: l10n.resendCode,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _cooldown,
+                          builder: (context, remaining, _) {
+                            final active = remaining > 0;
+                            return TextButton(
+                              onPressed: (loading || active)
+                                  ? null
+                                  : () => _resend(context),
+                              child: TextCustom(
+                                text: active
+                                    ? l10n.resendCodeIn(remaining)
+                                    : l10n.resendCode,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: active
+                                    ? context.colors.textHint
+                                    : context.colors.primary,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],

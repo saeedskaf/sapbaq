@@ -32,9 +32,7 @@ Color orderStatusColor(BuildContext context, String status) {
     case 'ASSIGNED_TO_TEAM':
       return ColorsCustom.warning;
     case 'CONFIRMED':
-      return ColorsCustom.info;
     case 'ASSIGNED':
-      return ColorsCustom.primaryLight;
     case 'IN_DELIVERY':
       return context.colors.primary;
     case 'DELIVERED':

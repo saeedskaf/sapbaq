@@ -1,6 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/media_url.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
@@ -62,12 +62,23 @@ class _ImageViewerState extends State<_ImageViewer>
   static const double _doubleTapScale = 2.5;
 
   final TransformationController _transform = TransformationController();
-  late final AnimationController _zoomAnimation = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 200),
-  )..addListener(_applyZoomFrame);
+  // Created eagerly in initState (not a lazy `late final`): the controller's
+  // ticker reads an inherited widget (TickerMode) via `context`. Deferring
+  // creation until first use would fire that lookup inside dispose() when the
+  // image is opened and closed without ever double-tap-zooming, throwing
+  // "Looking up a deactivated widget's ancestor is unsafe".
+  late final AnimationController _zoomAnimation;
   Animation<Matrix4>? _zoomFrames;
   Offset _doubleTapPosition = Offset.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _zoomAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(_applyZoomFrame);
+  }
 
   @override
   void dispose() {
@@ -208,8 +219,8 @@ class _MediaPlayerScreenState extends State<_MediaPlayerScreen> {
         aspectRatio: ratio.isFinite && ratio > 0 ? ratio : 16 / 9,
         showOptions: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: ColorsCustom.primary,
-          handleColor: ColorsCustom.primary,
+          playedColor: context.colors.primary,
+          handleColor: context.colors.primary,
           bufferedColor: Colors.white30,
           backgroundColor: Colors.white24,
         ),
@@ -307,7 +318,7 @@ class MediaFallback extends StatelessWidget {
       child: Icon(
         isVideo ? Icons.videocam_outlined : Icons.image_outlined,
         size: size,
-        color: ColorsCustom.textHint,
+        color: context.colors.textHint,
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:sapbaq_admin/core/config/environment.dart';
 import 'package:sapbaq_admin/core/network/dio_client.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
 import 'package:sapbaq_admin/core/notifications/push_notification_service.dart';
+import 'package:sapbaq_admin/core/settings/settings_service.dart';
 import 'package:sapbaq_admin/core/storage/secure_storage.dart';
 import 'package:sapbaq_admin/features/auth/data/auth_repository.dart';
 import 'package:sapbaq_admin/features/notifications/data/notifications_repository.dart';
@@ -28,8 +29,23 @@ Future<void> main() async {
   // fonts.gstatic.com at runtime (which crashes the app when offline).
   GoogleFonts.config.allowRuntimeFetching = false;
 
+  // Load persisted UI preferences before the first frame so there's no flash
+  // of the wrong language.
+  final settingsService = await SettingsService.create();
+
+  // The active API language. Shared (by reference) between the networking layer
+  // (reads it on every request) and the SettingsCubit (writes it when the user
+  // switches language).
+  final languageCode = ValueNotifier<String>(
+    settingsService.locale.languageCode,
+  );
+
   final session = SessionManager();
-  final dio = DioClient.create(storage: secureStorage, session: session);
+  final dio = DioClient.create(
+    storage: secureStorage,
+    session: session,
+    language: languageCode,
+  );
   final authRepository = AuthRepository(
     dio: dio,
     storage: secureStorage,
@@ -50,8 +66,10 @@ Future<void> main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      await pushNotifications.init();
+      FirebaseMessaging.onBackgroundMessage(
+        _firebaseMessagingBackgroundHandler,
+      );
+      await pushNotifications.init(locale: settingsService.locale);
     } catch (error) {
       debugPrint('Push notifications disabled: $error');
     }
@@ -61,6 +79,8 @@ Future<void> main() async {
     SapbaqAdminApp(
       dio: dio,
       authRepository: authRepository,
+      settingsService: settingsService,
+      languageCode: languageCode,
       pushNotifications: pushNotifications,
     ),
   );

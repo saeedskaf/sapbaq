@@ -846,6 +846,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resendCode => 'Resend code';
 
   @override
+  String resendCodeIn(int seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get notMe => 'Not me?';
+
+  @override
+  String get phoneKuwaitOnly =>
+      'Only Kuwait (+965) numbers are supported for now';
+
+  @override
+  String get welcomeBackTitle => 'Welcome back';
+
+  @override
+  String enterPasscodeSubtitle(String phone) {
+    return 'Enter your passcode for $phone';
+  }
+
+  @override
+  String get passcodeWrong => 'Incorrect passcode, try again';
+
+  @override
+  String get forgotPasscode => 'Forgot passcode?';
+
+  @override
+  String get deviceTrustTitle => 'Trust this device';
+
+  @override
+  String deviceTrustSubtitle(String phone) {
+    return 'We sent a verification code to $phone to trust this device';
+  }
+
+  @override
+  String get forgotPasscodeTitle => 'Reset passcode';
+
+  @override
+  String forgotPasscodeSubtitle(String phone) {
+    return 'We sent a verification code to $phone';
+  }
+
+  @override
+  String get newPasscodeLabel => 'New passcode';
+
+  @override
+  String get confirmPasscodeLabel => 'Confirm passcode';
+
+  @override
+  String get resetPasscodeButton => 'Set new passcode';
+
+  @override
+  String get passcodeMismatch => 'Passcodes don\'t match';
+
+  @override
+  String get passcodeLength => 'The passcode must be 4 digits';
+
+  @override
+  String get passcodeTooSimple =>
+      'Choose a stronger passcode (avoid repeats or sequences)';
+
+  @override
+  String get setPasscodeTitle => 'Set your passcode';
+
+  @override
+  String get setPasscodeSubtitle =>
+      'Choose a 4-digit passcode for quick sign-in';
+
+  @override
+  String get confirmPasscodeSubtitle => 'Re-enter the passcode to confirm';
+
+  @override
+  String get biometricTitle => 'Enable biometrics';
+
+  @override
+  String get biometricSubtitle =>
+      'Unlock the app with your fingerprint or face instead of typing the passcode';
+
+  @override
+  String get biometricEnable => 'Enable biometrics';
+
+  @override
+  String get biometricSkip => 'Not now';
+
+  @override
+  String get biometricReason => 'Unlock your Sapbaq session';
+
+  @override
+  String get biometricUnlockSetting =>
+      'Biometric unlock (Face ID / fingerprint)';
+
+  @override
+  String get lockTitle => 'Enter your passcode';
+
+  @override
+  String lockGreeting(String name) {
+    return 'Hi, $name';
+  }
+
+  @override
+  String get lockSubtitle => 'Enter your passcode to continue';
+
+  @override
+  String get unlockWithBiometrics => 'Unlock with biometrics';
+
+  @override
+  String get trustedDevicesTitle => 'Trusted devices';
+
+  @override
+  String get trustedDevicesDescription =>
+      'These devices sign in with your passcode, without a verification code. Remove any you don\'t recognize.';
+
+  @override
+  String get trustedDevicesEmpty => 'No trusted devices yet.';
+
+  @override
+  String get trustedDevicesError => 'Couldn\'t load devices.';
+
+  @override
+  String get trustedDeviceUnnamed => 'Unnamed device';
+
+  @override
+  String get trustedDeviceCurrent => 'Current';
+
+  @override
+  String get trustedDeviceThis => 'This device';
+
+  @override
+  String trustedDeviceLastUsed(String date) {
+    return 'Last used: $date';
+  }
+
+  @override
+  String get revokeDeviceTitle => 'Remove device?';
+
+  @override
+  String revokeDeviceBody(String device) {
+    return '\"$device\" will need a new verification code the next time it signs in.';
+  }
+
+  @override
+  String get revokeDeviceAction => 'Remove';
+
+  @override
   String get forgotPasswordTitle => 'Forgot password';
 
   @override
@@ -911,4 +1054,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emailInvalid => 'Please enter a valid email address';
+
+  @override
+  String get notificationChannelName => 'Sapbaq notifications';
+
+  @override
+  String get notificationChannelDescription =>
+      'Order updates, gifts and announcements.';
 }

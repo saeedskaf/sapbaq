@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
@@ -50,31 +51,40 @@ class AdminOrderCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.confirmation_number_outlined,
                 size: 13,
-                color: ColorsCustom.textHint,
+                color: context.colors.textHint,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 5),
               Flexible(
                 child: TextCustom(
                   text: order.displayCode,
                   fontSize: 12.5,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               TextCustom(
-                text: '  ·  ${l10n.destinationsCount(order.destinationCount)}',
+                text: '·',
                 fontSize: 12.5,
-                color: ColorsCustom.textHint,
+                color: context.colors.textHint,
+              ),
+              const SizedBox(width: 8),
+              TextCustom(
+                text: l10n.destinationsCount(order.destinationCount),
+                fontSize: 12.5,
+                color: context.colors.textHint,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(height: 1, color: ColorsCustom.border),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Divider(height: 1, color: context.colors.border),
           ),
           Row(
             children: [
@@ -82,7 +92,7 @@ class AdminOrderCard extends StatelessWidget {
                 text: l10n.priceKwd(order.totalAmount),
                 fontSize: 16.5,
                 fontWeight: FontWeight.w800,
-                color: ColorsCustom.primary,
+                color: context.colors.primary,
               ),
               const Spacer(),
               if (order.awaitingAssignment)
@@ -94,10 +104,14 @@ class AdminOrderCard extends StatelessWidget {
             ],
           ),
           // Two dates (FLUTTER_TASKS item 8): when the order was placed and
-          // when its status last changed.
+          // when its status last changed. A Wrap (not a Row) so the pair drops
+          // to a second line instead of truncating — English labels are long
+          // enough that both never fit side by side on a narrow card.
           if (order.createdAt != null || order.statusUpdatedAt != null) ...[
-            const SizedBox(height: 8),
-            Row(
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 14,
+              runSpacing: 6,
               children: [
                 if (order.createdAt != null)
                   _DateChip(
@@ -105,8 +119,6 @@ class AdminOrderCard extends StatelessWidget {
                     label: l10n.orderDateLabel,
                     date: formatShortDate(order.createdAt),
                   ),
-                if (order.createdAt != null && order.statusUpdatedAt != null)
-                  const SizedBox(width: 12),
                 if (order.statusUpdatedAt != null)
                   _DateChip(
                     icon: Icons.update_rounded,
@@ -122,25 +134,38 @@ class AdminOrderCard extends StatelessWidget {
   }
 }
 
-/// Compact icon + label + date pair used on the card footer.
+/// Compact icon + label + date pair used on the card footer. The label stays a
+/// muted hint while the date reads a step stronger, so the value — not its
+/// caption — is what the eye lands on.
 class _DateChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final String date;
 
-  const _DateChip({required this.icon, required this.label, required this.date});
+  const _DateChip({
+    required this.icon,
+    required this.label,
+    required this.date,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: ColorsCustom.textHint),
-        const SizedBox(width: 4),
+        Icon(icon, size: 13, color: context.colors.textHint),
+        const SizedBox(width: 5),
         TextCustom(
-          text: '$label: $date',
-          fontSize: 12,
-          color: ColorsCustom.textHint,
+          text: label,
+          fontSize: 11.5,
+          color: context.colors.textHint,
+        ),
+        const SizedBox(width: 5),
+        TextCustom(
+          text: date,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          color: context.colors.textSecondary,
         ),
       ],
     );
