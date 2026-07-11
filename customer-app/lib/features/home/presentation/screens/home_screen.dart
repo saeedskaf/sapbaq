@@ -228,7 +228,7 @@ class _ProfileAvatarButton extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Ink(
         decoration: const BoxDecoration(
-          gradient: ColorsCustom.brandGradient,
+          color: ColorsCustom.primary,
           shape: BoxShape.circle,
         ),
         child: InkWell(
@@ -538,7 +538,7 @@ class _FeaturedDonateCard extends StatelessWidget {
           children: [
             const Positioned.fill(
               child: DecoratedBox(
-                decoration: BoxDecoration(gradient: ColorsCustom.brandGradient),
+                decoration: BoxDecoration(color: ColorsCustom.primary),
               ),
             ),
             PositionedDirectional(

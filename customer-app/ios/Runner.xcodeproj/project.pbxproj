@@ -18,6 +18,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B7DC0904A746C2301D6CE82E /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F4EF6280A712CA15819C759 /* Pods_RunnerTests.framework */; };
+		FE25D4B847B610B3661FF09C /* notify.caf in Resources */ = {isa = PBXBuildFile; fileRef = E8EB2B368EC702B2AD6E9BC0 /* notify.caf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C00D1701AFBB7A31F5AA043D /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1877EB35CB84C5E3C7C8D21 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		E8EB2B368EC702B2AD6E9BC0 /* notify.caf */ = {isa = PBXFileReference; includeInIndex = 1; path = notify.caf; sourceTree = "<group>"; };
 		EB256C115AD05165E025558B /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -168,6 +170,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				E8EB2B368EC702B2AD6E9BC0 /* notify.caf */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -273,6 +276,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				7ACFF8B005CBA3E18F60DEE5 /* GoogleService-Info.plist in Resources */,
+				FE25D4B847B610B3661FF09C /* notify.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

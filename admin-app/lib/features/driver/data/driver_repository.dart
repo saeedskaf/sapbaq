@@ -3,6 +3,7 @@ import 'package:sapbaq_admin/core/network/api_endpoints.dart';
 import 'package:sapbaq_admin/core/network/api_guard.dart';
 import 'package:sapbaq_admin/core/network/pagination.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
+import 'package:sapbaq_admin/features/driver/data/models/driver_tab_counts.dart';
 import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 
 /// Driver (workshop) operations: list/inspect assigned destinations, accept /
@@ -31,6 +32,39 @@ class DriverRepository {
         DriverDestination.fromJson,
       );
     });
+  }
+
+  /// Counts for the four deliveries tabs, for the tab badges. There is no
+  /// counts endpoint, so we derive them: New + Accepted share the ASSIGNED
+  /// status and are split by `accepted_at`, so we walk all ASSIGNED pages (a
+  /// driver's active assignments are few); IN_DELIVERY and DELIVERED only need
+  /// their totals, read from the paginated `count`.
+  Future<DriverTabCounts> fetchCounts() async {
+    var newJobs = 0;
+    var accepted = 0;
+    var page = 1;
+    while (true) {
+      final res = await fetchDestinations(page: page, status: 'ASSIGNED');
+      for (final d in res.results) {
+        if (d.isNew) {
+          newJobs++;
+        } else if (d.canStartDelivery) {
+          accepted++;
+        }
+      }
+      if (!res.hasMore) break;
+      page++;
+    }
+
+    final inDelivery = await fetchDestinations(status: 'IN_DELIVERY');
+    final completed = await fetchDestinations(status: 'DELIVERED');
+
+    return DriverTabCounts(
+      newJobs: newJobs,
+      accepted: accepted,
+      inDelivery: inDelivery.count,
+      completed: completed.count,
+    );
   }
 
   Future<DriverDestination> fetchDestination(int id) {

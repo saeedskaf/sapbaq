@@ -9,9 +9,10 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Solid black with the unified logo (FLUTTER_TASKS items 1 + 16).
+      // Ink background with the unified white/mint-on-black lockup — matches
+      // the customer app so both apps open on the same brand moment.
       body: Container(
-        color: Colors.black,
+        color: ColorsCustom.brandMint,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

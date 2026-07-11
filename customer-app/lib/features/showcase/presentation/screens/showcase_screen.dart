@@ -67,14 +67,17 @@ class ShowcaseScreen extends StatelessWidget {
                   child: CustomScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      for (final section in state.sections)
+                      for (final (i, section) in state.sections.indexed)
                         if (section.items.isNotEmpty) ...[
                           SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+                            // Extra top space before every section after the
+                            // first, so each titled block reads as its own group.
+                            padding: EdgeInsets.fromLTRB(16, i == 0 ? 12 : 28, 16, 12),
                             sliver: SliverToBoxAdapter(
                               child: _SectionHeader(
                                 title: section.title,
                                 description: section.description,
+                                count: section.items.length,
                               ),
                             ),
                           ),
@@ -113,34 +116,101 @@ class ShowcaseScreen extends StatelessWidget {
   }
 }
 
-/// Section title + optional description above each grid block.
+/// Section header above each grid block: a brand accent bar and title, a media
+/// count chip, and an optional description. The accent bar + count chip give
+/// each section a clear visual identity so the grouped structure reads at a
+/// glance.
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String description;
-  const _SectionHeader({required this.title, required this.description});
+  final int count;
+  const _SectionHeader({
+    required this.title,
+    required this.description,
+    required this.count,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextCustom(
-          text: title,
-          fontSize: 16,
-          fontWeight: FontWeight.w800,
-          color: context.colors.textPrimary,
+        Row(
+          children: [
+            // Brand accent bar marking the start of the section.
+            Container(
+              width: 4,
+              height: 20,
+              decoration: BoxDecoration(
+                color: context.colors.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextCustom(
+                text: title,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: context.colors.textPrimary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 10),
+            _CountChip(count: count),
+          ],
         ),
         if (description.isNotEmpty) ...[
-          const SizedBox(height: 3),
-          TextCustom(
-            text: description,
-            fontSize: 12.5,
-            color: context.colors.textSecondary,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 6),
+          Padding(
+            // Align the description under the title, past the accent bar.
+            padding: const EdgeInsetsDirectional.only(start: 14),
+            child: TextCustom(
+              text: description,
+              fontSize: 12.5,
+              color: context.colors.textSecondary,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ],
+    );
+  }
+}
+
+/// A small rounded pill showing how many items a section holds — reinforces
+/// each section's presence and size.
+class _CountChip extends StatelessWidget {
+  final int count;
+  const _CountChip({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: context.colors.primaryTint,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.collections_outlined,
+            size: 13,
+            color: context.colors.primary,
+          ),
+          const SizedBox(width: 5),
+          TextCustom(
+            text: '$count',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: context.colors.primary,
+          ),
+        ],
+      ),
     );
   }
 }

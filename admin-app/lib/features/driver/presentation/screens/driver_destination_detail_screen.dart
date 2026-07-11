@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/maps_launcher.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
@@ -12,6 +13,7 @@ import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
 import 'package:sapbaq_admin/features/driver/presentation/bloc/driver_destination_detail_cubit.dart';
+import 'package:sapbaq_admin/features/shared/presentation/delivery_proofs.dart';
 import 'package:sapbaq_admin/features/shared/presentation/order_sections.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -42,8 +44,9 @@ class _DetailView extends StatelessWidget {
 
   Future<void> _start(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
-    final ok =
-        await context.read<DriverDestinationDetailCubit>().startDelivery();
+    final ok = await context
+        .read<DriverDestinationDetailCubit>()
+        .startDelivery();
     if (ok && context.mounted) {
       ShowMessage.success(context, l10n.deliveryStartedMsg);
     }
@@ -56,7 +59,7 @@ class _DetailView extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: ColorsCustom.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -93,8 +96,10 @@ class _DetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return BlocConsumer<DriverDestinationDetailCubit,
-        DriverDestinationDetailState>(
+    return BlocConsumer<
+      DriverDestinationDetailCubit,
+      DriverDestinationDetailState
+    >(
       listenWhen: (a, b) => a.message != b.message && b.message != null,
       listener: (context, state) => ShowMessage.error(context, state.message!),
       builder: (context, state) {
@@ -170,7 +175,7 @@ class _DetailView extends StatelessWidget {
                 TextCustom(
                   text: dest.customer!.phone,
                   fontSize: 13,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ],
             ),
@@ -181,9 +186,10 @@ class _DetailView extends StatelessWidget {
             child: TextCustom(
               text: dest.customerNotes!,
               fontSize: 14,
-              color: ColorsCustom.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
+        if (dest.proofs.isNotEmpty) DeliveryProofStrip(proofs: dest.proofs),
         if (dest.isDelivered)
           Container(
             padding: const EdgeInsets.all(14),
@@ -323,13 +329,16 @@ class _RejectSheetState extends State<_RejectSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: ColorsCustom.border,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 20),
-          TextCustom.subheading(text: l10n.rejectTitle, color: ColorsCustom.error),
+          TextCustom.subheading(
+            text: l10n.rejectTitle,
+            color: ColorsCustom.error,
+          ),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,

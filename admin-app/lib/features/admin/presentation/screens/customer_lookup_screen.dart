@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
@@ -68,16 +68,16 @@ class _LookupViewState extends State<_LookupView> {
                     },
                     decoration: InputDecoration(
                       hintText: l10n.lookupHint,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.search_rounded,
-                        color: ColorsCustom.textHint,
+                        color: context.colors.textHint,
                       ),
                       suffixIcon: _controller.text.isEmpty
                           ? null
                           : IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.close_rounded,
-                                color: ColorsCustom.textHint,
+                                color: context.colors.textHint,
                               ),
                               onPressed: () {
                                 _controller.clear();
@@ -101,9 +101,9 @@ class _LookupViewState extends State<_LookupView> {
                     },
                     decoration: InputDecoration(
                       hintText: l10n.lookupIdHint,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.tag_rounded,
-                        color: ColorsCustom.textHint,
+                        color: context.colors.textHint,
                       ),
                     ),
                   ),
@@ -178,13 +178,13 @@ class _CustomerSection extends StatelessWidget {
                 width: 44,
                 height: 44,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: ColorsCustom.secondaryLight,
+                decoration: BoxDecoration(
+                  color: context.colors.primaryTint,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_rounded,
-                  color: ColorsCustom.primary,
+                  color: context.colors.primary,
                   size: 24,
                 ),
               ),
@@ -206,7 +206,7 @@ class _CustomerSection extends StatelessWidget {
                     TextCustom(
                       text: customer.phone,
                       fontSize: 13,
-                      color: ColorsCustom.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ],
                 ),
@@ -215,7 +215,7 @@ class _CustomerSection extends StatelessWidget {
                 text: l10n.ordersCount(result.orders.length),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: ColorsCustom.textHint,
+                color: context.colors.textHint,
               ),
             ],
           ),

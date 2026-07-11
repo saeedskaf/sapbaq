@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
 /// Bottom space the floating nav bar occupies (height + gap + safe-area), plus
@@ -9,7 +10,9 @@ import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 /// Add this as bottom padding to scrollable tab content (and to any in-tab
 /// bottom bar) so nothing is hidden behind the floating bar.
 double floatingNavBarClearance(BuildContext context) =>
-    92 + FloatingBottomInset.of(context) + MediaQuery.of(context).padding.bottom;
+    92 +
+    FloatingBottomInset.of(context) +
+    MediaQuery.of(context).padding.bottom;
 
 /// Lets the shell reserve extra bottom clearance for transient bars stacked
 /// above the nav bar (the floating cart bar). Page content reads it through
@@ -97,11 +100,11 @@ class FloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = background ?? ColorsCustom.surface.withValues(alpha: 0.60);
+    final bg = background ?? context.colors.surface.withValues(alpha: 0.60);
     final indicator =
         indicatorColor ?? ColorsCustom.brandMint.withValues(alpha: 0.35);
-    final active = activeColor ?? ColorsCustom.primary;
-    final inactive = inactiveColor ?? ColorsCustom.textHint;
+    final active = activeColor ?? context.colors.primary;
+    final inactive = inactiveColor ?? context.colors.textHint;
     final border = borderColor ?? Colors.white.withValues(alpha: 0.55);
 
     final bottomSafe = MediaQuery.of(context).padding.bottom;
@@ -162,7 +165,9 @@ class FloatingNavBar extends StatelessWidget {
   }) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     // Mirror the index in RTL so the indicator tracks the visual slot.
-    final visualIndex = isRtl ? (items.length - 1 - currentIndex) : currentIndex;
+    final visualIndex = isRtl
+        ? (items.length - 1 - currentIndex)
+        : currentIndex;
     final pillRadius = (height - indicatorVerticalInset * 2) / 2;
 
     return Stack(

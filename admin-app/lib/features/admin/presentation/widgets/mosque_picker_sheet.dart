@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/network/api_exception.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
@@ -61,7 +61,8 @@ class _MosquePickerSheetState extends State<MosquePickerSheet> {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom +
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom +
             MediaQuery.of(context).padding.bottom +
             12,
       ),
@@ -74,7 +75,7 @@ class _MosquePickerSheetState extends State<MosquePickerSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: ColorsCustom.border,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -88,9 +89,9 @@ class _MosquePickerSheetState extends State<MosquePickerSheet> {
                 onSubmitted: (q) => _load(q.trim()),
                 decoration: InputDecoration(
                   hintText: l10n.searchMosqueHint,
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: ColorsCustom.textHint,
+                    color: context.colors.textHint,
                   ),
                 ),
               ),
@@ -112,19 +113,22 @@ class _MosquePickerSheetState extends State<MosquePickerSheet> {
       );
     }
     if (_mosques.isEmpty) {
-      return EmptyView(message: l10n.noSearchResults, icon: Icons.mosque_outlined);
+      return EmptyView(
+        message: l10n.noSearchResults,
+        icon: Icons.mosque_outlined,
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: _mosques.length,
       separatorBuilder: (_, _) =>
-          const Divider(height: 1, color: ColorsCustom.border),
+          Divider(height: 1, color: context.colors.border),
       itemBuilder: (context, i) {
         final m = _mosques[i];
         return ListTile(
           contentPadding: EdgeInsets.zero,
           onTap: () => Navigator.of(context).pop((id: m.id, name: m.name)),
-          leading: const Icon(Icons.mosque_outlined, color: ColorsCustom.primary),
+          leading: Icon(Icons.mosque_outlined, color: context.colors.primary),
           title: TextCustom(
             text: m.name,
             fontSize: 15,
@@ -137,7 +141,7 @@ class _MosquePickerSheetState extends State<MosquePickerSheet> {
               : TextCustom(
                   text: m.area,
                   fontSize: 12,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
         );
       },

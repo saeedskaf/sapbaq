@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sapbaq/core/constants/app_assets.dart';
+import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 
@@ -27,14 +28,14 @@ class AuthScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Full-width black header behind the logo, with rounded bottom
+            // Full-width ink header behind the logo, with rounded bottom
             // corners — keeps the white-on-black lockup legible in any theme.
             AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle.light,
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: Colors.black,
+                  color: ColorsCustom.ink,
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(28),
                   ),

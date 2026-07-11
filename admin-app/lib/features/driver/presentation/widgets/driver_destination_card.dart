@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
 import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
@@ -50,7 +50,7 @@ class DriverDestinationCard extends StatelessWidget {
           TextCustom(
             text: meta,
             fontSize: 13,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -59,17 +59,17 @@ class DriverDestinationCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.sticky_note_2_outlined,
                   size: 15,
-                  color: ColorsCustom.textHint,
+                  color: context.colors.textHint,
                 ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: TextCustom(
                     text: destination.customerNotes!,
                     fontSize: 12.5,
-                    color: ColorsCustom.textHint,
+                    color: context.colors.textHint,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

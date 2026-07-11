@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Android 13+ (API 33) runtime permission to post notifications. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Biometric unlock of the saved session (local_auth). -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
     <application
         android:label="Sapbaq"
@@ -41,10 +43,11 @@
         <!-- FCM defaults for notifications the OS renders itself (background /
              terminated). Without these, such messages land on a low-importance
              fallback channel with the launcher icon (a white square). The high-
-             importance `sapbaq_default` channel is created in Dart at startup. -->
+             importance `sapbaq_alerts_v1` channel (with the custom sound) is
+             created in Dart at startup. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sapbaq_default" />
+            android:value="sapbaq_alerts_v1" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_notification" />

@@ -74,19 +74,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     switch (event.status) {
+      // Statuses that carry a cached user (name/phone drive routing + UI).
       case AuthStatus.authenticated:
-        emit(
-          AuthState(
-            status: AuthStatus.authenticated,
-            user: await _repo.cachedUser(),
-          ),
-        );
       case AuthStatus.completingProfile:
+      case AuthStatus.settingPasscode:
+      case AuthStatus.locked:
         emit(
-          AuthState(
-            status: AuthStatus.completingProfile,
-            user: await _repo.cachedUser(),
-          ),
+          AuthState(status: event.status, user: await _repo.cachedUser()),
         );
       case AuthStatus.unauthenticated:
         emit(const AuthState(status: AuthStatus.unauthenticated));

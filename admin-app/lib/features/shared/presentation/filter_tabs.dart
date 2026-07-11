@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
 /// A horizontal row of filter tabs (admin orders, driver deliveries). Only the
@@ -43,9 +44,7 @@ class FilterTabs extends StatelessWidget {
                 text: labels[i],
                 fontSize: 14,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                color: selected
-                    ? ColorsCustom.onMint
-                    : ColorsCustom.textHint,
+                color: selected ? ColorsCustom.onMint : context.colors.textHint,
               ),
             ),
           );

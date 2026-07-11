@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
@@ -61,7 +62,9 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
   Future<void> _approve(BuildContext context, Approval a) async {
     final l10n = AppLocalizations.of(context)!;
     final ok = await context.read<ApprovalsCubit>().approve(a.id);
-    if (ok && context.mounted) ShowMessage.success(context, l10n.approveSuccess);
+    if (ok && context.mounted) {
+      ShowMessage.success(context, l10n.approveSuccess);
+    }
   }
 
   Future<void> _reject(BuildContext context, Approval a) async {
@@ -71,7 +74,7 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: ColorsCustom.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -89,7 +92,8 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
       appBar: AppBar(title: TextCustom.subheading(text: l10n.approvalsTitle)),
       body: BlocConsumer<ApprovalsCubit, ApprovalsState>(
         listenWhen: (a, b) => a.message != b.message && b.message != null,
-        listener: (context, state) => ShowMessage.error(context, state.message!),
+        listener: (context, state) =>
+            ShowMessage.error(context, state.message!),
         builder: (context, state) {
           if (state.status == LoadStatus.loading) {
             return const LoadingView();
@@ -108,7 +112,7 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
             );
           }
           return RefreshIndicator(
-            color: ColorsCustom.primary,
+            color: context.colors.primary,
             onRefresh: () => context.read<ApprovalsCubit>().load(),
             child: ListView.builder(
               controller: _scrollController,
@@ -116,11 +120,11 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
               itemCount: state.items.length + (state.hasMore ? 1 : 0),
               itemBuilder: (context, i) {
                 if (i >= state.items.length) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: ColorsCustom.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                   );
@@ -185,8 +189,8 @@ class _ApprovalCard extends StatelessWidget {
               if (approval.targetType == 'Order' && approval.targetId != null)
                 Pill(
                   text: l10n.orderRefShort('#${approval.targetId}'),
-                  color: ColorsCustom.primary,
-                  background: ColorsCustom.surfaceVariant,
+                  color: context.colors.primary,
+                  background: context.colors.surfaceVariant,
                   fontSize: 11,
                 ),
             ],
@@ -200,10 +204,7 @@ class _ApprovalCard extends StatelessWidget {
           ],
           if (approval.payloadReason.isNotEmpty) ...[
             const SizedBox(height: 6),
-            _MetaRow(
-              icon: Icons.notes_outlined,
-              text: approval.payloadReason,
-            ),
+            _MetaRow(icon: Icons.notes_outlined, text: approval.payloadReason),
           ],
           if (approval.amount != null && approval.amount!.isNotEmpty) ...[
             const SizedBox(height: 6),
@@ -222,10 +223,12 @@ class _ApprovalCard extends StatelessWidget {
           if (approval.isPending) ...[
             const SizedBox(height: 14),
             if (busy)
-              const Center(
+              Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 6),
-                  child: CircularProgressIndicator(color: ColorsCustom.primary),
+                  child: CircularProgressIndicator(
+                    color: context.colors.primary,
+                  ),
                 ),
               )
             else
@@ -265,13 +268,13 @@ class _MetaRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 15, color: ColorsCustom.textHint),
+        Icon(icon, size: 15, color: context.colors.textHint),
         const SizedBox(width: 6),
         Expanded(
           child: TextCustom(
             text: text,
             fontSize: 13,
-            color: ColorsCustom.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -315,7 +318,7 @@ class _RejectSheetState extends State<_RejectSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: ColorsCustom.border,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

@@ -2,9 +2,10 @@ import 'package:equatable/equatable.dart';
 
 /// Authenticated customer. Mirrors the API user object.
 ///
-/// The account is passwordless (Google / Apple / phone OTP). [phone] is null
-/// for a fresh social sign-in until the user verifies a number; [profileCompleted]
-/// gates full app access (name + email + verified phone).
+/// Identity is a phone verified by OTP; the daily path is a 4-digit passcode +
+/// biometrics. [phone] is null for a fresh social sign-in until the user
+/// verifies a number; [profileCompleted] gates full app access (name + email +
+/// verified phone); [passcodeSet] drives the "set your passcode" step.
 class User extends Equatable {
   final int id;
   final String? phone;
@@ -14,6 +15,7 @@ class User extends Equatable {
   final String email;
   final bool emailVerified;
   final bool profileCompleted;
+  final bool passcodeSet;
   final String userType;
   final String? dateJoined;
 
@@ -26,6 +28,7 @@ class User extends Equatable {
     this.email = '',
     this.emailVerified = false,
     this.profileCompleted = false,
+    this.passcodeSet = false,
     this.userType = 'CUSTOMER',
     this.dateJoined,
   });
@@ -51,6 +54,7 @@ class User extends Equatable {
       email: (json['email'] ?? '').toString(),
       emailVerified: json['email_verified'] as bool? ?? false,
       profileCompleted: json['profile_completed'] as bool? ?? false,
+      passcodeSet: json['passcode_set'] as bool? ?? false,
       userType: (json['user_type'] ?? 'CUSTOMER').toString(),
       dateJoined: json['date_joined'] as String?,
     );
@@ -80,6 +84,7 @@ class User extends Equatable {
     'email': email,
     'email_verified': emailVerified,
     'profile_completed': profileCompleted,
+    'passcode_set': passcodeSet,
     'user_type': userType,
     'date_joined': dateJoined,
   };
@@ -94,6 +99,7 @@ class User extends Equatable {
     email,
     emailVerified,
     profileCompleted,
+    passcodeSet,
     userType,
   ];
 }

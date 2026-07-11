@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ^3.11.0
@@ -80,14 +80,23 @@ dependencies:
   # sign-in button — the mark stays multicolor in both themes per Google's spec.
   flutter_svg: ^2.0.17
 
-  # Passwordless auth: social sign-in (Google/Apple) + phone OTP. No passwords.
+  # Auth: social sign-in (Google/Apple) + phone OTP. The daily path is a 4-digit
+  # passcode + device biometrics (see below). No passwords.
   google_sign_in: ^6.3.0
   sign_in_with_apple: ^6.1.4
   # SHA-256 of the Apple sign-in nonce (raw nonce sent to Apple, hash to server).
   crypto: ^3.0.6
-  # Passkeys (WebAuthn) for fast daily sign-in. Server drives the challenge; this
-  # bridges the platform authenticator (Face ID / fingerprint / device PIN).
+  # Passkeys (WebAuthn) — kept as an optional secondary sign-in; the approved
+  # primary path is passcode + biometric. Not surfaced in the main flow.
   passkeys: ^2.4.0
+
+  # Daily-login stack (Sapbaq_AUTH_Flow): a stable per-install device id anchors
+  # device trust; device_info_plus names the device for the trusted-device list;
+  # local_auth gates the saved session behind Face ID / Touch ID (passcode is
+  # always the fallback).
+  uuid: ^4.5.1
+  device_info_plus: ^11.5.0
+  local_auth: ^2.3.0
 
 # Pin the iOS/macOS path_provider impl to 2.5.1 — the latest WITHOUT the
 # experimental `objective_c` native-assets dependency (2.5.0 & 2.6.0 add it,
@@ -139,8 +148,9 @@ flutter:
 
   assets:
     - assets/images/logo/
-    # Bundled IBM Plex Sans Arabic (Arabic) + Poppins (Latin) so google_fonts uses these
-    # instead of fetching from fonts.gstatic.com at runtime (works offline).
+    # Bundled Cairo (Arabic UI) + Tajawal (brand wordmark) + Poppins (Latin) so
+    # google_fonts uses these instead of fetching from fonts.gstatic.com at
+    # runtime (works offline).
     - assets/google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
 class ButtonCustom extends StatelessWidget {
@@ -51,7 +52,7 @@ class ButtonCustom extends StatelessWidget {
     this.width,
     this.icon,
   }) : color = null,
-       textColor = ColorsCustom.primary,
+       textColor = null,
        isOutlined = true;
 
   @override
@@ -63,11 +64,11 @@ class ButtonCustom extends StatelessWidget {
         : (color ?? ColorsCustom.brandMint);
 
     final Color buttonTextColor = isOutlined
-        ? (textColor ?? ColorsCustom.primary)
+        ? (textColor ?? context.colors.primary)
         : (textColor ?? ColorsCustom.onMint);
 
     final Color resolvedTextColor = isDisabled
-        ? ColorsCustom.textHint
+        ? context.colors.textHint
         : buttonTextColor;
 
     return SizedBox(
@@ -85,16 +86,16 @@ class ButtonCustom extends StatelessWidget {
             side: isOutlined
                 ? BorderSide(
                     color: isDisabled
-                        ? ColorsCustom.border
-                        : (color ?? ColorsCustom.primary),
+                        ? context.colors.border
+                        : (color ?? context.colors.primary),
                     width: 1.5,
                   )
                 : BorderSide.none,
           ),
           disabledBackgroundColor: isOutlined
               ? Colors.transparent
-              : ColorsCustom.border,
-          disabledForegroundColor: ColorsCustom.textHint,
+              : context.colors.border,
+          disabledForegroundColor: context.colors.textHint,
           padding: const EdgeInsets.symmetric(horizontal: 24),
         ),
         child: isLoading

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -157,35 +158,90 @@ class _SapbaqAppState extends State<SapbaqApp> {
                 SupportUnreadCubit(context.read<SupportRepository>()),
           ),
         ],
-        child: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, settings) {
-            return MaterialApp.router(
-              onGenerateTitle: (context) =>
-                  AppLocalizations.of(context)!.appName,
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.light,
-              darkTheme: AppTheme.dark,
-              themeMode: settings.themeMode,
-              locale: settings.locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              routerConfig: _router,
-              // Sensible status-bar icon brightness for screens without an
-              // AppBar (Home, splash); AppBar screens still override this.
-              builder: (context, child) {
-                final isDark =
-                    Theme.of(context).brightness == Brightness.dark;
-                return AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: isDark
-                      ? AppTheme.statusBarStyleDark
-                      : AppTheme.statusBarStyleLight,
-                  child: child ?? const SizedBox.shrink(),
-                );
-              },
-            );
-          },
+        child: _PushForegroundListener(
+          pushNotifications: widget.pushNotifications,
+          child: BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, settings) {
+              return MaterialApp.router(
+                onGenerateTitle: (context) =>
+                    AppLocalizations.of(context)!.appName,
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: settings.themeMode,
+                locale: settings.locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                routerConfig: _router,
+                // Sensible status-bar icon brightness for screens without an
+                // AppBar (Home, splash); AppBar screens still override this.
+                builder: (context, child) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  return AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: isDark
+                        ? AppTheme.statusBarStyleDark
+                        : AppTheme.statusBarStyleLight,
+                    child: child ?? const SizedBox.shrink(),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// Keeps app-level state in step with pushes that arrive while the app is
+/// open. Without this the support unread badge (and anything else derived from
+/// server state) stays stale until the user pulls to refresh, even though the
+/// notification just appeared in the tray.
+///
+/// Also re-applies the Android channel's localized name after a language
+/// switch — Android allows updating a channel's name/description in place.
+class _PushForegroundListener extends StatefulWidget {
+  final PushNotificationService pushNotifications;
+  final Widget child;
+
+  const _PushForegroundListener({
+    required this.pushNotifications,
+    required this.child,
+  });
+
+  @override
+  State<_PushForegroundListener> createState() =>
+      _PushForegroundListenerState();
+}
+
+class _PushForegroundListenerState extends State<_PushForegroundListener> {
+  StreamSubscription<RemoteMessage>? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = widget.pushNotifications.onForegroundMessage.listen((_) {
+      if (!mounted) return;
+      // Cheap and always correct: re-read the unread count from the server
+      // rather than trying to infer it from the payload's type.
+      context.read<SupportUnreadCubit>().refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<SettingsCubit, SettingsState>(
+      listenWhen: (a, b) => a.locale != b.locale,
+      listener: (_, settings) =>
+          widget.pushNotifications.updateChannelLocalization(settings.locale),
+      child: widget.child,
     );
   }
 }

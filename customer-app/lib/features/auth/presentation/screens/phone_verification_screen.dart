@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sapbaq/core/utils/bidi.dart';
 import 'package:sapbaq/core/utils/form_validators.dart';
+import 'package:sapbaq/core/utils/phone_rules.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
@@ -47,9 +49,15 @@ class _PhoneVerificationViewState extends State<_PhoneVerificationView> {
 
   void _requestCode(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    setState(
-      () => _phoneClientError = _phone.isEmpty ? l10n.phoneRequired : null,
-    );
+    final issue = checkSupportedPhone(_phone);
+    setState(() {
+      _phoneClientError = switch (issue) {
+        PhoneIssue.none => null,
+        PhoneIssue.empty => l10n.phoneRequired,
+        PhoneIssue.unsupportedCountry => l10n.phoneKuwaitOnly,
+        PhoneIssue.length => l10n.phoneKuwaitOnly,
+      };
+    });
     if (_phoneClientError != null) return;
     FocusScope.of(context).unfocus();
     context.read<PhoneVerificationCubit>().requestCode(phone: _phone);
@@ -92,7 +100,7 @@ class _PhoneVerificationViewState extends State<_PhoneVerificationView> {
           return AuthScaffold(
             title: l10n.verifyPhoneTitle,
             subtitle: onCodeStep
-                ? l10n.otpSentTo(state.phone ?? _phone)
+                ? l10n.otpSentTo(ltrIsolate(state.phone ?? _phone))
                 : l10n.verifyPhoneSubtitle,
             children: [
               if (!onCodeStep) ...[

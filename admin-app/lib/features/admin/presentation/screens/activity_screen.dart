@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
@@ -79,7 +79,7 @@ class _ActivityViewState extends State<_ActivityView> {
             );
           }
           return RefreshIndicator(
-            color: ColorsCustom.primary,
+            color: context.colors.primary,
             onRefresh: () => context.read<ActivityCubit>().load(),
             child: ListView.builder(
               controller: _scrollController,
@@ -87,11 +87,11 @@ class _ActivityViewState extends State<_ActivityView> {
               itemCount: state.entries.length + (state.hasMore ? 1 : 0),
               itemBuilder: (context, i) {
                 if (i >= state.entries.length) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: ColorsCustom.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                   );
@@ -125,12 +125,12 @@ class _ActivityRow extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ColorsCustom.secondaryLight,
+              color: context.colors.primaryTint,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               _iconFor(entry.action),
-              color: ColorsCustom.primary,
+              color: context.colors.primary,
               size: 20,
             ),
           ),
@@ -149,7 +149,7 @@ class _ActivityRow extends StatelessWidget {
                   TextCustom(
                     text: time,
                     fontSize: 12,
-                    color: ColorsCustom.textHint,
+                    color: context.colors.textHint,
                   ),
                 ],
               ],

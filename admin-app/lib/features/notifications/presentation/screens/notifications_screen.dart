@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
 import 'package:sapbaq_admin/core/notifications/notification_deep_link.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
@@ -62,7 +62,7 @@ class NotificationsScreen extends StatelessWidget {
             }
             final cubit = context.read<NotificationsCubit>();
             return RefreshIndicator(
-              color: ColorsCustom.primary,
+              color: context.colors.primary,
               onRefresh: cubit.load,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (scroll) {
@@ -85,7 +85,7 @@ class NotificationsScreen extends StatelessWidget {
                   itemCount: state.items.length + (state.hasMore ? 1 : 0),
                   itemBuilder: (context, i) {
                     if (i >= state.items.length) {
-                      return const Padding(
+                      return Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
                         child: Center(
                           child: SizedBox(
@@ -93,7 +93,7 @@ class NotificationsScreen extends StatelessWidget {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.4,
-                              color: ColorsCustom.primary,
+                              color: context.colors.primary,
                             ),
                           ),
                         ),
@@ -142,11 +142,11 @@ class _NotificationTile extends StatelessWidget {
             width: 40,
             height: 40,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: ColorsCustom.secondaryLight,
+            decoration: BoxDecoration(
+              color: context.colors.primaryTint,
               shape: BoxShape.circle,
             ),
-            child: Icon(_icon, color: ColorsCustom.primary, size: 20),
+            child: Icon(_icon, color: context.colors.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -166,7 +166,7 @@ class _NotificationTile extends StatelessWidget {
                 TextCustom(
                   text: notification.body,
                   fontSize: 13,
-                  color: ColorsCustom.textSecondary,
+                  color: context.colors.textSecondary,
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),

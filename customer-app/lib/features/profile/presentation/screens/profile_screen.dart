@@ -7,13 +7,11 @@ import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/core/network/session_manager.dart';
 import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
-import 'package:sapbaq/core/utils/form_validators.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
-import 'package:sapbaq/features/auth/data/models/user.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
@@ -24,25 +22,6 @@ import 'package:sapbaq/l10n/app_localizations.dart';
 /// live in their own group at the bottom.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  Future<void> _editProfile(BuildContext context, User user) async {
-    final l10n = AppLocalizations.of(context)!;
-    final updated = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      // Present on the root navigator so the sheet sits above the floating nav
-      // bar and cart bar (which live in the shell scaffold) instead of behind.
-      useRootNavigator: true,
-      backgroundColor: context.colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _EditProfileSheet(user: user),
-    );
-    if (updated == true && context.mounted) {
-      ShowMessage.success(context, l10n.profileUpdated);
-    }
-  }
 
   void _confirmDeleteAccount(BuildContext context) {
     showModalBottomSheet<void>(
@@ -92,36 +71,28 @@ class ProfileScreen extends StatelessWidget {
               MediaQuery.of(context).padding.bottom + 24,
             ),
             children: [
-              _IdentityCard(
-                name: name,
-                phone: phone,
-                email: email,
-                onEdit: user == null
-                    ? null
-                    : () => _editProfile(context, user),
-              ),
+              // Name/email are edited only by staff (Sapbaq_AUTH_Flow §12) — the
+              // identity card is read-only, no edit affordance.
+              _IdentityCard(name: name, phone: phone, email: email),
               const SizedBox(height: 22),
               _SectionLabel(l10n.accountSection),
               const SizedBox(height: 8),
               _TilesGroup(
                 tiles: [
-                  // _TileData(
-                  //   icon: Icons.location_on_outlined,
-                  //   label: l10n.addressesTitle,
-                  //   onTap: () => context.pushNamed(AppRoutes.addressesName),
-                  // ),
                   _TileData(
                     icon: Icons.favorite_border_rounded,
                     label: l10n.favoritesTitle,
                     onTap: () => context.pushNamed(AppRoutes.favoritesName),
                   ),
                   _TileData(
-                    icon: Icons.vpn_key_outlined,
-                    label: l10n.passkeysTitle,
-                    onTap: () => context.pushNamed(AppRoutes.passkeysName),
+                    icon: Icons.devices_rounded,
+                    label: l10n.trustedDevicesTitle,
+                    onTap: () => context.pushNamed(AppRoutes.trustedDevicesName),
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              const _BiometricToggleCard(),
               const SizedBox(height: 22),
               _SectionLabel(l10n.settingsSection),
               const SizedBox(height: 8),
@@ -217,13 +188,11 @@ class _IdentityCard extends StatelessWidget {
   final String name;
   final String phone;
   final String email;
-  final VoidCallback? onEdit;
 
   const _IdentityCard({
     required this.name,
     required this.phone,
     required this.email,
-    required this.onEdit,
   });
 
   @override
@@ -295,26 +264,90 @@ class _IdentityCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Material(
-            color: context.colors.surfaceVariant,
-            shape: const CircleBorder(),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onEdit,
-              customBorder: const CircleBorder(),
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  Icons.edit_rounded,
-                  size: 18,
-                  color: context.colors.primary,
-                ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Toggle for Face ID / Touch ID unlock — the settings home for the biometric
+/// opt-in first offered during onboarding. Hidden entirely when the device has
+/// no usable biometrics; the passcode is always the fallback.
+class _BiometricToggleCard extends StatefulWidget {
+  const _BiometricToggleCard();
+
+  @override
+  State<_BiometricToggleCard> createState() => _BiometricToggleCardState();
+}
+
+class _BiometricToggleCardState extends State<_BiometricToggleCard> {
+  bool _available = false;
+  bool _enabled = false;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = context.read<AuthRepository>();
+    Future.wait([repo.biometricAvailable(), repo.biometricEnabled()]).then((r) {
+      if (!mounted) return;
+      setState(() {
+        _available = r[0];
+        _enabled = r[1];
+        _loaded = true;
+      });
+    });
+  }
+
+  Future<void> _toggle(bool value) async {
+    setState(() => _enabled = value);
+    await context.read<AuthRepository>().setBiometricEnabled(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded || !_available) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: context.colors.border, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: context.colors.primaryTint,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.fingerprint_rounded,
+                color: context.colors.primary,
+                size: 18,
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextCustom(
+                text: l10n.biometricUnlockSetting,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            Switch.adaptive(
+              value: _enabled,
+              activeTrackColor: context.colors.primary,
+              onChanged: _toggle,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -454,145 +487,6 @@ class _ProfileTile extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Edit-name sheet
-// ────────────────────────────────────────────────────────────────────────────
-
-/// Bottom sheet to edit the user's name and email. Pops `true` on success so
-/// the caller can surface a confirmation on the profile scaffold.
-class _EditProfileSheet extends StatefulWidget {
-  final User user;
-  const _EditProfileSheet({required this.user});
-
-  @override
-  State<_EditProfileSheet> createState() => _EditProfileSheetState();
-}
-
-class _EditProfileSheetState extends State<_EditProfileSheet> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _firstName = TextEditingController(
-    text: widget.user.firstName,
-  );
-  late final TextEditingController _middleName = TextEditingController(
-    text: widget.user.middleName,
-  );
-  late final TextEditingController _lastName = TextEditingController(
-    text: widget.user.lastName,
-  );
-  late final TextEditingController _emailController = TextEditingController(
-    text: widget.user.email,
-  );
-  bool _busy = false;
-
-  @override
-  void dispose() {
-    _firstName.dispose();
-    _middleName.dispose();
-    _lastName.dispose();
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    FocusScope.of(context).unfocus();
-    final navigator = Navigator.of(context);
-    final repo = context.read<AuthRepository>();
-    final authBloc = context.read<AuthBloc>();
-
-    setState(() => _busy = true);
-    try {
-      await repo.updateProfile(
-        firstName: _firstName.text.trim(),
-        middleName: _middleName.text.trim(),
-        lastName: _lastName.text.trim(),
-        email: _emailController.text.trim(),
-      );
-      authBloc.add(const AuthUserRefreshed());
-      if (!mounted) return;
-      navigator.pop(true);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() => _busy = false);
-      ShowMessage.error(context, e.message);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final validators = FormValidators(context);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.colors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextCustom.subheading(text: l10n.editProfile),
-            const SizedBox(height: 16),
-            FormFieldCustom(
-              controller: _firstName,
-              label: l10n.firstNameLabel,
-              validator: validators.requiredValidator,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 12),
-            FormFieldCustom(
-              controller: _middleName,
-              label: l10n.middleNameLabel,
-              isRequired: false,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 12),
-            FormFieldCustom(
-              controller: _lastName,
-              label: l10n.lastNameLabel,
-              validator: validators.requiredValidator,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 12),
-            FormFieldCustom(
-              controller: _emailController,
-              label: l10n.emailLabel,
-              keyboardType: TextInputType.emailAddress,
-              validator: validators.combineValidators([
-                validators.requiredValidator,
-                validators.emailValidator,
-              ]),
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: 20),
-            ButtonCustom.primary(
-              text: l10n.saveButton,
-              isLoading: _busy,
-              onPressed: _save,
-            ),
-          ],
         ),
       ),
     );
@@ -806,7 +700,7 @@ class _GuestProfileView extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            gradient: ColorsCustom.brandGradient,
+            color: ColorsCustom.primary,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(

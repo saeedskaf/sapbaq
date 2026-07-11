@@ -598,4 +598,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logout => 'تسجيل الخروج';
+
+  @override
+  String get userFallback => 'مستخدم';
+
+  @override
+  String get settingsLanguage => 'اللغة';
+
+  @override
+  String get languageTitle => 'اللغة';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get settingsAppearance => 'المظهر';
+
+  @override
+  String get appearanceTitle => 'المظهر';
+
+  @override
+  String get themeSystem => 'حسب إعدادات الجهاز';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
+  String get notificationChannelName => 'إشعارات ســـبّاقـــ';
+
+  @override
+  String get notificationChannelDescription =>
+      'تعيينات الطلبات وتحديثات التوصيل.';
 }

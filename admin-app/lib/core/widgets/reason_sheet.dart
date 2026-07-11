@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/colors_custom.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
@@ -11,14 +12,17 @@ class ReasonSheet extends StatefulWidget {
   final String title;
   final String hint;
   final String confirmLabel;
-  final Color accent;
+
+  /// Accent for the title + confirm button. Defaults to the theme primary when
+  /// null (resolved in [build], since a theme color can't be a const default).
+  final Color? accent;
 
   const ReasonSheet({
     super.key,
     required this.title,
     required this.hint,
     required this.confirmLabel,
-    this.accent = ColorsCustom.primary,
+    this.accent,
   });
 
   /// Presents the sheet and resolves to the trimmed reason, or null if the user
@@ -28,13 +32,13 @@ class ReasonSheet extends StatefulWidget {
     required String title,
     required String hint,
     required String confirmLabel,
-    Color accent = ColorsCustom.primary,
+    Color? accent,
   }) {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: ColorsCustom.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -63,6 +67,7 @@ class _ReasonSheetState extends State<ReasonSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final accent = widget.accent ?? context.colors.primary;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         20,
@@ -79,13 +84,13 @@ class _ReasonSheetState extends State<ReasonSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: ColorsCustom.border,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 20),
-          TextCustom.subheading(text: widget.title, color: widget.accent),
+          TextCustom.subheading(text: widget.title, color: accent),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
@@ -96,7 +101,7 @@ class _ReasonSheetState extends State<ReasonSheet> {
           const SizedBox(height: 20),
           ButtonCustom(
             text: widget.confirmLabel,
-            color: widget.accent,
+            color: accent,
             textColor: ColorsCustom.textOnPrimary,
             onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
           ),

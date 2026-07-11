@@ -834,6 +834,146 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resendCode => 'إعادة إرسال الرمز';
 
   @override
+  String resendCodeIn(int seconds) {
+    return 'إعادة الإرسال خلال $seconds ثانية';
+  }
+
+  @override
+  String get notMe => 'لست أنا؟';
+
+  @override
+  String get phoneKuwaitOnly => 'يُقبل رقم كويتي (+965) فقط حاليًا';
+
+  @override
+  String get welcomeBackTitle => 'مرحبًا بعودتك';
+
+  @override
+  String enterPasscodeSubtitle(String phone) {
+    return 'أدخل رمزك السري لحساب $phone';
+  }
+
+  @override
+  String get passcodeWrong => 'الرمز غير صحيح، حاول مجددًا';
+
+  @override
+  String get forgotPasscode => 'نسيت الرمز؟';
+
+  @override
+  String get deviceTrustTitle => 'توثيق جهاز جديد';
+
+  @override
+  String deviceTrustSubtitle(String phone) {
+    return 'أرسلنا رمز تحقق إلى $phone لتوثيق هذا الجهاز';
+  }
+
+  @override
+  String get forgotPasscodeTitle => 'إعادة تعيين الرمز';
+
+  @override
+  String forgotPasscodeSubtitle(String phone) {
+    return 'أرسلنا رمز تحقق إلى $phone';
+  }
+
+  @override
+  String get newPasscodeLabel => 'الرمز الجديد';
+
+  @override
+  String get confirmPasscodeLabel => 'تأكيد الرمز';
+
+  @override
+  String get resetPasscodeButton => 'تعيين الرمز الجديد';
+
+  @override
+  String get passcodeMismatch => 'الرمزان غير متطابقين';
+
+  @override
+  String get passcodeLength => 'يجب أن يتكوّن الرمز من 4 أرقام';
+
+  @override
+  String get passcodeTooSimple => 'اختر رمزًا أقوى (تجنّب التكرار أو التسلسل)';
+
+  @override
+  String get setPasscodeTitle => 'اضبط رمزك السري';
+
+  @override
+  String get setPasscodeSubtitle =>
+      'اختر رمزًا من 4 أرقام لتسجيل الدخول السريع';
+
+  @override
+  String get confirmPasscodeSubtitle => 'أعد إدخال الرمز للتأكيد';
+
+  @override
+  String get biometricTitle => 'تفعيل البصمة';
+
+  @override
+  String get biometricSubtitle =>
+      'افتح التطبيق ببصمتك أو وجهك بدل إدخال الرمز في كل مرة';
+
+  @override
+  String get biometricEnable => 'تفعيل البصمة';
+
+  @override
+  String get biometricSkip => 'ليس الآن';
+
+  @override
+  String get biometricReason => 'افتح جلستك في ســـبّاقـــ';
+
+  @override
+  String get biometricUnlockSetting => 'الفتح بالبصمة (Face ID / بصمة الإصبع)';
+
+  @override
+  String get lockTitle => 'أدخل رمزك السري';
+
+  @override
+  String lockGreeting(String name) {
+    return 'مرحبًا، $name';
+  }
+
+  @override
+  String get lockSubtitle => 'أدخل رمزك السري للمتابعة';
+
+  @override
+  String get unlockWithBiometrics => 'الفتح بالبصمة';
+
+  @override
+  String get trustedDevicesTitle => 'الأجهزة الموثوقة';
+
+  @override
+  String get trustedDevicesDescription =>
+      'هذه الأجهزة تدخل حسابك بالرمز بلا رمز تحقق. أزِل أي جهاز لا تعرفه.';
+
+  @override
+  String get trustedDevicesEmpty => 'لا توجد أجهزة موثوقة بعد.';
+
+  @override
+  String get trustedDevicesError => 'تعذّر تحميل الأجهزة.';
+
+  @override
+  String get trustedDeviceUnnamed => 'جهاز غير مسمّى';
+
+  @override
+  String get trustedDeviceCurrent => 'الحالي';
+
+  @override
+  String get trustedDeviceThis => 'هذا الجهاز';
+
+  @override
+  String trustedDeviceLastUsed(String date) {
+    return 'آخر استخدام: $date';
+  }
+
+  @override
+  String get revokeDeviceTitle => 'إزالة الجهاز؟';
+
+  @override
+  String revokeDeviceBody(String device) {
+    return 'سيحتاج «$device» إلى رمز تحقق جديد عند الدخول مرة أخرى.';
+  }
+
+  @override
+  String get revokeDeviceAction => 'إزالة';
+
+  @override
   String get forgotPasswordTitle => 'نسيت كلمة المرور';
 
   @override
@@ -898,4 +1038,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get emailInvalid => 'يرجى إدخال بريد إلكتروني صحيح';
+
+  @override
+  String get notificationChannelName => 'إشعارات ســـبّاقـــ';
+
+  @override
+  String get notificationChannelDescription =>
+      'تحديثات الطلبات والهدايا والإعلانات.';
 }

@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_ar.dart';
+import 'app_localizations_en.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('ar')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en'),
+  ];
 
   /// No description provided for @comingSoon.
   ///
@@ -1245,6 +1249,78 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تسجيل الخروج'**
   String get logout;
+
+  /// No description provided for @userFallback.
+  ///
+  /// In ar, this message translates to:
+  /// **'مستخدم'**
+  String get userFallback;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللغة'**
+  String get settingsLanguage;
+
+  /// No description provided for @languageTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللغة'**
+  String get languageTitle;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In ar, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In ar, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر'**
+  String get settingsAppearance;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر'**
+  String get appearanceTitle;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسب إعدادات الجهاز'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاتح'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In ar, this message translates to:
+  /// **'داكن'**
+  String get themeDark;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In ar, this message translates to:
+  /// **'إشعارات ســـبّاقـــ'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationChannelDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيينات الطلبات وتحديثات التوصيل.'**
+  String get notificationChannelDescription;
 }
 
 class _AppLocalizationsDelegate
@@ -1258,7 +1334,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ar'].contains(locale.languageCode);
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1269,6 +1345,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'ar':
       return AppLocalizationsAr();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(

@@ -13,6 +13,13 @@ class AppRoutes {
   static const String unauthorized = '/unauthorized';
   static const String unauthorizedName = 'unauthorized';
 
+  // --- Settings (reachable from every role's profile) ---
+  static const String settingsLanguage = '/settings/language';
+  static const String settingsLanguageName = 'settings-language';
+
+  static const String settingsAppearance = '/settings/appearance';
+  static const String settingsAppearanceName = 'settings-appearance';
+
   // --- Admin shell tabs ---
   static const String adminDashboard = '/admin/dashboard';
   static const String adminDashboardName = 'admin-dashboard';

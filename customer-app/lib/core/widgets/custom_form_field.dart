@@ -179,7 +179,7 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
     FontWeight? weight,
   }) {
     final isArabic = _isArabic(widget.hintText ?? widget.label ?? '');
-    final font = isArabic ? GoogleFonts.ibmPlexSansArabic : GoogleFonts.poppins;
+    final font = isArabic ? GoogleFonts.cairo : GoogleFonts.poppins;
     return font(
       fontSize: fontSize,
       fontWeight: weight ?? FontWeight.w500,
@@ -332,7 +332,7 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
     Color? color,
     FontWeight? weight,
   }) {
-    return GoogleFonts.ibmPlexSansArabic(
+    return GoogleFonts.cairo(
       fontSize: fontSize,
       fontWeight: weight ?? FontWeight.w500,
       color: color ?? context.colors.textPrimary,

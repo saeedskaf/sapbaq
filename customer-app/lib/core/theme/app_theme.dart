@@ -59,9 +59,10 @@ class AppTheme {
 
     final overlayStyle = isDark ? statusBarStyleDark : statusBarStyleLight;
 
-    // Arabic-first: IBM Plex Sans Arabic — clean UI Arabic whose vertical
-    // metrics match Poppins (1.5em line box), so the scripts align naturally.
-    final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme()
+    // Arabic-first: Cairo (Arabic UI) + Poppins (Latin), each used with its
+    // natural metrics — no per-script height/baseline hacks. The brand wordmark
+    // stays in Tajawal via TextCustom, independent of this base theme.
+    final textTheme = GoogleFonts.cairoTextTheme()
         .apply(bodyColor: textPrimary, displayColor: textPrimary);
 
     return ThemeData(
@@ -75,8 +76,8 @@ class AppTheme {
         brightness: brightness,
         primary: primary,
         onPrimary: onPrimary,
-        secondary: ColorsCustom.secondary,
-        onSecondary: onPrimary,
+        secondary: ColorsCustom.brandMint,
+        onSecondary: ColorsCustom.onMint,
         tertiary: primaryTint,
         onTertiary: textPrimary,
         surface: surface,
