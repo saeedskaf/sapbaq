@@ -7,14 +7,20 @@ import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
+import 'package:sapbaq/core/widgets/most_needed_badge.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
 import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
+import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:sapbaq/features/marketplace/data/marketplace_repository.dart';
+import 'package:sapbaq/features/marketplace/data/models/marketplace_models.dart';
+import 'package:sapbaq/features/marketplace/presentation/widgets/water_purchase.dart';
 import 'package:sapbaq/features/mosques/data/models/mosque.dart';
 import 'package:sapbaq/features/mosques/data/mosques_repository.dart';
 import 'package:sapbaq/features/mosques/presentation/bloc/mosque_detail_cubit.dart';
 import 'package:sapbaq/features/mosques/presentation/widgets/mosque_favorite_button.dart';
 import 'package:sapbaq/features/mosques/presentation/widgets/mosque_marker_icon.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
+import 'package:sapbaq/core/theme/colors_custom.dart';
 
 /// Mosque details — clean and simple: a header (mosque glyph + name + area), a
 /// rounded map preview as the visual anchor, then a single flat info card
@@ -80,16 +86,127 @@ class MosqueDetailScreen extends StatelessWidget {
               child: ButtonCustom.primary(
                 text: l10n.donateToThisMosque,
                 icon: const Icon(Icons.water_drop_rounded, size: 20),
-                onPressed: () => context.pushNamed(
-                  AppRoutes.productsName,
-                  extra: DonationDestination.mosque(
-                    mosqueId: mosque.id,
-                    label: mosque.name,
-                  ),
-                ),
+                onPressed: () {
+                  // Mosque-first entry: bind the destination to this mosque and
+                  // open the products browser on its first tab.
+                  context.read<CartCubit>().selectDestination(
+                    DonationDestination(
+                      mosqueId: mosque.id,
+                      label: mosque.name,
+                      isMostNeeded: mosque.isMostNeeded,
+                    ),
+                  );
+                  context.pushNamed(AppRoutes.categoryProductsName);
+                },
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// "Support this mosque's water" call-to-action (spec §2) — shown only when the
+/// mosque has an active, approved water flag. Fetched via
+/// `GET /marketplace/water/?mosque_id=`; renders nothing otherwise.
+class _MosqueWaterCard extends StatefulWidget {
+  final int mosqueId;
+  const _MosqueWaterCard({required this.mosqueId});
+
+  @override
+  State<_MosqueWaterCard> createState() => _MosqueWaterCardState();
+}
+
+class _MosqueWaterCardState extends State<_MosqueWaterCard> {
+  WaterListing? _listing;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetch();
+  }
+
+  Future<void> _fetch() async {
+    try {
+      final list = await context.read<MarketplaceRepository>().water(
+        mosqueId: widget.mosqueId,
+      );
+      if (!mounted) return;
+      setState(() {
+        _listing = list.isNotEmpty ? list.first : null;
+        _loading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final listing = _listing;
+    if (_loading || listing == null) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
+    final cap = listing.cap;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceVariant,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.water_drop_rounded,
+                  color: context.colors.primary,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextCustom(
+                    text: l10n.supportWaterTitle,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                TextCustom(
+                  text: l10n.priceKwd(listing.package.price),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.primary,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: cap.progress,
+                minHeight: 8,
+                backgroundColor: context.colors.surface,
+                valueColor: AlwaysStoppedAnimation(context.colors.primary),
+              ),
+            ),
+            const SizedBox(height: 6),
+            TextCustom(
+              text: l10n.waterFunded(cap.funded, cap.max),
+              fontSize: 12,
+              color: context.colors.textSecondary,
+            ),
+            const SizedBox(height: 12),
+            ButtonCustom.primary(
+              text: l10n.contribute,
+              icon: const Icon(Icons.volunteer_activism_rounded, size: 20),
+              onPressed: () =>
+                  startWaterPurchase(context, listing, reload: _fetch),
+            ),
+          ],
         ),
       ),
     );
@@ -110,6 +227,7 @@ class _MosqueDetailBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Header(mosque: mosque),
+          _MosqueWaterCard(mosqueId: mosque.id),
           if (mosque.hasLocation) ...[
             const SizedBox(height: 24),
             _MapPreview(mosque: mosque),
@@ -140,13 +258,13 @@ class _Header extends StatelessWidget {
           height: 58,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: context.colors.primaryTint,
+            color: context.colors.surfaceVariant,
             borderRadius: BorderRadius.circular(18),
           ),
           child: Icon(
             Icons.mosque_rounded,
             size: 30,
-            color: context.colors.primary,
+            color: context.colors.textSecondary,
           ),
         ),
         const SizedBox(width: 14),
@@ -163,6 +281,10 @@ class _Header extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (mosque.isMostNeeded) ...[
+                const SizedBox(height: 6),
+                const MostNeededBadge(fontSize: 11.5),
+              ],
               if (mosque.area.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Row(
@@ -259,10 +381,10 @@ class _InfoTile extends StatelessWidget {
             height: 36,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 18, color: context.colors.primary),
+            child: Icon(icon, size: 18, color: context.colors.textSecondary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -366,10 +488,7 @@ class _MapPreviewState extends State<_MapPreview> {
                     color: context.colors.surface,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 8,
-                      ),
+                      BoxShadow(color: ColorsCustom.shadow, blurRadius: 8),
                     ],
                   ),
                   child: Row(

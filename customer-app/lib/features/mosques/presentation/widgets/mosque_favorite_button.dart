@@ -28,9 +28,7 @@ class MosqueFavoriteButton extends StatelessWidget {
             }
           },
           icon: Icon(
-            isFavorite
-                ? Icons.favorite_rounded
-                : Icons.favorite_border_rounded,
+            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
             color: isFavorite
                 ? Theme.of(context).colorScheme.error
                 : context.colors.textHint,

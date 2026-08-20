@@ -23,7 +23,9 @@ class ShowcaseRepository {
                 ? data['results'] as List
                 : const []);
       return list
-          .map((e) => ShowcaseItem.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => ShowcaseItem.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     });
   }
@@ -42,7 +44,8 @@ class ShowcaseRepository {
                 : const []);
       return list
           .map(
-            (e) => ShowcaseSection.fromJson(Map<String, dynamic>.from(e as Map)),
+            (e) =>
+                ShowcaseSection.fromJson(Map<String, dynamic>.from(e as Map)),
           )
           .toList();
     });

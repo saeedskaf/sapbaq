@@ -36,11 +36,13 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     emit(const FavoritesState(status: LoadStatus.loading));
     try {
       final mosques = await _repo.fetchFavorites();
-      emit(FavoritesState(
-        status: LoadStatus.success,
-        mosques: mosques,
-        ids: mosques.map((m) => m.id).toSet(),
-      ));
+      emit(
+        FavoritesState(
+          status: LoadStatus.success,
+          mosques: mosques,
+          ids: mosques.map((m) => m.id).toSet(),
+        ),
+      );
     } on ApiException catch (e) {
       emit(FavoritesState(status: LoadStatus.failure, message: e.message));
     }
@@ -61,11 +63,13 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       nextIds.add(id);
       nextMosques.insert(0, mosque);
     }
-    emit(FavoritesState(
-      status: LoadStatus.success,
-      mosques: nextMosques,
-      ids: nextIds,
-    ));
+    emit(
+      FavoritesState(
+        status: LoadStatus.success,
+        mosques: nextMosques,
+        ids: nextIds,
+      ),
+    );
 
     try {
       if (wasFavorite) {
@@ -74,12 +78,14 @@ class FavoritesCubit extends Cubit<FavoritesState> {
         await _repo.addFavorite(id);
       }
     } on ApiException catch (e) {
-      emit(FavoritesState(
-        status: LoadStatus.success,
-        mosques: prevMosques,
-        ids: prevIds,
-        message: e.message,
-      ));
+      emit(
+        FavoritesState(
+          status: LoadStatus.success,
+          mosques: prevMosques,
+          ids: prevIds,
+          message: e.message,
+        ),
+      );
     }
   }
 }

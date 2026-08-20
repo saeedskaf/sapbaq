@@ -34,7 +34,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       appBar: AppBar(title: TextCustom.subheading(text: l10n.favoritesTitle)),
       body: BlocConsumer<FavoritesCubit, FavoritesState>(
         listenWhen: (a, b) => b.message != null && a.message != b.message,
-        listener: (context, state) => ShowMessage.error(context, state.message!),
+        listener: (context, state) =>
+            ShowMessage.error(context, state.message!),
         builder: (context, state) {
           if (state.status == LoadStatus.loading && state.mosques.isEmpty) {
             return const LoadingView();

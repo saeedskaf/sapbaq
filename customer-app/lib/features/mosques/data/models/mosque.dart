@@ -11,6 +11,15 @@ class Mosque extends Equatable {
   final String? image;
   final String? notes;
 
+  /// On the admin's most-needed list. Arrives in **every** mosque payload —
+  /// list, detail, map, favourites, picker — so the badge shows wherever the
+  /// mosque does (delivery §4.1). Explicitly `false`, never a missing field.
+  final bool isMostNeeded;
+
+  /// Orders the most-needed list, smallest first. Meaningless when the mosque
+  /// isn't tagged.
+  final int? mostNeededPriority;
+
   const Mosque({
     required this.id,
     required this.name,
@@ -20,6 +29,8 @@ class Mosque extends Equatable {
     this.longitude,
     this.image,
     this.notes,
+    this.isMostNeeded = false,
+    this.mostNeededPriority,
   });
 
   bool get hasLocation => latitude != null && longitude != null;
@@ -36,6 +47,8 @@ class Mosque extends Equatable {
       longitude: parseCoord(json['longitude']),
       image: json['image'] as String?,
       notes: json['notes'] as String?,
+      isMostNeeded: json['is_most_needed'] as bool? ?? false,
+      mostNeededPriority: json['most_needed_priority'] as int?,
     );
   }
 
@@ -52,11 +65,25 @@ class Mosque extends Equatable {
       name: (properties['name'] ?? '').toString(),
       area: (properties['area'] ?? '').toString(),
       // GeoJSON order is [longitude, latitude].
-      longitude: coords.isNotEmpty ? double.tryParse(coords[0].toString()) : null,
-      latitude: coords.length > 1 ? double.tryParse(coords[1].toString()) : null,
+      longitude: coords.isNotEmpty
+          ? double.tryParse(coords[0].toString())
+          : null,
+      latitude: coords.length > 1
+          ? double.tryParse(coords[1].toString())
+          : null,
+      isMostNeeded: properties['is_most_needed'] as bool? ?? false,
+      mostNeededPriority: properties['most_needed_priority'] as int?,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, area, address, latitude, longitude];
+  List<Object?> get props => [
+    id,
+    name,
+    area,
+    address,
+    latitude,
+    longitude,
+    isMostNeeded,
+  ];
 }

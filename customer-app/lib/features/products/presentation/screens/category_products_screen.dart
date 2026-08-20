@@ -1,37 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
-import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
-import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
-import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sapbaq/features/cart/presentation/widgets/floating_cart_bar.dart';
+import 'package:sapbaq/features/home/presentation/widgets/destination_bar.dart';
 import 'package:sapbaq/features/products/data/models/product.dart';
 import 'package:sapbaq/features/products/data/models/product_category.dart';
 import 'package:sapbaq/features/products/data/products_repository.dart';
 import 'package:sapbaq/features/products/presentation/widgets/product_card.dart';
+import 'package:sapbaq/features/products/presentation/widgets/product_detail_sheet.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
-/// Products for a chosen donation destination. Loads product categories,
-/// renders them as equal-width text tabs, and a PageView underneath where
-/// each page is a category-filtered grid that loads its own products
-/// lazily. Tapping a product card opens the detail screen — cart actions
-/// live there, not on the grid card.
-class ProductsScreen extends StatefulWidget {
-  final DonationDestination destination;
+/// The full products browser: the destination bar on top, category tabs to
+/// switch between product types, and each tab's grid underneath.
+///
+/// Entries: «عرض المزيد» on a storefront shelf opens it on that category's tab
+/// ([initialCategoryId]); a mosque's "donate to this mosque" opens it with the
+/// destination preset and the first tab selected. Product taps open the
+/// bottom-sheet quick view.
+class CategoryProductsScreen extends StatefulWidget {
+  final int? initialCategoryId;
 
-  const ProductsScreen({super.key, required this.destination});
+  const CategoryProductsScreen({super.key, this.initialCategoryId});
 
   @override
-  State<ProductsScreen> createState() => _ProductsScreenState();
+  State<CategoryProductsScreen> createState() => _CategoryProductsScreenState();
 }
 
-class _ProductsScreenState extends State<ProductsScreen> {
+class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   LoadStatus _status = LoadStatus.loading;
   List<ProductCategory> _categories = const [];
   String? _error;
@@ -65,45 +64,51 @@ class _ProductsScreenState extends State<ProductsScreen> {
     }
   }
 
+  int get _initialIndex {
+    final i = _categories.indexWhere((c) => c.id == widget.initialCategoryId);
+    return i == -1 ? 0 : i;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(color: context.colors.textPrimary),
         title: TextCustom(
-          text: l10n.donatingTo(widget.destination.label),
+          text: l10n.productsTitle,
           fontSize: 16,
           fontWeight: FontWeight.w700,
           color: context.colors.textPrimary,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
-        iconTheme: IconThemeData(color: context.colors.textPrimary),
       ),
-      body: BlocListener<CartCubit, CartState>(
-        listenWhen: (a, b) => b.message != null && a.message != b.message,
-        listener: (context, state) => ShowMessage.error(context, state.message!),
-        child: switch (_status) {
-          LoadStatus.initial || LoadStatus.loading => const LoadingView(),
-          LoadStatus.failure => ErrorView(
-            message: _error ?? l10n.comingSoon,
-            retryLabel: l10n.retry,
-            onRetry: _loadCategories,
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: DestinationBar(),
           ),
-          LoadStatus.success when _categories.isEmpty => _ProductsGrid(
-            destination: widget.destination,
-            categoryId: null,
+          Expanded(
+            child: switch (_status) {
+              LoadStatus.initial || LoadStatus.loading => const LoadingView(),
+              LoadStatus.failure => ErrorView(
+                message: _error ?? l10n.comingSoon,
+                retryLabel: l10n.retry,
+                onRetry: _loadCategories,
+              ),
+              LoadStatus.success when _categories.isEmpty =>
+                const _ProductsGrid(categoryId: null),
+              LoadStatus.success => _CategoriesPager(
+                categories: _categories,
+                initialIndex: _initialIndex,
+              ),
+            },
           ),
-          LoadStatus.success => _CategoriesPager(
-            categories: _categories,
-            destination: widget.destination,
-          ),
-        },
+        ],
       ),
       bottomNavigationBar: const CartBar(safeAreaBottom: true),
     );
@@ -114,9 +119,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
 /// swiping the page updates the selected tab and vice-versa.
 class _CategoriesPager extends StatefulWidget {
   final List<ProductCategory> categories;
-  final DonationDestination destination;
+  final int initialIndex;
 
-  const _CategoriesPager({required this.categories, required this.destination});
+  const _CategoriesPager({
+    required this.categories,
+    required this.initialIndex,
+  });
 
   @override
   State<_CategoriesPager> createState() => _CategoriesPagerState();
@@ -124,12 +132,13 @@ class _CategoriesPager extends StatefulWidget {
 
 class _CategoriesPagerState extends State<_CategoriesPager> {
   late final PageController _pageController;
-  int _selected = 0;
+  late int _selected;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _selected = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
   }
 
   @override
@@ -170,7 +179,6 @@ class _CategoriesPagerState extends State<_CategoriesPager> {
             itemBuilder: (context, i) {
               return _ProductsGrid(
                 key: ValueKey('cat-${widget.categories[i].id}'),
-                destination: widget.destination,
                 categoryId: widget.categories[i].id,
               );
             },
@@ -183,7 +191,7 @@ class _CategoriesPagerState extends State<_CategoriesPager> {
 
 /// A single joined "segmented control" tab bar — one rounded container with
 /// all categories sharing the same background; an animated pill slides
-/// between segments to mark the selected one. No icons.
+/// between segments to mark the selected one.
 class _CategoryTabs extends StatelessWidget {
   final List<ProductCategory> categories;
   final int selectedIndex;
@@ -202,7 +210,7 @@ class _CategoryTabs extends StatelessWidget {
     // -1 (start side) → +1 (end side), evenly spaced over the N segments.
     final pillAlignX = n == 1 ? 0.0 : (2 * selectedIndex / (n - 1)) - 1;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Container(
         height: 46,
         padding: const EdgeInsets.all(4),
@@ -265,17 +273,12 @@ class _CategoryTabs extends StatelessWidget {
 }
 
 /// Lazily-loaded products grid for one category (or unfiltered when
-/// [categoryId] is null). Keeps its own products in memory so switching
-/// tabs doesn't re-fetch.
+/// [categoryId] is null). Keeps its products in memory so switching tabs
+/// doesn't re-fetch.
 class _ProductsGrid extends StatefulWidget {
   final int? categoryId;
-  final DonationDestination destination;
 
-  const _ProductsGrid({
-    super.key,
-    required this.categoryId,
-    required this.destination,
-  });
+  const _ProductsGrid({super.key, required this.categoryId});
 
   @override
   State<_ProductsGrid> createState() => _ProductsGridState();
@@ -302,9 +305,9 @@ class _ProductsGridState extends State<_ProductsGrid>
       _error = null;
     });
     try {
-      final products = await context
-          .read<ProductsRepository>()
-          .fetchProducts(categoryId: widget.categoryId);
+      final products = await context.read<ProductsRepository>().fetchProducts(
+        categoryId: widget.categoryId,
+      );
       if (!mounted) return;
       setState(() {
         _products = products;
@@ -317,14 +320,6 @@ class _ProductsGridState extends State<_ProductsGrid>
         _error = e.message;
       });
     }
-  }
-
-  void _openDetail(Product product) {
-    context.pushNamed(
-      AppRoutes.productDetailName,
-      pathParameters: {'id': product.id.toString()},
-      extra: widget.destination,
-    );
   }
 
   @override
@@ -346,15 +341,14 @@ class _ProductsGridState extends State<_ProductsGrid>
         color: context.colors.primary,
         onRefresh: _load,
         child: GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           physics: const AlwaysScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 14,
             crossAxisSpacing: 14,
-            // Square image + name + 1-line desc + 1-line price + padding.
-            // 0.60 leaves a few pixels of slack across 320-414 width
-            // phones — fixes the bottom overflow that 0.65 produced.
+            // Square image + name + 1-line desc + price (same slack the old
+            // products grid used on 320-414pt phones).
             childAspectRatio: 0.60,
           ),
           itemCount: _products.length,
@@ -362,7 +356,7 @@ class _ProductsGridState extends State<_ProductsGrid>
             final product = _products[index];
             return ProductCard(
               product: product,
-              onTap: () => _openDetail(product),
+              onTap: () => showProductDetailSheet(context, product.id),
             );
           },
         ),

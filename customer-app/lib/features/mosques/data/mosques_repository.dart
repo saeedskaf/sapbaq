@@ -18,12 +18,15 @@ class MosquesRepository {
     String? governorate,
     String? area,
     String? block,
+    bool mostNeeded = false,
   }) {
     return guardApi(() async {
       final res = await _dio.get(
         ApiEndpoints.mosques,
         queryParameters: {
           'page': page,
+          // The curated list, already ordered by priority then name server-side.
+          if (mostNeeded) 'most_needed': true,
           if (search != null && search.isNotEmpty) 'search': search,
           if (governorate != null && governorate.isNotEmpty)
             'governorate': governorate,
@@ -63,8 +66,9 @@ class MosquesRepository {
       if (data is Map && data['features'] is List) {
         return (data['features'] as List)
             .map(
-              (e) =>
-                  Mosque.fromGeoJsonFeature(Map<String, dynamic>.from(e as Map)),
+              (e) => Mosque.fromGeoJsonFeature(
+                Map<String, dynamic>.from(e as Map),
+              ),
             )
             .toList();
       }

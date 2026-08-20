@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
-import 'package:sapbaq/core/utils/media_url.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
+import 'package:sapbaq/core/widgets/image_carousel.dart';
+import 'package:sapbaq/core/widgets/price_text.dart';
 import 'package:sapbaq/features/products/data/models/product.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
 const double _cardRadius = 18;
 
+/// Saturation-zero matrix — greys out the photo of an unavailable product
+/// without touching layout.
+const ColorFilter _greyscale = ColorFilter.matrix([
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0, 0, 0, 1, 0, //
+]);
+
 /// Minimal product grid card (2 per row): tinted square frame for the image,
-/// then a clean info block — name, single-line description, and the price.
+/// then a clean info block — name, one-line subtitle, and the price. The one
+/// card for every "product seen from outside" surface (store grid, home shelf),
+/// so the subtitle appears in all of them or in none.
 /// Tapping the card opens the detail screen where the cart actions live.
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -38,21 +50,44 @@ class ProductCard extends StatelessWidget {
               AspectRatio(
                 aspectRatio: 1,
                 child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: context.colors.surfaceVariant,
-                  ),
+                  decoration: BoxDecoration(color: context.colors.imageWell),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: _ProductImage(url: product.image),
-                      ),
-                      if (badge != null)
+                      if (product.isAvailable)
+                        _image()
+                      else
+                        ColorFiltered(
+                          colorFilter: _greyscale,
+                          child: Opacity(opacity: 0.6, child: _image()),
+                        ),
+                      // A product you can't order right now shouldn't shout
+                      // its discount.
+                      if (badge != null && product.isAvailable)
                         PositionedDirectional(
                           top: 10,
                           start: 10,
                           child: _Badge(text: badge),
+                        ),
+                      // One quiet mark in the bottom corner: unavailability
+                      // outranks the approval note; both live in the sheet.
+                      if (!product.isAvailable)
+                        PositionedDirectional(
+                          bottom: 10,
+                          start: 10,
+                          child: _Badge(
+                            text: l10n.notAvailableNow,
+                            muted: true,
+                          ),
+                        )
+                      else if (product.isApproval)
+                        PositionedDirectional(
+                          bottom: 10,
+                          start: 10,
+                          child: _Badge(
+                            text: l10n.needsApprovalBadge,
+                            muted: true,
+                          ),
                         ),
                     ],
                   ),
@@ -76,6 +111,10 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
+                    // One line of the description, cut with an ellipsis exactly
+                    // like the name above it. The row is reserved whether or not
+                    // the text arrives, so every card in a row ends its price on
+                    // the same line.
                     SizedBox(
                       height: 18,
                       child: TextCustom(
@@ -100,6 +139,13 @@ class ProductCard extends StatelessWidget {
     );
   }
 
+  Widget _image() => ContainedImage(
+    url: product.image,
+    placeholderIcon: Icons.water_drop_outlined,
+    placeholderSize: 36,
+    padding: 14,
+  );
+
   String? _discountBadge(AppLocalizations l10n) {
     if (!product.hasDiscount) return null;
     if (product.discountLabel != null && product.discountLabel!.isNotEmpty) {
@@ -110,8 +156,8 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-/// Inline price + (optional) strike-through original price, both on the
-/// same line so all cards share the same content height.
+/// Inline price + (optional) struck list price, both on the same line so all
+/// cards share the same content height.
 class _PriceRow extends StatelessWidget {
   final Product product;
   final AppLocalizations l10n;
@@ -121,11 +167,19 @@ class _PriceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      // Baseline, not bottom: the two prices are different sizes, so aligning
+      // their boxes left the smaller one floating and needed a hand-tuned
+      // padding to look level.
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Flexible(
           child: TextCustom(
-            text: l10n.priceKwd(product.effectivePrice),
+            // "from …" only when the range actually varies; the server owns
+            // both ends, so nothing is derived from the (absent) variants here.
+            text: product.hasPriceRange
+                ? l10n.priceFromKwd(product.priceFrom)
+                : l10n.priceKwd(product.priceFrom),
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: context.colors.primary,
@@ -135,15 +189,10 @@ class _PriceRow extends StatelessWidget {
         ),
         if (product.hasDiscount) ...[
           const SizedBox(width: 6),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: TextCustom(
-              text: product.price,
-              fontSize: 11,
-              color: context.colors.textHint,
-              decoration: TextDecoration.lineThrough,
-            ),
-          ),
+          // Deliberately outside the [Flexible] above: the list price is a
+          // short number, so letting it take its natural width and squeezing
+          // the live price instead would ellipsise the number that counts.
+          StruckPrice(amount: product.price),
         ],
       ],
     );
@@ -153,65 +202,29 @@ class _PriceRow extends StatelessWidget {
 /// Small discount chip in the brand green — no extra shadows, no gold.
 class _Badge extends StatelessWidget {
   final String text;
-  const _Badge({required this.text});
+
+  /// A quiet variant for informational marks (the approval path) so they never
+  /// compete with the discount badge.
+  final bool muted;
+
+  const _Badge({required this.text, this.muted = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: context.colors.primaryFill,
+        color: muted ? context.colors.surface : context.colors.primaryFill,
         borderRadius: BorderRadius.circular(6),
+        border: muted
+            ? Border.all(color: context.colors.border, width: 0.8)
+            : null,
       ),
       child: TextCustom(
         text: text,
         fontSize: 10,
         fontWeight: FontWeight.w800,
-        color: context.colors.onPrimary,
-      ),
-    );
-  }
-}
-
-class _ProductImage extends StatelessWidget {
-  final String? url;
-  const _ProductImage({required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    final resolved = resolveMediaUrl(url);
-    if (resolved == null) return const _ImageFallback();
-    return Image.network(
-      resolved,
-      fit: BoxFit.contain,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: context.colors.primary,
-            ),
-          ),
-        );
-      },
-      errorBuilder: (_, _, _) => const _ImageFallback(),
-    );
-  }
-}
-
-class _ImageFallback extends StatelessWidget {
-  const _ImageFallback();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Icon(
-        Icons.water_drop_outlined,
-        size: 36,
-        color: context.colors.textHint,
+        color: muted ? context.colors.primary : context.colors.onPrimary,
       ),
     );
   }

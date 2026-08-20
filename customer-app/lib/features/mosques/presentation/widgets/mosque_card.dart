@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
+import 'package:sapbaq/core/widgets/most_needed_badge.dart';
 import 'package:sapbaq/features/mosques/data/models/mosque.dart';
 
 class MosqueCard extends StatelessWidget {
@@ -39,12 +40,23 @@ class MosqueCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextCustom(
-                      text: mosque.name,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Flexible(
+                          child: TextCustom(
+                            text: mosque.name,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Beside the name, never instead of it (delivery §4.3).
+                        if (mosque.isMostNeeded) ...[
+                          const SizedBox(width: 6),
+                          const MostNeededBadge(),
+                        ],
+                      ],
                     ),
                     if (mosque.area.isNotEmpty) ...[
                       const SizedBox(height: 4),
@@ -95,7 +107,10 @@ class _Thumb extends StatelessWidget {
         child: (url == null || url!.isEmpty)
             ? ColoredBox(
                 color: context.colors.surfaceVariant,
-                child: Icon(Icons.mosque_outlined, color: context.colors.primary),
+                child: Icon(
+                  Icons.mosque_outlined,
+                  color: context.colors.primary,
+                ),
               )
             : Image.network(
                 url!,

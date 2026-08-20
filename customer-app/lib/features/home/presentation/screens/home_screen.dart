@@ -8,100 +8,160 @@ import 'package:sapbaq/core/auth/auth_guard.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
+import 'package:sapbaq/features/notifications/presentation/bloc/notifications_badge_cubit.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/banners/data/banners_repository.dart';
 import 'package:sapbaq/features/banners/data/models/banner.dart';
+import 'package:sapbaq/features/banners/presentation/banner_link.dart';
 import 'package:sapbaq/features/banners/presentation/bloc/banners_cubit.dart';
-import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
+import 'package:sapbaq/features/home/presentation/widgets/destination_bar.dart';
+import 'package:sapbaq/features/home/presentation/widgets/home_store.dart';
+import 'package:sapbaq/features/home/presentation/widgets/mosque_needs_strip.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-/// Donation entry / discovery screen (Home tab): a greeting header and banner
-/// carousel over a soft brand wash, then the two donation paths (a featured
-/// gradient card for the most-needed pool, a surface card for a chosen
-/// mosque).
-class HomeScreen extends StatelessWidget {
+/// The storefront (Home tab): greeting header, the persistent destination bar
+/// («أهدِ إلى: … ▾» — the "deliver to" pattern), banner carousel, a compact
+/// Mosque-Needs marketplace strip with live counts, then the product catalogue
+/// itself (category chips + grid) — one scrolling page, shop-first.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   static const _hPad = EdgeInsets.symmetric(horizontal: 20);
 
-  void _onBannerTap(BuildContext context, PromoBanner banner) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (banner.link) {
-      case '/most-needed':
-        context.pushNamed(
-          AppRoutes.productsName,
-          extra: DonationDestination.mostNeeded(label: l10n.mostNeededShort),
-        );
-      case '/mosques':
-        context.goNamed(AppRoutes.mosquesName);
-      case '/showcase':
-      case '/media':
-        context.goNamed(AppRoutes.mediaName);
-      default:
-        // External URLs open in the browser; unknown internal paths no-op.
-        final uri = Uri.tryParse(banner.link);
-        if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
-          launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-    }
+  // Self-loading storefront sections are refreshed through their public state.
+  final _storeKey = GlobalKey<HomeStoreState>();
+  final _stripKey = GlobalKey<MosqueNeedsStripState>();
+
+  // Owned here (rather than via BlocProvider.create) so pull-to-refresh can
+  // trigger a reload directly.
+  late final BannersCubit _bannersCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _bannersCubit = BannersCubit(context.read<BannersRepository>())..load();
+  }
+
+  @override
+  void dispose() {
+    _bannersCubit.close();
+    super.dispose();
+  }
+
+  /// Pull-to-refresh: reload banners, the Mosque-Needs counts, and the store
+  /// shelves in parallel; the indicator stays until all three settle.
+  Future<void> _refresh() async {
+    await Future.wait([
+      _bannersCubit.load(),
+      _stripKey.currentState?.reload() ?? Future<void>.value(),
+      _storeKey.currentState?.reload() ?? Future<void>.value(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return BlocProvider(
-      create: (context) =>
-          BannersCubit(context.read<BannersRepository>())..load(),
+    final bg = context.colors.background;
+    return BlocProvider.value(
+      value: _bannersCubit,
       child: Scaffold(
+        // iOS reveals the scaffold background when the list bounces past an
+        // edge, so tinting it with the header's top colour makes a
+        // pull-to-refresh a seamless continuation of the header. The page
+        // content rides on its own opaque [bg] so the tint never leaks while
+        // scrolling, and the custom physics clamps the bottom edge so the tint
+        // only ever shows at the top — the bottom stays on the page background.
+        backgroundColor: _topWash(context),
         // No SafeArea: the wash paints under the status bar and the whole
         // page scrolls as one piece (the top zone pads itself past the
         // status-bar inset).
-        body: ListView(
-          padding: EdgeInsets.only(bottom: floatingNavBarClearance(context)),
-          children: [
-            _TopZone(onBannerTap: (b) => _onBannerTap(context, b)),
-            const SizedBox(height: 28),
-            Padding(
-              padding: _hPad,
-              child: TextCustom.subheading(
-                text: l10n.donateMethodTitle,
-                fontSize: 17,
-              ),
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          color: context.colors.primary,
+          backgroundColor: context.colors.surface,
+          edgeOffset: MediaQuery.paddingOf(context).top,
+          child: CustomScrollView(
+            physics: const _TopOnlyBounceScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
             ),
-            const SizedBox(height: 14),
-            Padding(
-              padding: _hPad,
-              child: _FeaturedDonateCard(
-                title: l10n.mostNeededShort,
-                subtitle: l10n.mostNeededDesc,
-                onTap: () => context.pushNamed(
-                  AppRoutes.productsName,
-                  extra: DonationDestination.mostNeeded(
-                    label: l10n.mostNeededShort,
-                  ),
+            slivers: [
+              SliverToBoxAdapter(
+                child: _TopZone(onBannerTap: (b) => openBannerLink(context, b)),
+              ),
+              // Everything below the wash rides on an opaque page background,
+              // so scrolling never reveals the tinted scaffold behind it —
+              // only a top overscroll does.
+              DecoratedSliver(
+                decoration: BoxDecoration(color: bg),
+                sliver: SliverMainAxisGroup(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        child: MosqueNeedsStrip(key: _stripKey),
+                      ),
+                    ),
+                    HomeStore(key: _storeKey),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: floatingNavBarClearance(context)),
+                    ),
+                    // Keeps the opaque page filling the viewport when the
+                    // catalogue is short, so the tinted scaffold only ever
+                    // shows in an actual top overscroll (never below content).
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: SizedBox.shrink(),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: _hPad,
-              child: _DonatePathCard(
-                icon: Icons.mosque_rounded,
-                title: l10n.chooseMosqueTitle,
-                subtitle: l10n.chooseMosqueDesc,
-                onTap: () => context.goNamed(AppRoutes.mosquesName),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+/// Delegates to the platform's scroll physics but clamps the trailing (bottom)
+/// edge, so a bottom overscroll can never bounce past the content and reveal
+/// the tinted scaffold behind it. The leading (top) edge is left untouched, so
+/// on iOS it still bounces for pull-to-refresh; on Android everything clamps as
+/// usual.
+class _TopOnlyBounceScrollPhysics extends ScrollPhysics {
+  const _TopOnlyBounceScrollPhysics({super.parent});
+
+  @override
+  _TopOnlyBounceScrollPhysics applyTo(ScrollPhysics? ancestor) =>
+      _TopOnlyBounceScrollPhysics(parent: buildParent(ancestor));
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    // Mirror ClampingScrollPhysics for the trailing edge only; defer the
+    // leading edge (and the in-range case) to the platform parent.
+    if (position.maxScrollExtent <= position.pixels &&
+        position.pixels < value) {
+      return value - position.pixels;
+    }
+    if (position.maxScrollExtent < value &&
+        position.maxScrollExtent > position.pixels) {
+      return value - position.maxScrollExtent;
+    }
+    return super.applyBoundaryConditions(position, value);
+  }
+}
+
+/// The colour at the very top of the storefront. Once a mint wash; now simply
+/// the page background — atmosphere washes are gone from the system, the mint
+/// appears only as bounded objects. Kept as a function so [_TopZone] and the
+/// scaffold stay pinned to the same value during pull-to-refresh.
+Color _topWash(BuildContext context) => context.colors.background;
 
 /// Header + banner carousel over a soft brand-tint wash that fades into the
 /// scaffold background. Lives inside the scroll view so it moves with the
@@ -112,13 +172,15 @@ class _TopZone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = context.colors.primaryTint;
+    // Opaque so the header owns its pixels (the same wash as before, but not
+    // dependent on the scaffold showing through): the solid top tint fades
+    // down into the page background.
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [tint.withValues(alpha: 0.55), tint.withValues(alpha: 0.0)],
+          colors: [_topWash(context), context.colors.background],
         ),
       ),
       child: Padding(
@@ -126,8 +188,12 @@ class _TopZone extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: HomeScreen._hPad,
+              padding: _HomeScreenState._hPad,
               child: _HomeHeader(),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: DestinationBar(),
             ),
             _BannerSection(onTap: onBannerTap),
           ],
@@ -176,7 +242,7 @@ class _HomeHeader extends StatelessWidget {
               },
             ),
             const SizedBox(width: 10),
-            _ProfileAvatarButton(name: name),
+            const _ProfileAvatarButton(),
           ],
         );
       },
@@ -190,35 +256,63 @@ class _NotificationBell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: context.colors.surface,
-      shape: CircleBorder(
-        side: BorderSide(color: context.colors.border, width: 0.8),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Icon(
-            Icons.notifications_none_rounded,
-            color: context.colors.primary,
-            size: 24,
+    final unread = context.watch<NotificationsBadgeCubit>().state;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Material(
+          color: context.colors.surface,
+          shape: CircleBorder(
+            side: BorderSide(color: context.colors.border, width: 0.8),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              width: 48,
+              height: 48,
+              child: Icon(
+                Icons.notifications_none_rounded,
+                color: context.colors.primary,
+                size: 24,
+              ),
+            ),
           ),
         ),
-      ),
+        if (unread > 0)
+          PositionedDirectional(
+            top: 6,
+            end: 6,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: ColorsCustom.error,
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: context.colors.surface, width: 1.5),
+              ),
+              child: Text(
+                unread > 9 ? '9+' : '$unread',
+                style: const TextStyle(
+                  color: ColorsCustom.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
 
 /// Profile entry point in the Home top corner (relocated from the bottom dock).
-/// A brand-gradient disc with the user's initial (person icon for guests);
-/// opens the profile as a pushed full-screen route. Auto-positions by text
-/// direction.
+/// A brand-primary disc with a person icon; opens the profile as a pushed
+/// full-screen route. Auto-positions by text direction.
 class _ProfileAvatarButton extends StatelessWidget {
-  final String name;
-  const _ProfileAvatarButton({required this.name});
+  const _ProfileAvatarButton();
 
   @override
   Widget build(BuildContext context) {
@@ -238,18 +332,11 @@ class _ProfileAvatarButton extends StatelessWidget {
             width: 48,
             height: 48,
             child: Center(
-              child: name.isEmpty
-                  ? const Icon(
-                      Icons.person_outline_rounded,
-                      color: ColorsCustom.textOnPrimary,
-                      size: 24,
-                    )
-                  : TextCustom(
-                      text: name.characters.first,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: ColorsCustom.textOnPrimary,
-                    ),
+              child: const Icon(
+                Icons.person_outline_rounded,
+                color: ColorsCustom.textOnPrimary,
+                size: 24,
+              ),
             ),
           ),
         ),
@@ -331,7 +418,8 @@ class _BannerSkeletonState extends State<_BannerSkeleton>
           child: FadeTransition(
             opacity: _controller,
             child: Container(
-              width: constraints.maxWidth * _bannerViewportFraction -
+              width:
+                  constraints.maxWidth * _bannerViewportFraction -
                   _bannerCardHPadding * 2,
               height: height,
               decoration: BoxDecoration(
@@ -405,7 +493,9 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                     final banner = banners[i];
                     return _BannerCard(
                       banner: banner,
-                      onTap: banner.hasLink ? () => widget.onTap(banner) : null,
+                      onTap: banner.isTappable
+                          ? () => widget.onTap(banner)
+                          : null,
                     );
                   },
                 ),
@@ -438,7 +528,7 @@ class _BannerDots extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.28),
+          color: ColorsCustom.scrim,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -452,8 +542,8 @@ class _BannerDots extends StatelessWidget {
                 height: 6,
                 decoration: BoxDecoration(
                   color: i == index
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.55),
+                      ? ColorsCustom.white
+                      : ColorsCustom.glassEdge,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -500,223 +590,3 @@ class _BannerCard extends StatelessWidget {
     );
   }
 }
-
-/// The flagship donation path (the most-needed pool), rendered as a hero card:
-/// brand gradient, a frosted icon chip, an oversized watermark of the same
-/// icon, and a forward-arrow affordance. White foregrounds are brand-fixed —
-/// they sit on the gradient in both themes.
-class _FeaturedDonateCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _FeaturedDonateCard({
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.35)
-                : ColorsCustom.primary.withValues(alpha: 0.28),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: ColorsCustom.primary),
-              ),
-            ),
-            PositionedDirectional(
-              end: -18,
-              bottom: -26,
-              child: Icon(
-                Icons.volunteer_activism_rounded,
-                size: 124,
-                color: Colors.white.withValues(alpha: 0.10),
-              ),
-            ),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onTap,
-                splashColor: Colors.white.withValues(alpha: 0.12),
-                highlightColor: Colors.white.withValues(alpha: 0.06),
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 54,
-                        height: 54,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(17),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.25),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.volunteer_activism_rounded,
-                          color: Colors.white,
-                          size: 27,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextCustom(
-                              text: title,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 3),
-                            TextCustom(
-                              text: subtitle,
-                              fontSize: 12.5,
-                              color: Colors.white.withValues(alpha: 0.85),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        width: 38,
-                        height: 38,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.16),
-                          shape: BoxShape.circle,
-                        ),
-                        // arrow_forward auto-mirrors under RTL
-                        child: const Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The secondary donation entry point (a chosen mosque): a clean full-width
-/// surface card with a tinted icon chip, a title with a short description,
-/// and a tinted forward-arrow chip.
-class _DonatePathCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _DonatePathCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: context.colors.surface,
-      borderRadius: BorderRadius.circular(24),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: context.colors.border, width: 0.6),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 54,
-                  height: 54,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: context.colors.primaryTint,
-                    borderRadius: BorderRadius.circular(17),
-                  ),
-                  child: Icon(icon, color: context.colors.primary, size: 26),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextCustom(
-                        text: title,
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w800,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3),
-                      TextCustom(
-                        text: subtitle,
-                        fontSize: 12.5,
-                        color: context.colors.textSecondary,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: context.colors.primaryTint,
-                    shape: BoxShape.circle,
-                  ),
-                  // arrow_forward auto-mirrors under RTL
-                  child: Icon(
-                    Icons.arrow_forward_rounded,
-                    color: context.colors.primary,
-                    size: 18,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-

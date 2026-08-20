@@ -26,7 +26,9 @@ class ShowcaseSection extends Equatable {
       description: (json['description'] ?? '').toString(),
       sortOrder: json['sort_order'] as int? ?? 0,
       items: (json['items'] as List<dynamic>? ?? const [])
-          .map((e) => ShowcaseItem.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => ShowcaseItem.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
     );
   }

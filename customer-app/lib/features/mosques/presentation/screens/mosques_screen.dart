@@ -12,17 +12,17 @@ import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
-import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
 import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
+import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sapbaq/features/mosques/data/models/mosque.dart';
 import 'package:sapbaq/features/mosques/data/mosques_repository.dart';
 import 'package:sapbaq/features/mosques/presentation/bloc/mosques_cubit.dart';
-import 'package:sapbaq/features/mosques/presentation/widgets/mosque_card.dart';
+import 'package:sapbaq/features/mosques/presentation/screens/most_needed_screen.dart';
+import 'package:sapbaq/features/mosques/presentation/widgets/mosque_browse_view.dart';
 import 'package:sapbaq/features/mosques/presentation/widgets/mosque_favorite_button.dart';
-import 'package:sapbaq/features/mosques/presentation/widgets/mosque_filter_sheet.dart';
 import 'package:sapbaq/features/mosques/presentation/widgets/mosque_marker_icon.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
@@ -80,11 +80,8 @@ class _MosquesScreenState extends State<MosquesScreen>
     final l10n = AppLocalizations.of(context)!;
     final repo = context.read<MosquesRepository>();
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => MosquesListCubit(repo)..load()),
-        BlocProvider(create: (_) => MosquesMapCubit(repo)..load()),
-      ],
+    return BlocProvider(
+      create: (_) => MosquesMapCubit(repo)..load(),
       child: Scaffold(
         appBar: AppBar(
           title: TextCustom.subheading(text: l10n.navMosques),
@@ -108,7 +105,17 @@ class _MosquesScreenState extends State<MosquesScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            const _MosquesListView(),
+            MosqueBrowseView(
+              onMosqueTap: (mosque) => context.pushNamed(
+                AppRoutes.mosqueDetailName,
+                pathParameters: {'id': '${mosque.id}'},
+              ),
+              trailingBuilder: (mosque) => MosqueFavoriteButton(mosque: mosque),
+              bottomPadding: floatingNavBarClearance(context),
+              // The curated list is reachable from here too, not only from the
+              // donation flow — a donor browsing mosques should see it.
+              header: const _MostNeededEntry(),
+            ),
             _MosquesMapView(focus: _mapFocus),
           ],
         ),
@@ -117,204 +124,51 @@ class _MosquesScreenState extends State<MosquesScreen>
   }
 }
 
-/// Filter button beside the mosque search — opens the cascading filter sheet
-/// and tints when any governorate/area/block filter is active.
-class _FilterButton extends StatelessWidget {
-  const _FilterButton();
-
-  Future<void> _open(BuildContext context, MosquesListCubit cubit) async {
-    final selection = await showMosqueFilterSheet(
-      context,
-      repo: context.read<MosquesRepository>(),
-      governorate: cubit.governorate,
-      area: cubit.area,
-      block: cubit.block,
-    );
-    if (selection != null) {
-      cubit.applyFilters(
-        governorate: selection.governorate,
-        area: selection.area,
-        block: selection.block,
-      );
-    }
-  }
+/// Shortcut to the admin's curated list, shown above the mosque browser.
+class _MostNeededEntry extends StatelessWidget {
+  const _MostNeededEntry();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MosquesListCubit, MosquesState>(
-      builder: (context, _) {
-        final cubit = context.read<MosquesListCubit>();
-        final active = cubit.hasActiveFilters;
-        return Material(
-          color: active
-              ? context.colors.primaryFill
-              : context.colors.surfaceVariant,
-          borderRadius: BorderRadius.circular(12),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () => _open(context, cubit),
-            child: SizedBox(
-              width: 52,
-              height: 52,
-              child: Icon(
-                Icons.tune_rounded,
-                color: active
-                    ? context.colors.onPrimary
-                    : context.colors.primary,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _MosquesListView extends StatefulWidget {
-  const _MosquesListView();
-
-  @override
-  State<_MosquesListView> createState() => _MosquesListViewState();
-}
-
-class _MosquesListViewState extends State<_MosquesListView>
-    with AutomaticKeepAliveClientMixin {
-  final _searchController = TextEditingController();
-  Timer? _debounce;
-
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {}); // refresh the clear button
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      context.read<MosquesListCubit>().search(query);
-    });
-  }
-
-  void _clearSearch() {
-    _debounce?.cancel();
-    _searchController.clear();
-    context.read<MosquesListCubit>().search('');
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context); // required by AutomaticKeepAliveClientMixin
     final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+    return Material(
+      color: context.colors.surfaceVariant,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const MostNeededScreen(asPicker: false),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
+              Icon(
+                Icons.volunteer_activism_rounded,
+                color: context.colors.primary,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
               Expanded(
-                child: FormFieldCustom(
-                  controller: _searchController,
-                  hintText: l10n.searchMosqueHint,
-                  isRequired: false,
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: _clearSearch,
-                        )
-                      : null,
-                  onChanged: _onSearchChanged,
+                child: TextCustom(
+                  text: l10n.mostNeededShort,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.primary,
                 ),
               ),
-              const SizedBox(width: 8),
-              const _FilterButton(),
+              // Auto-mirrors under RTL.
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: context.colors.primary,
+                size: 18,
+              ),
             ],
           ),
         ),
-        Expanded(
-          child: BlocBuilder<MosquesListCubit, MosquesState>(
-            builder: (context, state) {
-              switch (state.status) {
-                case LoadStatus.initial:
-                case LoadStatus.loading:
-                  return const LoadingView();
-                case LoadStatus.failure:
-                  return ErrorView(
-                    message: state.message ?? l10n.comingSoon,
-                    retryLabel: l10n.retry,
-                    onRetry: () => context.read<MosquesListCubit>().load(),
-                  );
-                case LoadStatus.success:
-                  if (state.mosques.isEmpty) {
-                    final filtered =
-                        _searchController.text.trim().isNotEmpty ||
-                        context.read<MosquesListCubit>().hasActiveFilters;
-                    return EmptyView(
-                      message: filtered
-                          ? l10n.noSearchResults
-                          : l10n.emptyMosques,
-                      icon: filtered
-                          ? Icons.search_off_rounded
-                          : Icons.mosque_outlined,
-                    );
-                  }
-                  return RefreshIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                    onRefresh: () => context.read<MosquesListCubit>().load(),
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (notification) {
-                        if (notification.metrics.pixels >=
-                            notification.metrics.maxScrollExtent - 400) {
-                          context.read<MosquesListCubit>().loadMore();
-                        }
-                        return false;
-                      },
-                      child: ListView.separated(
-                        padding: EdgeInsets.fromLTRB(
-                          16,
-                          12,
-                          16,
-                          floatingNavBarClearance(context),
-                        ),
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount:
-                            state.mosques.length + (state.loadingMore ? 1 : 0),
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          if (index >= state.mosques.length) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                            );
-                          }
-                          final mosque = state.mosques[index];
-                          return MosqueCard(
-                            mosque: mosque,
-                            onTap: () => context.pushNamed(
-                              AppRoutes.mosqueDetailName,
-                              pathParameters: {'id': '${mosque.id}'},
-                            ),
-                            trailing: MosqueFavoriteButton(mosque: mosque),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-              }
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -398,13 +252,16 @@ class _MosquesMapViewState extends State<_MosquesMapView>
     if (!mounted || action == null) return;
     switch (action) {
       case _SheetAction.donate:
-        context.pushNamed(
-          AppRoutes.productsName,
-          extra: DonationDestination.mosque(
+        // Bind the destination to this mosque and open the products browser
+        // on its first tab.
+        context.read<CartCubit>().selectDestination(
+          DonationDestination(
             mosqueId: mosque.id,
             label: mosque.name,
+            isMostNeeded: mosque.isMostNeeded,
           ),
         );
+        context.pushNamed(AppRoutes.categoryProductsName);
       case _SheetAction.details:
         context.pushNamed(
           AppRoutes.mosqueDetailName,
@@ -526,7 +383,7 @@ class _MosquesMapViewState extends State<_MosquesMapView>
       Rect.fromLTWH(0, 0, w, h),
       Radius.circular(13 * r),
     );
-    canvas.drawRRect(rect, Paint()..color = Colors.white);
+    canvas.drawRRect(rect, Paint()..color = ColorsCustom.white);
     canvas.drawRRect(
       rect,
       Paint()
@@ -662,12 +519,12 @@ class _MosqueSheetState extends State<_MosqueSheet> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: context.colors.primaryTint,
+                      color: context.colors.surfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.mosque_rounded,
-                      color: context.colors.primary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -723,10 +580,7 @@ class _MosqueSheetState extends State<_MosqueSheet> {
               const SizedBox(height: 12),
               ButtonCustom.primary(
                 text: l10n.donateToThisMosque,
-                icon: const Icon(
-                  Icons.volunteer_activism_rounded,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.volunteer_activism_rounded, size: 20),
                 onPressed: () => Navigator.pop(context, _SheetAction.donate),
               ),
               const SizedBox(height: 10),

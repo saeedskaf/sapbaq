@@ -37,29 +37,32 @@ class MosqueMarkerIcon {
       center.translate(0, 2 * r),
       radius,
       Paint()
-        ..color = Colors.black.withValues(alpha: 0.22)
+        ..color = ColorsCustom.scrim
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * r),
     );
 
-    // ---- Filled green circle ----
-    canvas.drawCircle(
-      center,
-      radius,
-      Paint()..color = ColorsCustom.primary,
-    );
+    // ---- Filled mint circle ----
+    // A pin is a bounded object on a busy ground, which is precisely where the
+    // brand hue is strongest — and a map is the one place a green marker is
+    // also a wayfinding convention.
+    canvas.drawCircle(center, radius, Paint()..color = ColorsCustom.brandMint);
 
     // ---- Subtle outline for definition on light map tiles ----
     canvas.drawCircle(
       center,
       radius,
       Paint()
-        ..color = ColorsCustom.primaryDark
+        ..color = ColorsCustom.onMint
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2 * r,
     );
 
     // ---- Inner white disc behind the icon (contrast + visual depth) ----
-    canvas.drawCircle(center, radius * 0.72, Paint()..color = Colors.white);
+    canvas.drawCircle(
+      center,
+      radius * 0.72,
+      Paint()..color = ColorsCustom.white,
+    );
 
     // ---- Mosque glyph ----
     final iconSize = radius * 1.05;
@@ -70,7 +73,7 @@ class MosqueMarkerIcon {
           fontFamily: Icons.mosque_rounded.fontFamily,
           package: Icons.mosque_rounded.fontPackage,
           fontSize: iconSize,
-          color: ColorsCustom.primary,
+          color: ColorsCustom.onMint,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -83,8 +86,7 @@ class MosqueMarkerIcon {
       ),
     );
 
-    final image =
-        await recorder.endRecording().toImage(pixelSide, pixelSide);
+    final image = await recorder.endRecording().toImage(pixelSide, pixelSide);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     final descriptor = BitmapDescriptor.bytes(
       data!.buffer.asUint8List(),
