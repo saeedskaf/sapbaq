@@ -40,10 +40,8 @@ class _LockScreenState extends State<LockScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return BlocProvider(
-      create: (_) => LockCubit(
-        context.read<AuthRepository>(),
-        phone: user.phone ?? '',
-      ),
+      create: (_) =>
+          LockCubit(context.read<AuthRepository>(), phone: user.phone ?? ''),
       child: _LockView(user: user),
     );
   }
@@ -120,8 +118,8 @@ class _LockViewState extends State<_LockView> {
                   onPressed: state.busy
                       ? null
                       : () => context.read<LockCubit>().unlockWithBiometrics(
-                            reason: l10n.biometricReason,
-                          ),
+                          reason: l10n.biometricReason,
+                        ),
                   icon: Icon(
                     Icons.fingerprint_rounded,
                     color: context.colors.primary,

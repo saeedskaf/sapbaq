@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
+import 'package:sapbaq/core/widgets/confirm_sheet.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
@@ -18,7 +18,8 @@ class TrustedDevicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TrustedDevicesCubit(context.read<AuthRepository>())..load(),
+      create: (_) =>
+          TrustedDevicesCubit(context.read<AuthRepository>())..load(),
       child: const _TrustedDevicesView(),
     );
   }
@@ -27,33 +28,24 @@ class TrustedDevicesScreen extends StatelessWidget {
 class _TrustedDevicesView extends StatelessWidget {
   const _TrustedDevicesView();
 
-  Future<void> _confirmRevoke(BuildContext context, TrustedDevice device) async {
+  Future<void> _confirmRevoke(
+    BuildContext context,
+    TrustedDevice device,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<TrustedDevicesCubit>();
     final name = device.deviceName.isEmpty
         ? l10n.trustedDeviceUnnamed
         : device.deviceName;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: TextCustom.subheading(text: l10n.revokeDeviceTitle),
-        content: TextCustom(text: l10n.revokeDeviceBody(name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: TextCustom(text: l10n.cancelButton),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: TextCustom(
-              text: l10n.revokeDeviceAction,
-              color: ColorsCustom.error,
-            ),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmSheet.ask(
+      context,
+      title: l10n.revokeDeviceTitle,
+      body: l10n.revokeDeviceBody(name),
+      icon: Icons.phonelink_erase_outlined,
+      confirmLabel: l10n.revokeDeviceAction,
+      cancelLabel: l10n.cancelButton,
     );
-    if (confirmed == true) cubit.revoke(device.id);
+    if (confirmed) cubit.revoke(device.id);
   }
 
   @override
@@ -106,7 +98,9 @@ class _TrustedDevicesView extends StatelessWidget {
                     child: Center(child: CircularProgressIndicator()),
                   )
                 else if (state.status == TrustedListStatus.error)
-                  _CenteredNote(text: state.listError ?? l10n.trustedDevicesError)
+                  _CenteredNote(
+                    text: state.listError ?? l10n.trustedDevicesError,
+                  )
                 else if (state.devices.isEmpty)
                   _CenteredNote(text: l10n.trustedDevicesEmpty)
                 else
@@ -200,10 +194,7 @@ class _TrustedDeviceTile extends StatelessWidget {
           else
             IconButton(
               onPressed: onRevoke,
-              icon: Icon(
-                Icons.link_off_rounded,
-                color: ColorsCustom.error,
-              ),
+              icon: Icon(Icons.link_off_rounded, color: context.colors.danger),
               tooltip: l10n.revokeDeviceAction,
             ),
         ],
@@ -221,14 +212,14 @@ class _CurrentBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: context.colors.primaryTint,
+        color: context.colors.surfaceVariant,
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextCustom(
         text: l10n.trustedDeviceCurrent,
         fontSize: 11,
         fontWeight: FontWeight.w800,
-        color: context.colors.primary,
+        color: context.colors.textSecondary,
       ),
     );
   }

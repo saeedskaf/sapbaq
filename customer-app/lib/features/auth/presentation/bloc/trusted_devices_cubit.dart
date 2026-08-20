@@ -58,7 +58,9 @@ class TrustedDevicesCubit extends Cubit<TrustedDevicesState> {
       final devices = await _repo.listTrustedDevices();
       emit(state.copyWith(status: TrustedListStatus.ready, devices: devices));
     } on ApiException catch (e) {
-      emit(state.copyWith(status: TrustedListStatus.error, listError: e.message));
+      emit(
+        state.copyWith(status: TrustedListStatus.error, listError: e.message),
+      );
     }
   }
 

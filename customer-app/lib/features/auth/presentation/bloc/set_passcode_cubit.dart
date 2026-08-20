@@ -78,7 +78,13 @@ class SetPasscodeCubit extends Cubit<SetPasscodeState> {
         _repo.completePasscodeSetup();
       }
     } on ApiException catch (e) {
-      emit(state.copyWith(busy: false, message: e.message, step: SetPasscodeStep.enter));
+      emit(
+        state.copyWith(
+          busy: false,
+          message: e.message,
+          step: SetPasscodeStep.enter,
+        ),
+      );
     }
   }
 

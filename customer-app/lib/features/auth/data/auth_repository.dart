@@ -14,6 +14,7 @@ import 'package:sapbaq/core/network/api_guard.dart';
 import 'package:sapbaq/core/network/session_manager.dart';
 import 'package:sapbaq/core/storage/secure_storage.dart';
 import 'package:sapbaq/features/auth/data/models/auth_session.dart';
+import 'package:sapbaq/features/auth/data/models/otp_send_meta.dart';
 import 'package:sapbaq/features/auth/data/models/passkey_device.dart';
 import 'package:sapbaq/features/auth/data/models/trusted_device.dart';
 import 'package:sapbaq/features/auth/data/models/user.dart';
@@ -58,20 +59,26 @@ class AuthRepository {
     PasskeyService? passkeyService,
     DeviceIdentity? deviceIdentity,
     BiometricService? biometricService,
-  })  : _dio = dio,
-        _storage = storage,
-        _session = session,
-        _passkey = passkeyService ?? PasskeyService(),
-        _device = deviceIdentity ?? DeviceIdentity(storage: storage),
-        _biometric = biometricService ?? BiometricService(),
-        _googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              serverClientId: Environment.googleServerClientId,
-              scopes: const ['email', 'profile'],
-            );
+  }) : _dio = dio,
+       _storage = storage,
+       _session = session,
+       _passkey = passkeyService ?? PasskeyService(),
+       _device = deviceIdentity ?? DeviceIdentity(storage: storage),
+       _biometric = biometricService ?? BiometricService(),
+       _googleSignIn =
+           googleSignIn ??
+           GoogleSignIn(
+             serverClientId: Environment.googleServerClientId,
+             scopes: const ['email', 'profile'],
+           );
 
   Stream<AuthStatus> get status => _session.stream;
   AuthStatus get currentStatus => _session.status;
+
+  /// Runs at the very start of [logout], while the access token is still valid,
+  /// so the push service can unregister this device's FCM token without hitting
+  /// a 401 (see FLUTTER_FCM_DEVICE_UNREGISTER_NOTE.md). Wired in `main()`.
+  Future<void> Function()? onBeforeLogout;
 
   /// Resolve the initial session at startup. A stored token is *not* enough to
   /// open the app: an unfinished account routes to onboarding, a set-up account
@@ -126,18 +133,20 @@ class AuthRepository {
   }
 
   /// Send a verification OTP to [phone] over SMS (sign-up / device trust flows).
-  Future<void> requestOtp({required String phone}) {
+  /// Returns the server's resend cooldown ([OtpSendMeta.resendAvailableIn]).
+  Future<OtpSendMeta> requestOtp({required String phone}) {
     return _guard(() async {
-      await _dio.post(ApiEndpoints.otpRequest, data: {'phone': phone});
+      final res = await _dio.post(
+        ApiEndpoints.otpRequest,
+        data: {'phone': phone},
+      );
+      return OtpSendMeta.fromJson(res.data);
     });
   }
 
   /// Verify an OTP → session. Passing this device's id auto-trusts it (first
   /// verification), so future logins on it need only the passcode.
-  Future<AuthSession> verifyOtp({
-    required String phone,
-    required String code,
-  }) {
+  Future<AuthSession> verifyOtp({required String phone, required String code}) {
     return _guard(() async {
       final res = await _dio.post(
         ApiEndpoints.otpVerify,
@@ -186,12 +195,13 @@ class AuthRepository {
   }
 
   /// Send a recovery OTP for a forgotten/locked passcode.
-  Future<void> forgotPasscodeRequest({required String phone}) {
+  Future<OtpSendMeta> forgotPasscodeRequest({required String phone}) {
     return _guard(() async {
-      await _dio.post(
+      final res = await _dio.post(
         ApiEndpoints.passcodeForgotRequest,
         data: {'phone': phone},
       );
+      return OtpSendMeta.fromJson(res.data);
     });
   }
 
@@ -220,12 +230,13 @@ class AuthRepository {
   // ── Device trust (new / reinstalled device) ─────────────────────────────────
 
   /// Send an OTP to establish trust for this device.
-  Future<void> deviceTrustRequest({required String phone}) {
+  Future<OtpSendMeta> deviceTrustRequest({required String phone}) {
     return _guard(() async {
-      await _dio.post(
+      final res = await _dio.post(
         ApiEndpoints.deviceTrustRequest,
         data: {'phone': phone},
       );
+      return OtpSendMeta.fromJson(res.data);
     });
   }
 
@@ -260,8 +271,9 @@ class AuthRepository {
       );
       final list = res.data as List;
       return list
-          .map((e) =>
-              TrustedDevice.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => TrustedDevice.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     });
   }
@@ -341,7 +353,8 @@ class AuthRepository {
         data: {
           'identity_token': identityToken,
           'nonce': rawNonce,
-          if (firstName != null && firstName.isNotEmpty) 'first_name': firstName,
+          if (firstName != null && firstName.isNotEmpty)
+            'first_name': firstName,
           if (lastName != null && lastName.isNotEmpty) 'last_name': lastName,
         },
       );
@@ -352,9 +365,13 @@ class AuthRepository {
   // ── Phone verification (during profile completion, authenticated) ──────────
 
   /// Send a verification OTP to [phone] for a social user who has no phone yet.
-  Future<void> requestPhone({required String phone}) {
+  Future<OtpSendMeta> requestPhone({required String phone}) {
     return _guard(() async {
-      await _dio.post(ApiEndpoints.phoneRequest, data: {'phone': phone});
+      final res = await _dio.post(
+        ApiEndpoints.phoneRequest,
+        data: {'phone': phone},
+      );
+      return OtpSendMeta.fromJson(res.data);
     });
   }
 
@@ -373,6 +390,42 @@ class AuthRepository {
         },
       );
       await _storage.saveRememberedPhone(phone);
+      return _saveUser(res.data);
+    });
+  }
+
+  // ── Email verification / change (authenticated) ────────────────────────────
+
+  /// Mail a verification code to [email]. Serves both cases: confirming the
+  /// address typed at sign-up (stored unverified) and moving to a new one.
+  ///
+  /// Returns the address **as the server stored it** (the domain is
+  /// lower-cased) alongside the resend cooldown — show that, not what was
+  /// typed. The cooldown is per *account*, so changing the address in the field
+  /// does not reset it.
+  Future<(String, OtpSendMeta)> requestEmailCode({required String email}) {
+    return _guard(() async {
+      final res = await _dio.post(
+        ApiEndpoints.emailRequest,
+        data: {'email': email},
+      );
+      final data = Map<String, dynamic>.from(res.data as Map);
+      final stored = (data['email'] ?? email).toString();
+      return (stored, OtpSendMeta.fromJson(data));
+    });
+  }
+
+  /// Confirm the emailed code and bind the address. [email] is echoed back on
+  /// purpose — a code issued for one address is never spent on another.
+  ///
+  /// The response is the full `/auth/me/` object, so the cached user is written
+  /// straight from it; no follow-up fetch.
+  Future<User> verifyEmail({required String email, required String code}) {
+    return _guard(() async {
+      final res = await _dio.post(
+        ApiEndpoints.emailVerify,
+        data: {'email': email, 'code': code},
+      );
       return _saveUser(res.data);
     });
   }
@@ -441,8 +494,10 @@ class AuthRepository {
     });
   }
 
-  // Name/email are not editable by the customer (Sapbaq_AUTH_Flow §12) — staff
-  // edit them from the dashboard, so there is no client update method.
+  // The name is not editable by the customer (Sapbaq_AUTH_Flow §12) — staff edit
+  // it from the dashboard, so there is no client update method. The email has
+  // its own path ([requestEmailCode] / [verifyEmail]); `PATCH /auth/me/` returns
+  // 200 but silently ignores the field, so it is never sent there.
 
   /// The last number that signed in on this device (pre-filled on login).
   Future<String?> rememberedPhone() => _storage.getRememberedPhone();
@@ -451,6 +506,13 @@ class AuthRepository {
   Future<void> forgetRememberedPhone() => _storage.clearRememberedPhone();
 
   Future<void> logout() async {
+    // Unregister the FCM device *before* dropping tokens — the DELETE is
+    // authenticated, so it must go out while the Bearer is still valid.
+    try {
+      await onBeforeLogout?.call();
+    } catch (_) {
+      // Best-effort; never block sign-out on a notification cleanup failure.
+    }
     // Drop tokens locally and turn off biometric unlock (nothing to unlock once
     // signed out). Device trust (device_id) and the remembered number are kept
     // so the next sign-in needs only the passcode, not a fresh OTP.
@@ -542,7 +604,9 @@ class AuthRepository {
       final res = await _dio.get(ApiEndpoints.passkeyDevices);
       final list = res.data as List;
       return list
-          .map((e) => PasskeyDevice.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => PasskeyDevice.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     });
   }
@@ -558,7 +622,9 @@ class AuthRepository {
   /// Persist tokens + user from a session payload and publish the resulting
   /// status (completing-profile when the backend flags `needs_profile`).
   Future<AuthSession> _persistSession(dynamic data) async {
-    final session = AuthSession.fromJson(Map<String, dynamic>.from(data as Map));
+    final session = AuthSession.fromJson(
+      Map<String, dynamic>.from(data as Map),
+    );
     await _storage.saveTokens(access: session.access, refresh: session.refresh);
     await _storage.saveUser(session.user.toJson());
     await _storage.setGuest(false); // signing in supersedes guest mode
@@ -601,14 +667,13 @@ class AuthRepository {
     ).join();
   }
 
-  String _sha256(String input) =>
-      sha256.convert(utf8.encode(input)).toString();
+  String _sha256(String input) => sha256.convert(utf8.encode(input)).toString();
 
   ApiException _appleError() => const ApiException(
-        statusCode: 0,
-        code: 'apple_signin',
-        message: 'تعذّر تسجيل الدخول عبر Apple. حاول مرة أخرى.',
-      );
+    statusCode: 0,
+    code: 'apple_signin',
+    message: 'تعذّر تسجيل الدخول عبر Apple. حاول مرة أخرى.',
+  );
 
   Future<T> _guard<T>(Future<T> Function() request) => guardApi(request);
 }

@@ -20,7 +20,7 @@ class PasskeyService {
   final PasskeyAuthenticator _authenticator;
 
   PasskeyService({PasskeyAuthenticator? authenticator})
-      : _authenticator = authenticator ?? PasskeyAuthenticator();
+    : _authenticator = authenticator ?? PasskeyAuthenticator();
 
   /// Whether this device can create/use passkeys at all.
   Future<bool> isSupported() async {
@@ -36,9 +36,9 @@ class PasskeyService {
   /// credential JSON to send back to the server.
   Future<Map<String, dynamic>?> register(Map<String, dynamic> options) {
     return _run(
-      () async =>
-          (await _authenticator.register(RegisterRequestType.fromJson(options)))
-              .toJson(),
+      () async => (await _authenticator.register(
+        RegisterRequestType.fromJson(options),
+      )).toJson(),
     );
   }
 

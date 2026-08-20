@@ -79,9 +79,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       case AuthStatus.completingProfile:
       case AuthStatus.settingPasscode:
       case AuthStatus.locked:
-        emit(
-          AuthState(status: event.status, user: await _repo.cachedUser()),
-        );
+        emit(AuthState(status: event.status, user: await _repo.cachedUser()));
       case AuthStatus.unauthenticated:
         emit(const AuthState(status: AuthStatus.unauthenticated));
       case AuthStatus.guest:
@@ -102,9 +100,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.status != AuthStatus.completingProfile) {
       return;
     }
-    emit(
-      AuthState(status: state.status, user: await _repo.cachedUser()),
-    );
+    emit(AuthState(status: state.status, user: await _repo.cachedUser()));
   }
 
   Future<void> _onLogout(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sapbaq/core/constants/app_assets.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
+import 'package:sapbaq/core/widgets/brand_backdrop.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
+import 'package:sapbaq/core/theme/colors_custom.dart';
 
 /// Shared layout for auth screens: a full-width **black header** with rounded
 /// bottom corners holding the brand logo (the black logo card blends into it),
@@ -28,17 +29,14 @@ class AuthScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Full-width ink header behind the logo, with rounded bottom
-            // corners — keeps the white-on-black lockup legible in any theme.
+            // Full-width flat ink header behind the logo, with rounded bottom
+            // corners — keeps the white/mint lockup legible in any theme. Flat
+            // on purpose: the logo is the only brand mark this panel needs.
             AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle.light,
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: ColorsCustom.ink,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(28),
-                  ),
+              child: BrandBackdrop(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(28),
                 ),
                 child: SafeArea(
                   bottom: false,
@@ -51,7 +49,7 @@ class AuthScaffold extends StatelessWidget {
                           child: canPop
                               ? const Align(
                                   alignment: AlignmentDirectional.centerStart,
-                                  child: BackButton(color: Colors.white),
+                                  child: BackButton(color: ColorsCustom.white),
                                 )
                               : null,
                         ),

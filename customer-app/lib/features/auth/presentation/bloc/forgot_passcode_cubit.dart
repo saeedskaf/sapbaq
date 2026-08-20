@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
+import 'package:sapbaq/features/auth/data/models/otp_send_meta.dart';
 
 class ForgotPasscodeState extends Equatable {
   final bool busy;
@@ -33,15 +34,19 @@ class ForgotPasscodeCubit extends Cubit<ForgotPasscodeState> {
   final String phone;
 
   ForgotPasscodeCubit(this._repo, {required this.phone})
-      : super(const ForgotPasscodeState());
+    : super(const ForgotPasscodeState());
 
-  Future<void> sendCode() async {
+  /// Send (or resend) the recovery OTP. Returns the seconds to wait before the
+  /// next resend (server backoff, or `retry_after` when too soon).
+  Future<int> sendCode() async {
     emit(state.copyWith(busy: true, message: null));
     try {
-      await _repo.forgotPasscodeRequest(phone: phone);
+      final meta = await _repo.forgotPasscodeRequest(phone: phone);
       emit(state.copyWith(busy: false, codeSent: true));
+      return meta.resendAvailableIn;
     } on ApiException catch (e) {
       emit(state.copyWith(busy: false, message: e.message));
+      return e.retryAfter ?? kOtpDefaultResendSeconds;
     }
   }
 

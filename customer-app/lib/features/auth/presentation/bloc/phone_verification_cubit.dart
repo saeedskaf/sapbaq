@@ -58,7 +58,9 @@ class PhoneVerificationCubit extends Cubit<PhoneVerificationState> {
     emit(state.copyWith(busy: true, phoneError: null, message: null));
     try {
       await _repo.requestPhone(phone: phone);
-      emit(state.copyWith(busy: false, step: PhoneStep.enterCode, phone: phone));
+      emit(
+        state.copyWith(busy: false, step: PhoneStep.enterCode, phone: phone),
+      );
     } on ApiException catch (e) {
       emit(
         state.copyWith(

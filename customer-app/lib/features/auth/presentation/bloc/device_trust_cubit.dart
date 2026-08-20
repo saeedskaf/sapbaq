@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
+import 'package:sapbaq/features/auth/data/models/otp_send_meta.dart';
 
 class DeviceTrustState extends Equatable {
   final bool busy;
@@ -37,16 +38,19 @@ class DeviceTrustCubit extends Cubit<DeviceTrustState> {
   final String passcode;
 
   DeviceTrustCubit(this._repo, {required this.phone, required this.passcode})
-      : super(const DeviceTrustState());
+    : super(const DeviceTrustState());
 
-  /// Send (or resend) the device-trust OTP.
-  Future<void> sendCode() async {
+  /// Send (or resend) the device-trust OTP. Returns the seconds to wait before
+  /// the next resend (server backoff, or `retry_after` when too soon).
+  Future<int> sendCode() async {
     emit(state.copyWith(busy: true, message: null));
     try {
-      await _repo.deviceTrustRequest(phone: phone);
+      final meta = await _repo.deviceTrustRequest(phone: phone);
       emit(state.copyWith(busy: false, codeSent: true));
+      return meta.resendAvailableIn;
     } on ApiException catch (e) {
       emit(state.copyWith(busy: false, message: e.message));
+      return e.retryAfter ?? kOtpDefaultResendSeconds;
     }
   }
 

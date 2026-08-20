@@ -42,8 +42,13 @@ class UnlockState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [busy, biometricEnabled, wrongPasscode, locked, message];
+  List<Object?> get props => [
+    busy,
+    biometricEnabled,
+    wrongPasscode,
+    locked,
+    message,
+  ];
 }
 
 /// The app-entry gate for a persisted session ([AuthStatus.locked]). Biometrics

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/network/session_manager.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
-import 'package:sapbaq/core/utils/phone_rules.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
@@ -29,7 +28,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _phone = '';
+  String _phone = ''; // full E.164 number, e.g. +96512345678
+  String _phoneNational = ''; // national part only, used for the empty-guard
   String? _phoneClientError;
   String? _remembered; // full number, e.g. +96512345678
   Key _phoneFieldKey = UniqueKey();
@@ -42,6 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _remembered = value;
         _phone = value;
+        // Seed the national part too: IntlPhoneField never fires onChanged for
+        // its initialValue (only on user edits), so without this the empty-guard
+        // would wrongly reject a prefilled number the user didn't retype.
+        _phoneNational = _rememberedNational ?? '';
         // Swap the key so IntlPhoneField rebuilds and picks up initialValue —
         // it only reads initialValue in its own initState, and this load
         // resolves after the first build.
@@ -62,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _remembered = null;
       _phone = '';
+      _phoneNational = '';
       _phoneClientError = null;
       _phoneFieldKey = UniqueKey(); // reset the phone field
     });
@@ -69,14 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _continue(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final issue = checkSupportedPhone(_phone);
+    // Country availability is enforced by the backend; the client only guards
+    // against an empty submission and surfaces the server's rejection.
     setState(() {
-      _phoneClientError = switch (issue) {
-        PhoneIssue.none => null,
-        PhoneIssue.empty => l10n.phoneRequired,
-        PhoneIssue.unsupportedCountry => l10n.phoneKuwaitOnly,
-        PhoneIssue.length => l10n.phoneKuwaitOnly,
-      };
+      _phoneClientError = _phoneNational.trim().isEmpty
+          ? l10n.phoneRequired
+          : null;
     });
     if (_phoneClientError != null) return;
     FocusScope.of(context).unfocus();
@@ -126,7 +129,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: _phoneFieldKey,
                       label: l10n.phoneLabel,
                       initialValue: _rememberedNational,
-                      onChanged: (p) => _phone = p.completeNumber,
+                      onChanged: (p) {
+                        _phone = p.completeNumber;
+                        _phoneNational = p.number;
+                      },
                       errorText: _phoneClientError ?? state.phoneError,
                     ),
                     if (_remembered != null)

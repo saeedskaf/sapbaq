@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/bloc/form_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/features/auth/data/auth_repository.dart';
+import 'package:sapbaq/features/auth/data/models/otp_send_meta.dart';
 
 class OtpState extends Equatable {
   final FormStatus status;
@@ -30,12 +31,16 @@ class OtpCubit extends Cubit<OtpState> {
     }
   }
 
-  /// Resend the login OTP to the same number.
-  Future<void> resend({required String phone}) async {
+  /// Resend the login OTP to the same number. Returns the seconds to wait
+  /// before the next resend (the server's escalating backoff, or its
+  /// `retry_after` when the resend was too soon).
+  Future<int> resend({required String phone}) async {
     try {
-      await _repo.requestOtp(phone: phone);
+      final meta = await _repo.requestOtp(phone: phone);
+      return meta.resendAvailableIn;
     } on ApiException catch (e) {
       emit(OtpState(status: FormStatus.failure, message: e.message));
+      return e.retryAfter ?? kOtpDefaultResendSeconds;
     }
   }
 }

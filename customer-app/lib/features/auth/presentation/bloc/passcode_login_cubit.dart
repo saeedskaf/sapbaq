@@ -51,7 +51,9 @@ class PasscodeLoginCubit extends Cubit<PasscodeLoginState> {
     } on ApiException catch (e) {
       switch (e.statusCode) {
         case 428:
-          emit(const PasscodeLoginState(outcome: PasscodeOutcome.deviceUntrusted));
+          emit(
+            const PasscodeLoginState(outcome: PasscodeOutcome.deviceUntrusted),
+          );
         case 423:
           emit(const PasscodeLoginState(outcome: PasscodeOutcome.locked));
         case 0:

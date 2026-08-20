@@ -79,8 +79,7 @@ class _SetPasscodeViewState extends State<_SetPasscodeView> {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocConsumer<SetPasscodeCubit, SetPasscodeState>(
-      listenWhen: (a, b) =>
-          a.step != b.step || a.message != b.message,
+      listenWhen: (a, b) => a.step != b.step || a.message != b.message,
       listener: (context, state) {
         if (state.message != null) ShowMessage.error(context, state.message!);
         // Clear the field when returning to the first entry.
@@ -139,9 +138,9 @@ class _SetPasscodeViewState extends State<_SetPasscodeView> {
               child: TextButton(
                 onPressed: state.busy
                     ? null
-                    : () => context
-                        .read<AuthBloc>()
-                        .add(const AuthLogoutRequested()),
+                    : () => context.read<AuthBloc>().add(
+                        const AuthLogoutRequested(),
+                      ),
                 child: TextCustom(
                   text: l10n.useDifferentAccount,
                   fontSize: 13,

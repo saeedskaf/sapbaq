@@ -36,10 +36,11 @@ class User extends Equatable {
   /// Display name — the name parts joined, skipping blanks. Parsing already
   /// falls back to splitting the server's `full_name`, so this stays populated
   /// even when only the combined field is sent.
-  String get fullName => [firstName, middleName, lastName]
-      .where((p) => p.trim().isNotEmpty)
-      .join(' ')
-      .trim();
+  String get fullName => [
+    firstName,
+    middleName,
+    lastName,
+  ].where((p) => p.trim().isNotEmpty).join(' ').trim();
 
   factory User.fromJson(Map<String, dynamic> json) {
     final parts = _namePartsFrom(json);
@@ -71,7 +72,11 @@ class User extends Equatable {
     if (full.isEmpty) return ('', '', '');
     final tokens = full.split(RegExp(r'\s+'));
     if (tokens.length == 1) return (tokens.first, '', '');
-    return (tokens.first, tokens.sublist(1, tokens.length - 1).join(' '), tokens.last);
+    return (
+      tokens.first,
+      tokens.sublist(1, tokens.length - 1).join(' '),
+      tokens.last,
+    );
   }
 
   Map<String, dynamic> toJson() => {
