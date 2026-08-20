@@ -10,14 +10,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit({
     required SettingsService service,
     required ValueNotifier<String> languageCode,
-  })  : _service = service,
-        _languageCode = languageCode,
-        super(
-          SettingsState(
-            themeMode: service.themeMode,
-            locale: service.locale,
-          ),
-        );
+  }) : _service = service,
+       _languageCode = languageCode,
+       super(
+         SettingsState(themeMode: service.themeMode, locale: service.locale),
+       );
 
   final SettingsService _service;
   final ValueNotifier<String> _languageCode;

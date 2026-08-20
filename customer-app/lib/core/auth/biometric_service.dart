@@ -18,7 +18,7 @@ class BiometricService {
   final LocalAuthentication _auth;
 
   BiometricService({LocalAuthentication? auth})
-      : _auth = auth ?? LocalAuthentication();
+    : _auth = auth ?? LocalAuthentication();
 
   /// Whether the device has hardware and at least one enrolled biometric, so
   /// the "enable Face ID / Touch ID" option is worth offering.

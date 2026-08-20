@@ -101,11 +101,14 @@ class FloatingNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = background ?? context.colors.surface.withValues(alpha: 0.60);
-    final indicator =
-        indicatorColor ?? context.colors.primaryFill.withValues(alpha: 0.35);
-    final active = activeColor ?? context.colors.primary;
+    // "Which tab am I on" is a state, so it gets the mint at full strength —
+    // the most-seen brand moment in the app, on every screen. The pill is
+    // identical in both modes, which means its label must be the fixed dark
+    // [ColorsCustom.onMint]: a light label on mint is 1.85:1.
+    final indicator = indicatorColor ?? ColorsCustom.brandMint;
+    final active = activeColor ?? ColorsCustom.onMint;
     final inactive = inactiveColor ?? context.colors.textHint;
-    final border = borderColor ?? Colors.white.withValues(alpha: 0.55);
+    final border = borderColor ?? ColorsCustom.glassEdge;
 
     final bottomSafe = MediaQuery.of(context).padding.bottom;
 
@@ -123,7 +126,7 @@ class FloatingNavBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: ColorsCustom.shadow,
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),

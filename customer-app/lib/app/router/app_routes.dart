@@ -44,15 +44,26 @@ class AppRoutes {
   static const String home = '/'; // Donation entry (Home tab)
   static const String homeName = 'home';
 
-  // Products for a chosen destination — full-screen; destination via `extra`.
-  static const String products = '/products';
-  static const String productsName = 'products';
+  // «عرض المزيد» — one category's full product grid (extra: ProductCategory?,
+  // null = the whole catalogue). Product details open as a bottom sheet, not a
+  // route; the catalogue itself lives on the Home tab (storefront).
+  static const String categoryProducts = '/category-products';
+  static const String categoryProductsName = 'category-products';
 
-  // Product detail — full-screen over the shell. The path carries the product
-  // id; `extra` carries the active DonationDestination so "add to cart" knows
-  // which group to attach to.
-  static const String productDetail = '/product/:id';
-  static const String productDetailName = 'product-detail';
+  // Mosque-Needs marketplace ("live", 3 tabs) + «مساهماتي» — full-screen.
+  static const String marketplace = '/marketplace';
+  static const String marketplaceName = 'marketplace';
+
+  // One contribution's status timeline — full-screen over «مساهماتي».
+  static const String contributionDetail = '/contribution/:id';
+  static const String contributionDetailName = 'contribution-detail';
+
+  // Non-live equipment catalogue: request a unit for a mosque, pay once a
+  // manager approves. Contract: FLUTTER_NONLIVE_EQUIPMENT_ORDERING.md.
+  static const String equipmentRequestForm = '/equipment/request';
+  static const String equipmentRequestFormName = 'equipment-request-form';
+  static const String equipmentRequests = '/equipment/requests';
+  static const String equipmentRequestsName = 'equipment-requests';
 
   static const String mosques = '/mosques';
   static const String mosquesName = 'mosques';
@@ -63,6 +74,8 @@ class AppRoutes {
 
   static const String cart = '/cart';
   static const String cartName = 'cart';
+  static const String cartDetails = '/cart/:id';
+  static const String cartDetailsName = 'cart-details';
 
   static const String media = '/media';
   static const String mediaName = 'media';
@@ -78,8 +91,6 @@ class AppRoutes {
   static const String profileName = 'profile';
 
   // Cart flow — full-screen over the shell.
-  static const String checkout = '/checkout';
-  static const String checkoutName = 'checkout';
   static const String orderSuccess = '/order-success';
   static const String orderSuccessName = 'order-success';
 
@@ -124,6 +135,10 @@ class AppRoutes {
   // Trusted-device management (from Profile → account).
   static const String trustedDevices = '/trusted-devices';
   static const String trustedDevicesName = 'trusted-devices';
+
+  // Email verification / change (from Profile → account).
+  static const String verifyEmail = '/verify-email';
+  static const String verifyEmailName = 'verify-email';
 
   // Support tickets (A.3).
   static const String support = '/support';

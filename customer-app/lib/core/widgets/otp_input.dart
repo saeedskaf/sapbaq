@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
-import 'package:sapbaq/core/utils/passcode_rules.dart';
 
-/// A 4-cell passcode entry. Renders filled dots over a real (transparent) text
-/// field so the OS keyboard, paste, and autofill-from-SMS all work; taps
-/// anywhere focus the field. Direction-neutral (always fills left→right).
-class PasscodeInput extends StatefulWidget {
+/// The number of digits in a verification code (SMS OTP).
+const int kOtpLength = 6;
+
+/// A 6-cell verification-code entry. Renders the typed digits over a real
+/// (transparent) text field so the OS keyboard, paste, and SMS autofill all
+/// work; taps anywhere focus the field. Direction-neutral (always fills
+/// left→right). When all six digits are entered it fires [onCompleted] once —
+/// callers use that to dismiss the keyboard and advance.
+class OtpInput extends StatefulWidget {
   final TextEditingController controller;
   final bool autofocus;
   final bool enabled;
@@ -14,7 +18,7 @@ class PasscodeInput extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onCompleted;
 
-  const PasscodeInput({
+  const OtpInput({
     super.key,
     required this.controller,
     this.autofocus = true,
@@ -25,10 +29,10 @@ class PasscodeInput extends StatefulWidget {
   });
 
   @override
-  State<PasscodeInput> createState() => _PasscodeInputState();
+  State<OtpInput> createState() => _OtpInputState();
 }
 
-class _PasscodeInputState extends State<PasscodeInput> {
+class _OtpInputState extends State<OtpInput> {
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -42,7 +46,7 @@ class _PasscodeInputState extends State<PasscodeInput> {
     setState(() {});
     final text = widget.controller.text;
     widget.onChanged?.call(text);
-    if (text.length == kPasscodeLength) widget.onCompleted?.call(text);
+    if (text.length == kOtpLength) widget.onCompleted?.call(text);
   }
 
   @override
@@ -67,41 +71,39 @@ class _PasscodeInputState extends State<PasscodeInput> {
             textDirection: TextDirection.ltr,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(kPasscodeLength, (i) {
-                final filled = i < text.length;
+              children: List.generate(kOtpLength, (i) {
+                final digit = i < text.length ? text[i] : '';
                 final active =
                     widget.enabled &&
                     focused &&
-                    i == text.length.clamp(0, kPasscodeLength - 1) &&
-                    text.length < kPasscodeLength;
+                    i == text.length.clamp(0, kOtpLength - 1) &&
+                    text.length < kOtpLength;
                 final borderColor = widget.hasError
                     ? context.colors.danger
                     : active
                     ? context.colors.primary
                     : context.colors.border;
                 return Container(
-                  width: 56,
-                  height: 64,
-                  margin: const EdgeInsets.symmetric(horizontal: 7),
+                  width: 46,
+                  height: 56,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: borderColor,
                       width: active || widget.hasError ? 1.5 : 1,
                     ),
                   ),
-                  child: filled
-                      ? Container(
-                          width: 14,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: context.colors.textPrimary,
-                            shape: BoxShape.circle,
-                          ),
-                        )
-                      : null,
+                  child: Text(
+                    digit,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
                 );
               }),
             ),
@@ -119,9 +121,10 @@ class _PasscodeInputState extends State<PasscodeInput> {
                 textInputAction: TextInputAction.done,
                 showCursor: false,
                 enableInteractiveSelection: false,
+                autofillHints: const [AutofillHints.oneTimeCode],
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(kPasscodeLength),
+                  LengthLimitingTextInputFormatter(kOtpLength),
                 ],
               ),
             ),

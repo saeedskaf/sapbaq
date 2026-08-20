@@ -65,8 +65,7 @@ class SecureStorage {
     }
   }
 
-  Future<bool> isGuest() async =>
-      (await _storage.read(key: _kGuest)) == 'true';
+  Future<bool> isGuest() async => (await _storage.read(key: _kGuest)) == 'true';
 
   // ── Device identity (persists across logout) ───────────────────────────────
 
@@ -80,11 +79,11 @@ class SecureStorage {
 
   /// The last number that signed in on this device — pre-filled on the login
   /// screen. "Not me?" clears it via [clearRememberedPhone].
-  Future<String?> getRememberedPhone() =>
-      _storage.read(key: _kRememberedPhone);
+  Future<String?> getRememberedPhone() => _storage.read(key: _kRememberedPhone);
   Future<void> saveRememberedPhone(String phone) =>
       _storage.write(key: _kRememberedPhone, value: phone);
-  Future<void> clearRememberedPhone() => _storage.delete(key: _kRememberedPhone);
+  Future<void> clearRememberedPhone() =>
+      _storage.delete(key: _kRememberedPhone);
 
   // ── Biometric unlock preference (persists across logout) ───────────────────
 

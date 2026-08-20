@@ -20,6 +20,19 @@ class TextCustom extends StatelessWidget {
   final int? maxLines;
   final TextAlign textAlign;
   final TextDecoration? decoration;
+
+  /// Colour of [decoration]. Defaults to the text colour, which is usually
+  /// what you want — set it only to make a rule read differently from the
+  /// glyphs it crosses.
+  final Color? decorationColor;
+
+  /// Multiplier on the font's own rule thickness. The default (1.0) is a
+  /// hairline: fonts specify a strikeout around 5% of the em, so below ~14px
+  /// it lands under one device pixel and antialiases away — invisibly so on a
+  /// dark ground, where a faint light line has nothing to bite into. Small
+  /// struck text should pass 2.0 or more.
+  final double? decorationThickness;
+
   final double? letterSpacing;
 
   /// Whether the theme default (when [color] is null) is the secondary text
@@ -36,6 +49,8 @@ class TextCustom extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.decoration,
+    this.decorationColor,
+    this.decorationThickness,
     this.letterSpacing,
   }) : _secondaryDefault = false;
 
@@ -49,6 +64,8 @@ class TextCustom extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.decoration,
+    this.decorationColor,
+    this.decorationThickness,
     this.letterSpacing,
   }) : _secondaryDefault = false;
 
@@ -62,6 +79,8 @@ class TextCustom extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.decoration,
+    this.decorationColor,
+    this.decorationThickness,
     this.letterSpacing,
   }) : _secondaryDefault = false;
 
@@ -75,6 +94,8 @@ class TextCustom extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.decoration,
+    this.decorationColor,
+    this.decorationThickness,
     this.letterSpacing,
   }) : _secondaryDefault = false;
 
@@ -88,6 +109,8 @@ class TextCustom extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.decoration,
+    this.decorationColor,
+    this.decorationThickness,
     this.letterSpacing,
   }) : _secondaryDefault = true;
 
@@ -109,6 +132,8 @@ class TextCustom extends StatelessWidget {
     color: c,
     fontWeight: fontWeight,
     decoration: decoration,
+    decorationColor: decorationColor,
+    decorationThickness: decorationThickness,
     letterSpacing: letterSpacing ?? 0,
   );
 
@@ -117,6 +142,8 @@ class TextCustom extends StatelessWidget {
     color: c,
     fontWeight: fontWeight,
     decoration: decoration,
+    decorationColor: decorationColor,
+    decorationThickness: decorationThickness,
     letterSpacing: letterSpacing ?? 0,
   );
 
@@ -125,6 +152,8 @@ class TextCustom extends StatelessWidget {
     color: c,
     fontWeight: fontWeight,
     decoration: decoration,
+    decorationColor: decorationColor,
+    decorationThickness: decorationThickness,
     letterSpacing: letterSpacing ?? 0,
   );
 
@@ -137,6 +166,25 @@ class TextCustom extends StatelessWidget {
             ? context.colors.textSecondary
             : context.colors.textPrimary);
 
+    // Keep each script's natural base direction so Latin text, numbers, dates
+    // and reference codes render left-to-right (no character reordering) and
+    // Arabic renders right-to-left — independent of the UI language.
+    final textDirection = hasArabic ? TextDirection.rtl : TextDirection.ltr;
+
+    // Resolve the default `start`/`end` alignment against the UI (ambient)
+    // direction, NOT the script, so every line hugs the same edge as the
+    // layout around it: right in Arabic (RTL), left in English (LTR). Without
+    // this a Latin-only string — a date, an order reference — aligned itself
+    // left inside an otherwise right-aligned Arabic card.
+    // Explicit center/left/right alignments are respected as-is.
+    final uiDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
+    final isRtl = uiDirection == TextDirection.rtl;
+    final align = switch (textAlign) {
+      TextAlign.start => isRtl ? TextAlign.right : TextAlign.left,
+      TextAlign.end => isRtl ? TextAlign.left : TextAlign.right,
+      _ => textAlign,
+    };
+
     final baseStyle = hasArabic
         ? _arabicStyle(effectiveColor)
         : _latinStyle(effectiveColor);
@@ -148,8 +196,8 @@ class TextCustom extends StatelessWidget {
         _brandSpans(baseStyle, _brandStyle(effectiveColor)),
         overflow: overflow,
         maxLines: maxLines,
-        textAlign: textAlign,
-        textDirection: TextDirection.rtl,
+        textAlign: align,
+        textDirection: textDirection,
       );
     }
 
@@ -157,8 +205,8 @@ class TextCustom extends StatelessWidget {
       text,
       overflow: overflow,
       maxLines: maxLines,
-      textAlign: textAlign,
-      textDirection: hasArabic ? TextDirection.rtl : TextDirection.ltr,
+      textAlign: align,
+      textDirection: textDirection,
       style: baseStyle,
     );
   }

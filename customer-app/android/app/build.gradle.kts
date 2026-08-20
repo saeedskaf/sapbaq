@@ -21,6 +21,17 @@ val mapsApiKey: String = Properties().run {
     getProperty("MAPS_API_KEY") ?: System.getenv("MAPS_API_KEY") ?: ""
 }
 
+// Release signing. Credentials live in android/key.properties (git-ignored, see
+// key.properties.example) so the keystore and its passwords never enter source
+// control. Without that file the release build falls back to the debug keystore
+// so `flutter run --release` still works locally — but Play rejects a
+// debug-signed upload, hence the loud warning below.
+val keystoreProperties = Properties().apply {
+    val keystoreFile = rootProject.file("key.properties")
+    if (keystoreFile.exists()) keystoreFile.inputStream().use { load(it) }
+}
+val hasReleaseKeystore: Boolean = keystoreProperties.getProperty("storeFile") != null
+
 android {
     namespace = "com.albairakgroup.sapbaq"
     compileSdk = flutter.compileSdkVersion
@@ -53,11 +64,31 @@ android {
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                // No keystore on this machine: fall back so `flutter run
+                // --release` still works. Google Play REJECTS such a build.
+                logger.warn(
+                    "WARNING: android/key.properties not found — the release " +
+                        "build is signed with the DEBUG keystore and cannot be " +
+                        "uploaded to Google Play."
+                )
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

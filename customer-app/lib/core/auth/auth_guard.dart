@@ -59,10 +59,10 @@ class GuestGateView extends StatelessWidget {
               height: 96,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: context.colors.primaryTint,
+                color: context.colors.surfaceVariant,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: context.colors.primary, size: 44),
+              child: Icon(icon, color: context.colors.textSecondary, size: 44),
             ),
             const SizedBox(height: 20),
             TextCustom.subheading(text: title, textAlign: TextAlign.center),
@@ -125,12 +125,12 @@ class _LoginRequiredSheet extends StatelessWidget {
               height: 72,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: context.colors.primaryTint,
+                color: context.colors.surfaceVariant,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.lock_outline_rounded,
-                color: context.colors.primary,
+                color: context.colors.textSecondary,
                 size: 34,
               ),
             ),

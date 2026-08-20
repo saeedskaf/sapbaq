@@ -72,8 +72,9 @@ class ApiException implements Exception {
         }
       }
     });
-    final serverMsg =
-        (detail is String && detail.isNotEmpty) ? detail : firstFieldMsg;
+    final serverMsg = (detail is String && detail.isNotEmpty)
+        ? detail
+        : firstFieldMsg;
     return ApiException(
       statusCode: status ?? 0,
       code: 'unknown',
@@ -83,6 +84,15 @@ class ApiException implements Exception {
       details: fields,
     );
   }
+
+  /// A failure the API layer never produced: a parse/cast error, or any other
+  /// throwable that [guardApi] could not normalize. Callers catch this instead
+  /// of leaving a form latched in its submitting state.
+  factory ApiException.unexpected() => ApiException(
+    statusCode: 0,
+    code: 'unexpected',
+    message: _messageForStatus(null),
+  );
 
   /// First field-level error for [field] (e.g. to highlight a form input).
   String? fieldError(String field) {
@@ -94,6 +104,13 @@ class ApiException implements Exception {
 
   bool get isNetworkError => statusCode == 0;
   bool get isUnauthorized => statusCode == 401;
+
+  /// True when an OTP resend was rejected for being too soon (HTTP 429).
+  bool get isThrottled => code == 'otp_throttled' || statusCode == 429;
+
+  /// Seconds to wait before retrying, from `error.details.retry_after` (the OTP
+  /// throttle response). Null when absent.
+  int? get retryAfter => (details['retry_after'] as num?)?.toInt();
 
   static String _messageForStatus(int? status) {
     switch (status) {

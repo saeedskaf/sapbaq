@@ -1,0 +1,17 @@
+# Release signing for the Play Store upload.
+#
+# Copy this file to `android/key.properties` and fill it in. That file is
+# git-ignored (along with *.jks / *.keystore) so the credentials never enter
+# source control — and the keystore itself must be backed up somewhere safe:
+# losing it means losing the ability to publish updates to this listing, with
+# no recovery path.
+#
+# Create the keystore once:
+#   keytool -genkey -v -keystore ~/sapbaq-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias sapbaq
+#
+# Absolute path (or relative to the `android/app/` directory).
+storeFile=/Users/you/sapbaq-release.jks
+storePassword=
+keyAlias=sapbaq
+keyPassword=

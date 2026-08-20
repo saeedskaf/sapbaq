@@ -10,6 +10,7 @@ import 'package:sapbaq/features/addresses/presentation/screens/addresses_screen.
 import 'package:sapbaq/features/app_shell/presentation/app_shell.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/auth/presentation/screens/device_trust_screen.dart';
+import 'package:sapbaq/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/forgot_passcode_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/lock_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/login_screen.dart';
@@ -20,14 +21,16 @@ import 'package:sapbaq/features/auth/presentation/screens/profile_completion_scr
 import 'package:sapbaq/features/auth/presentation/screens/set_passcode_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/splash_screen.dart';
 import 'package:sapbaq/features/auth/presentation/screens/trusted_devices_screen.dart';
-import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
+import 'package:sapbaq/features/cart/presentation/screens/cart_details_screen.dart';
 import 'package:sapbaq/features/cart/presentation/screens/cart_screen.dart';
-import 'package:sapbaq/features/cart/presentation/screens/checkout_screen.dart';
 import 'package:sapbaq/features/cart/presentation/screens/order_success_screen.dart';
-import 'package:sapbaq/features/gifts/data/models/gift.dart';
 import 'package:sapbaq/features/gifts/presentation/screens/gift_form_screen.dart';
 import 'package:sapbaq/features/home/presentation/screens/home_screen.dart';
 import 'package:sapbaq/features/info/presentation/screens/info_screens.dart';
+import 'package:sapbaq/features/equipment/presentation/screens/equipment_request_form_screen.dart';
+import 'package:sapbaq/features/equipment/presentation/screens/equipment_requests_screen.dart';
+import 'package:sapbaq/features/marketplace/presentation/screens/contribution_detail_screen.dart';
+import 'package:sapbaq/features/marketplace/presentation/screens/marketplace_screen.dart';
 import 'package:sapbaq/features/mosques/presentation/screens/favorites_screen.dart';
 import 'package:sapbaq/features/mosques/presentation/screens/mosque_detail_screen.dart';
 import 'package:sapbaq/features/mosques/presentation/screens/mosques_screen.dart';
@@ -35,8 +38,7 @@ import 'package:sapbaq/features/notifications/presentation/screens/notification_
 import 'package:sapbaq/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:sapbaq/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:sapbaq/features/orders/presentation/screens/orders_screen.dart';
-import 'package:sapbaq/features/products/presentation/screens/product_detail_screen.dart';
-import 'package:sapbaq/features/products/presentation/screens/products_screen.dart';
+import 'package:sapbaq/features/products/presentation/screens/category_products_screen.dart';
 import 'package:sapbaq/features/profile/presentation/screens/profile_screen.dart';
 import 'package:sapbaq/features/settings/presentation/screens/appearance_screen.dart';
 import 'package:sapbaq/features/settings/presentation/screens/language_screen.dart';
@@ -44,24 +46,13 @@ import 'package:sapbaq/features/showcase/presentation/screens/showcase_screen.da
 import 'package:sapbaq/features/support/presentation/screens/new_ticket_screen.dart';
 import 'package:sapbaq/features/support/presentation/screens/support_screen.dart';
 import 'package:sapbaq/features/support/presentation/screens/ticket_detail_screen.dart';
-import 'package:sapbaq/l10n/app_localizations.dart';
-
-/// Resolves the donation destination passed via `extra`, defaulting to the
-/// most-needed pool (e.g. on a cold deep link where `extra` is absent).
-DonationDestination _destinationOf(BuildContext context, GoRouterState state) {
-  final extra = state.extra;
-  if (extra is DonationDestination) return extra;
-  return DonationDestination.mostNeeded(
-    label: AppLocalizations.of(context)!.mostNeededShort,
-  );
-}
 
 /// Account-bound destinations a guest can't open (pushed full-screen routes).
 /// The Orders and Profile *tabs* stay reachable — they render a guest prompt
 /// in-place instead of redirecting, to keep the shell's indexed stack intact.
 bool _isGuestBlocked(String location) {
   return location == AppRoutes.cart ||
-      location == AppRoutes.checkout ||
+      location.startsWith('/cart/') ||
       location == AppRoutes.orderSuccess ||
       location == AppRoutes.giftForm ||
       location == AppRoutes.notifications ||
@@ -70,6 +61,8 @@ bool _isGuestBlocked(String location) {
       location == AppRoutes.addressForm ||
       location == AppRoutes.favorites ||
       location == AppRoutes.trustedDevices ||
+      location == AppRoutes.verifyEmail ||
+      location.startsWith('/contribution/') ||
       location == AppRoutes.support ||
       location == AppRoutes.newTicket ||
       location.startsWith('/ticket/') ||
@@ -166,9 +159,8 @@ GoRouter createRouter(AuthBloc authBloc) {
       GoRoute(
         path: AppRoutes.otp,
         name: AppRoutes.otpName,
-        builder: (_, state) => OtpScreen(
-          phone: state.uri.queryParameters['phone'] ?? '',
-        ),
+        builder: (_, state) =>
+            OtpScreen(phone: state.uri.queryParameters['phone'] ?? ''),
       ),
       GoRoute(
         path: AppRoutes.passcodeLogin,
@@ -213,19 +205,13 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, _) => const SetPasscodeScreen(),
       ),
       // Donation flow + detail screens — full-screen over the shell (pushed).
+      // The catalogue lives on the Home tab (storefront); product details open
+      // as a bottom sheet, not a route.
       GoRoute(
-        path: AppRoutes.products,
-        name: AppRoutes.productsName,
-        builder: (context, state) =>
-            ProductsScreen(destination: _destinationOf(context, state)),
-      ),
-      GoRoute(
-        path: AppRoutes.productDetail,
-        name: AppRoutes.productDetailName,
-        builder: (context, state) => ProductDetailScreen(
-          productId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
-          destination: _destinationOf(context, state),
-        ),
+        path: AppRoutes.categoryProducts,
+        name: AppRoutes.categoryProductsName,
+        builder: (_, state) =>
+            CategoryProductsScreen(initialCategoryId: state.extra as int?),
       ),
       GoRoute(
         path: AppRoutes.mosqueDetail,
@@ -235,24 +221,66 @@ GoRouter createRouter(AuthBloc authBloc) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.marketplace,
+        name: AppRoutes.marketplaceName,
+        // `?tab=` lets a deep link (a banner today) open a specific feed.
+        builder: (_, state) => MarketplaceScreen(
+          initialTab: MarketplaceTab.fromSlug(state.uri.queryParameters['tab']),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.contributionDetail,
+        name: AppRoutes.contributionDetailName,
+        builder: (_, state) => ContributionDetailScreen(
+          contributionId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.equipmentRequestForm,
+        name: AppRoutes.equipmentRequestFormName,
+        // The picked product and combination ride along as `extra` — they're
+        // already loaded, and re-fetching them to render a summary is wasteful.
+        builder: (_, state) => EquipmentRequestFormScreen(
+          args: state.extra! as EquipmentRequestArgs,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.equipmentRequests,
+        name: AppRoutes.equipmentRequestsName,
+        // `?request=` comes from an `equip_order.*` push: open that request's
+        // detail (and its pay button) rather than just the list.
+        builder: (_, state) => EquipmentRequestsScreen(
+          focusRequestId: int.tryParse(
+            state.uri.queryParameters['request'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.cart,
         name: AppRoutes.cartName,
         builder: (_, _) => const CartScreen(),
       ),
       GoRoute(
-        path: AppRoutes.checkout,
-        name: AppRoutes.checkoutName,
-        builder: (_, _) => const CheckoutScreen(),
+        path: AppRoutes.cartDetails,
+        name: AppRoutes.cartDetailsName,
+        builder: (_, state) => CartDetailsScreen(
+          cartId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
       ),
       GoRoute(
         path: AppRoutes.orderSuccess,
         name: AppRoutes.orderSuccessName,
-        builder: (_, _) => const OrderSuccessScreen(),
+        // `extra` is the paid order's id for a single-cart payment; «ادفع
+        // الكل» passes none (several orders) and the screen offers «طلباتي».
+        builder: (_, state) => OrderSuccessScreen(orderId: state.extra as int?),
       ),
       GoRoute(
         path: AppRoutes.giftForm,
         name: AppRoutes.giftFormName,
-        builder: (_, state) => GiftFormScreen(existing: state.extra as Gift?),
+        builder: (_, state) {
+          final args = state.extra as GiftFormArgs;
+          return GiftFormScreen(cartId: args.cartId, existing: args.existing);
+        },
       ),
       GoRoute(
         path: AppRoutes.orderDetail,
@@ -335,6 +363,11 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (_, _) => const TrustedDevicesScreen(),
       ),
       GoRoute(
+        path: AppRoutes.verifyEmail,
+        name: AppRoutes.verifyEmailName,
+        builder: (_, _) => const EmailVerificationScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.support,
         name: AppRoutes.supportName,
         builder: (_, _) => const SupportScreen(),
@@ -397,6 +430,7 @@ GoRouter createRouter(AuthBloc authBloc) {
               GoRoute(
                 path: AppRoutes.orders,
                 name: AppRoutes.ordersName,
+                // One list, no tabs and no filters — nothing to parameterise.
                 builder: (_, _) => const OrdersScreen(),
               ),
             ],

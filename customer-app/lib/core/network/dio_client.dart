@@ -39,13 +39,26 @@ class DioClient {
         language: language,
       ),
     );
-    dio.interceptors.add(ErrorInterceptor());
-
+    // The logger goes in BEFORE `ErrorInterceptor`, and the order is the whole
+    // point. Dio walks `onError` in registration order, and `ErrorInterceptor`
+    // ends the walk with `handler.reject(...)` — so anything registered after it
+    // never sees a failure. Logging last meant every successful call was printed
+    // and **every failed one vanished**: the exact line worth reading was the
+    // only line missing. Cost a payment-debugging round to notice.
     if (kDebugMode) {
       dio.interceptors.add(
-        LogInterceptor(requestBody: true, responseBody: true),
+        LogInterceptor(
+          requestBody: true,
+          responseBody: true,
+          error: true,
+          // Off on purpose: these carry the bearer token, and debug logs get
+          // pasted into chats and tickets. The body is what debugging needs.
+          requestHeader: false,
+        ),
       );
     }
+
+    dio.interceptors.add(ErrorInterceptor());
 
     return dio;
   }

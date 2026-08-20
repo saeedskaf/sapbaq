@@ -9,9 +9,10 @@ import 'package:sapbaq/core/theme/colors_custom.dart';
 /// widget written as `context.colors.surface` automatically resolves to the
 /// right color for the active brightness.
 ///
-/// Brand-fixed colors (error/success/gold/gradient, white-on-brand fills, map
-/// markers) intentionally stay on [ColorsCustom] — they look identical in both
-/// themes.
+/// Mode-independent colors intentionally stay on [ColorsCustom]: the status
+/// signals (error/success/warning), the map markers, the logo lockup's mint,
+/// and [ColorsCustom.brandMint] — a mint state pill is identical in both
+/// modes, so it never flips and its foreground is fixed dark.
 @immutable
 class ThemeColors extends ThemeExtension<ThemeColors> {
   const ThemeColors({
@@ -25,8 +26,9 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     required this.primary,
     required this.primaryFill,
     required this.onPrimary,
-    required this.primaryTint,
     required this.inputFocusFill,
+    required this.imageWell,
+    required this.danger,
   });
 
   /// Scaffold / screen background.
@@ -50,22 +52,32 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
   /// Hint / disabled / tertiary text.
   final Color textHint;
 
-  /// Brand green as a foreground (text/icons/borders) on neutral surfaces:
-  /// deep green on light for contrast, the logo mint on dark.
+  /// The strong foreground (text/icons/borders) on neutral surfaces —
+  /// monochrome: ink on light, near-white on dark. Not a brand hue.
   final Color primary;
 
-  /// Brand fill behind [onPrimary] content (buttons, highlighted chips,
-  /// active controls) — the exact logo mint in both modes.
+  /// Fill behind [onPrimary] content (buttons, FAB, active controls) — the
+  /// logo mint, at one value, in both modes. It needs no light/dark variant:
+  /// mint carries dark content at 11.34:1 on either ground, so the primary
+  /// action looks identical wherever it appears.
   final Color primaryFill;
 
-  /// Foreground placed on top of [primaryFill] — brand near-black green.
+  /// Foreground placed on top of [primaryFill] — the inverse of [primaryFill].
   final Color onPrimary;
-
-  /// Tinted chip background behind primary-colored icons (the mint chip).
-  final Color primaryTint;
 
   /// Fill applied to inputs while focused.
   final Color inputFocusFill;
+
+  /// The well behind `contain`-fitted product photos. Fixed light in both
+  /// themes — see [ColorsCustom.imageWell].
+  final Color imageWell;
+
+  /// The alarm red as a **foreground** — destructive text and icons, and the
+  /// struck pre-discount price. It flips because a red that reads on a white
+  /// card is too dark to read on a near-black one; see
+  /// [ColorsCustom.errorOnDark]. Signal *fills* do not flip: they stay
+  /// [ColorsCustom.error] in both modes and carry white.
+  final Color danger;
 
   static const ThemeColors light = ThemeColors(
     background: ColorsCustom.background,
@@ -78,8 +90,9 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     primary: ColorsCustom.primary,
     primaryFill: ColorsCustom.brandMint,
     onPrimary: ColorsCustom.onMint,
-    primaryTint: ColorsCustom.secondaryLight,
     inputFocusFill: ColorsCustom.inputFocusFill,
+    imageWell: ColorsCustom.imageWell,
+    danger: ColorsCustom.error,
   );
 
   static const ThemeColors dark = ThemeColors(
@@ -92,9 +105,10 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     textHint: ColorsCustom.darkTextHint,
     primary: ColorsCustom.primaryOnDark,
     primaryFill: ColorsCustom.brandMint,
-    onPrimary: ColorsCustom.darkOnPrimary,
-    primaryTint: ColorsCustom.darkPrimaryTint,
+    onPrimary: ColorsCustom.onMint,
     inputFocusFill: ColorsCustom.darkSurfaceVariant,
+    imageWell: ColorsCustom.imageWell,
+    danger: ColorsCustom.errorOnDark,
   );
 
   @override
@@ -109,8 +123,9 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
     Color? primary,
     Color? primaryFill,
     Color? onPrimary,
-    Color? primaryTint,
     Color? inputFocusFill,
+    Color? imageWell,
+    Color? danger,
   }) {
     return ThemeColors(
       background: background ?? this.background,
@@ -123,8 +138,9 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
       primary: primary ?? this.primary,
       primaryFill: primaryFill ?? this.primaryFill,
       onPrimary: onPrimary ?? this.onPrimary,
-      primaryTint: primaryTint ?? this.primaryTint,
       inputFocusFill: inputFocusFill ?? this.inputFocusFill,
+      imageWell: imageWell ?? this.imageWell,
+      danger: danger ?? this.danger,
     );
   }
 
@@ -142,8 +158,9 @@ class ThemeColors extends ThemeExtension<ThemeColors> {
       primary: Color.lerp(primary, other.primary, t)!,
       primaryFill: Color.lerp(primaryFill, other.primaryFill, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
-      primaryTint: Color.lerp(primaryTint, other.primaryTint, t)!,
       inputFocusFill: Color.lerp(inputFocusFill, other.inputFocusFill, t)!,
+      imageWell: Color.lerp(imageWell, other.imageWell, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
     );
   }
 }

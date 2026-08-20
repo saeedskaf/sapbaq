@@ -17,8 +17,8 @@ class DeviceIdentity {
   final DeviceInfoPlugin _info;
 
   DeviceIdentity({SecureStorage? storage, DeviceInfoPlugin? info})
-      : _storage = storage ?? secureStorage,
-        _info = info ?? DeviceInfoPlugin();
+    : _storage = storage ?? secureStorage,
+      _info = info ?? DeviceInfoPlugin();
 
   /// Return the stored device id, generating and persisting one on first use.
   Future<String> deviceId() async {
@@ -43,7 +43,10 @@ class DeviceIdentity {
         final android = await _info.androidInfo;
         final brand = android.brand.trim();
         final model = android.model.trim();
-        final label = [brand, model].where((p) => p.isNotEmpty).join(' ').trim();
+        final label = [
+          brand,
+          model,
+        ].where((p) => p.isNotEmpty).join(' ').trim();
         return label.isNotEmpty ? label : 'Android';
       }
     } catch (e) {

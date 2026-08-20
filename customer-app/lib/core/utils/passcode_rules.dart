@@ -24,7 +24,8 @@ PasscodeIssue checkPasscode(String code) {
   return PasscodeIssue.none;
 }
 
-bool isPasscodeAcceptable(String code) => checkPasscode(code) == PasscodeIssue.none;
+bool isPasscodeAcceptable(String code) =>
+    checkPasscode(code) == PasscodeIssue.none;
 
 bool _isRun(List<int> digits, int step) {
   for (var i = 1; i < digits.length; i++) {

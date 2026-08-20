@@ -7,7 +7,6 @@ import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:sapbaq/core/constants/app_constants.dart';
-import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
@@ -43,11 +42,11 @@ class _FieldLabel extends StatelessWidget {
           ),
           if (isRequired) ...[
             const SizedBox(width: 4),
-            const TextCustom(
+            TextCustom(
               text: '*',
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ],
           if (trailing != null) ...[const SizedBox(width: 8), trailing!],
@@ -69,10 +68,10 @@ class _FieldError extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             size: 15,
-            color: ColorsCustom.error,
+            color: context.colors.danger,
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -80,7 +79,7 @@ class _FieldError extends StatelessWidget {
               text: message,
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ),
         ],
@@ -110,6 +109,13 @@ class FormFieldCustom extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final int? maxLength;
 
+  /// A server-side rejection to show under the field, independent of
+  /// [validator] (which only knows what the client can check). Non-null wins
+  /// over the validator's own message, so it stays visible until the caller
+  /// clears it — e.g. "this address belongs to another account", which no
+  /// amount of retyping the same value would fix.
+  final String? errorText;
+
   const FormFieldCustom({
     super.key,
     this.controller,
@@ -131,6 +137,7 @@ class FormFieldCustom extends StatefulWidget {
     this.focusNode,
     this.inputFormatters,
     this.maxLength,
+    this.errorText,
   });
 
   @override
@@ -228,8 +235,11 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
             filled: true,
             fillColor: !widget.enabled
                 ? context.colors.surfaceVariant
-                : (_isFocused ? context.colors.inputFocusFill : context.colors.surface),
+                : (_isFocused
+                      ? context.colors.inputFocusFill
+                      : context.colors.surface),
             hintText: widget.hintText,
+            errorText: widget.errorText,
             hintStyle: _textStyle(
               fontSize: 15,
               color: context.colors.textHint,
@@ -256,12 +266,12 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
             border: _border(context.colors.border),
             enabledBorder: _border(context.colors.border),
             focusedBorder: _border(context.colors.primary, width: 1.5),
-            errorBorder: _border(ColorsCustom.error),
-            focusedErrorBorder: _border(ColorsCustom.error, width: 1.5),
+            errorBorder: _border(context.colors.danger),
+            focusedErrorBorder: _border(context.colors.danger, width: 1.5),
             disabledBorder: _border(context.colors.border, width: 0.5),
             errorStyle: _textStyle(
               fontSize: 13,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
               weight: FontWeight.w400,
             ),
           ),
@@ -308,6 +318,11 @@ class PhoneFieldCustom extends StatefulWidget {
   /// WhatsApp glyph that hints at the channel this number will be used for.
   final Widget? labelTrailing;
 
+  /// Formatters for the national-number part (the country code is never
+  /// affected). Auth passes none — it accepts any international number — while
+  /// a Kuwait-only field can cap the input at 8 digits.
+  final List<TextInputFormatter>? inputFormatters;
+
   const PhoneFieldCustom({
     super.key,
     required this.label,
@@ -318,6 +333,7 @@ class PhoneFieldCustom extends StatefulWidget {
     this.errorText,
     this.initialValue,
     this.labelTrailing,
+    this.inputFormatters,
   });
 
   @override
@@ -346,7 +362,7 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
     final l10n = AppLocalizations.of(context)!;
     final bool hasError = widget.errorText != null;
     final Color borderColor = hasError
-        ? ColorsCustom.error
+        ? context.colors.danger
         : _isFocused
         ? context.colors.primary
         : context.colors.border;
@@ -378,6 +394,7 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
               child: IntlPhoneField(
                 initialCountryCode: widget.initialCountryCode,
                 initialValue: widget.initialValue,
+                inputFormatters: widget.inputFormatters,
                 languageCode: Localizations.localeOf(context).languageCode,
                 // Accept any international number — no per-country length rule.
                 disableLengthCheck: true,

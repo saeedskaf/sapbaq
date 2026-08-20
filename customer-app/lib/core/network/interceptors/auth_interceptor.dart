@@ -21,17 +21,17 @@ class AuthInterceptor extends QueuedInterceptor {
     required SessionManager session,
     required String baseUrl,
     required ValueListenable<String> language,
-  })  : _storage = storage,
-        _session = session,
-        _bareDio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl,
-            headers: const {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          ),
-        )..interceptors.add(LocaleInterceptor(language));
+  }) : _storage = storage,
+       _session = session,
+       _bareDio = Dio(
+         BaseOptions(
+           baseUrl: baseUrl,
+           headers: const {
+             'Content-Type': 'application/json',
+             'Accept': 'application/json',
+           },
+         ),
+       )..interceptors.add(LocaleInterceptor(language));
 
   static const Set<String> _publicPaths = {
     ApiEndpoints.otpCheckNumber,
@@ -73,9 +73,7 @@ class AuthInterceptor extends QueuedInterceptor {
     final isAuthError = err.response?.statusCode == 401;
     final alreadyRetried = err.requestOptions.extra['__retried'] == true;
 
-    if (!isAuthError ||
-        alreadyRetried ||
-        _isPublic(err.requestOptions.path)) {
+    if (!isAuthError || alreadyRetried || _isPublic(err.requestOptions.path)) {
       handler.next(err);
       return;
     }
