@@ -37,9 +37,8 @@ class Approval extends Equatable {
   /// A human-readable reason carried in the payload, when present.
   String get payloadReason => (payload['reason'] ?? '').toString();
 
-  static StaffRef? _ref(dynamic v) => v is Map
-      ? StaffRef.fromJson(Map<String, dynamic>.from(v))
-      : null;
+  static StaffRef? _ref(dynamic v) =>
+      v is Map ? StaffRef.fromJson(Map<String, dynamic>.from(v)) : null;
 
   factory Approval.fromJson(Map<String, dynamic> json) {
     return Approval(

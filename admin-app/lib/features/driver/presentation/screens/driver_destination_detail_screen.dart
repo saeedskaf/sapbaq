@@ -9,6 +9,7 @@ import 'package:sapbaq_admin/core/utils/maps_launcher.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
+import 'package:sapbaq_admin/core/widgets/reason_sheet.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
@@ -55,15 +56,12 @@ class _DetailView extends StatelessWidget {
   Future<void> _reject(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<DriverDestinationDetailCubit>();
-    final reason = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: context.colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const _RejectSheet(),
+    final reason = await ReasonSheet.show(
+      context,
+      title: l10n.rejectTitle,
+      hint: l10n.rejectReasonHint,
+      confirmLabel: l10n.confirmReject,
+      danger: true,
     );
     if (reason == null) return;
     final ok = await cubit.reject(reason);
@@ -151,7 +149,6 @@ class _DetailView extends StatelessWidget {
       children: [
         DestinationSection(
           label: dest.label,
-          destinationType: dest.destinationType,
           status: dest.status,
           mosque: dest.mosque,
           items: dest.items,
@@ -194,21 +191,21 @@ class _DetailView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: ColorsCustom.success.withValues(alpha: 0.12),
+              color: ColorsCustom.success,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle_rounded,
-                  color: ColorsCustom.success,
+                  color: ColorsCustom.onSignal(ColorsCustom.success),
                 ),
                 const SizedBox(width: 8),
                 TextCustom(
                   text: l10n.deliveredNote,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: ColorsCustom.success,
+                  color: ColorsCustom.onSignal(ColorsCustom.success),
                 ),
               ],
             ),
@@ -262,11 +259,7 @@ class _ActionBar extends StatelessWidget {
       children.add(
         ButtonCustom.primary(
           text: l10n.startDeliveryButton,
-          icon: const Icon(
-            Icons.local_shipping_outlined,
-            color: ColorsCustom.onMint,
-            size: 20,
-          ),
+          icon: const Icon(Icons.local_shipping_outlined, size: 20),
           isLoading: acting,
           onPressed: onStart,
         ),
@@ -275,11 +268,7 @@ class _ActionBar extends StatelessWidget {
       children.add(
         ButtonCustom.primary(
           text: l10n.uploadProofButton,
-          icon: const Icon(
-            Icons.camera_alt_outlined,
-            color: ColorsCustom.onMint,
-            size: 20,
-          ),
+          icon: const Icon(Icons.camera_alt_outlined, size: 20),
           onPressed: onUploadProof,
         ),
       );
@@ -289,76 +278,6 @@ class _ActionBar extends StatelessWidget {
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Column(mainAxisSize: MainAxisSize.min, children: children),
-    );
-  }
-}
-
-/// Bottom sheet collecting an optional rejection reason; pops the reason.
-class _RejectSheet extends StatefulWidget {
-  const _RejectSheet();
-
-  @override
-  State<_RejectSheet> createState() => _RejectSheetState();
-}
-
-class _RejectSheetState extends State<_RejectSheet> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: context.colors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextCustom.subheading(
-            text: l10n.rejectTitle,
-            color: ColorsCustom.error,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _controller,
-            maxLines: 3,
-            decoration: InputDecoration(hintText: l10n.rejectReasonHint),
-          ),
-          const SizedBox(height: 20),
-          ButtonCustom(
-            text: l10n.confirmReject,
-            color: ColorsCustom.error,
-            textColor: ColorsCustom.textOnPrimary,
-            onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
-          ),
-          const SizedBox(height: 10),
-          ButtonCustom.secondary(
-            text: l10n.cancelButton,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
     );
   }
 }

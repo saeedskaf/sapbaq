@@ -76,12 +76,12 @@ class _LanguageTile extends StatelessWidget {
                 height: 38,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   Icons.translate_rounded,
-                  color: context.colors.primary,
+                  color: context.colors.textSecondary,
                   size: 18,
                 ),
               ),

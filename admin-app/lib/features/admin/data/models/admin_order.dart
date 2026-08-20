@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sapbaq_admin/core/utils/distance.dart';
 import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/features/shared/data/models/mosque.dart';
 import 'package:sapbaq_admin/features/shared/data/models/order_customer.dart';
@@ -18,6 +19,11 @@ class AdminOrderSummary extends Equatable {
   final String? createdAt;
   final String? statusUpdatedAt; // last status change (item 8)
 
+  /// Straight-line km to the order's *nearest* destination — present only when
+  /// the list request carried the user's position. The row itself carries no
+  /// mosque or maps link; those live in the detail (sorting doc §7.5).
+  final double? distanceKm;
+
   const AdminOrderSummary({
     required this.id,
     required this.reference,
@@ -29,6 +35,7 @@ class AdminOrderSummary extends Equatable {
     this.customer,
     this.createdAt,
     this.statusUpdatedAt,
+    this.distanceKm,
   });
 
   String get shortReference =>
@@ -54,19 +61,25 @@ class AdminOrderSummary extends Equatable {
       awaitingAssignment: json['awaiting_assignment'] as bool? ?? false,
       createdAt: json['created_at'] as String?,
       statusUpdatedAt: json['status_updated_at'] as String?,
+      distanceKm: parseDistanceKm(json['distance_km']),
     );
   }
 
   @override
-  List<Object?> get props => [id, status, awaitingAssignment, totalAmount];
+  List<Object?> get props => [
+    id,
+    status,
+    awaitingAssignment,
+    totalAmount,
+    distanceKm,
+  ];
 }
 
-/// One delivery destination inside an admin order. Carries the assigned
-/// workshop ([driver]) once assigned, and the [mosque] (null for an
-/// unassigned MOST_NEEDED destination).
+/// One delivery destination inside an admin order — always a mosque since the
+/// unified catalogue removed the anonymous most-needed pool. Carries the
+/// assigned workshop ([driver]) once assigned.
 class AdminDestination extends Equatable {
   final int id;
-  final String destinationType; // MOSQUE | MOST_NEEDED
   final String label;
   final String status;
   final Mosque? mosque;
@@ -84,7 +97,6 @@ class AdminDestination extends Equatable {
 
   const AdminDestination({
     required this.id,
-    required this.destinationType,
     required this.label,
     required this.status,
     required this.subtotal,
@@ -98,14 +110,10 @@ class AdminDestination extends Equatable {
     this.cancelledAt,
   });
 
-  bool get isMostNeeded => destinationType == 'MOST_NEEDED';
   bool get isPending => status == 'PENDING';
 
   /// Assigned to a team leader, awaiting distribution to a handler (T3).
   bool get isAssignedToTeam => status == 'ASSIGNED_TO_TEAM';
-
-  /// A MOST_NEEDED destination still needs a mosque chosen at assignment time.
-  bool get needsMosque => isMostNeeded && mosque == null;
 
   /// Whether this destination can be moved to another workshop (§5): it has a
   /// current workshop and isn't already in delivery or finished. A destination
@@ -119,7 +127,6 @@ class AdminDestination extends Equatable {
   factory AdminDestination.fromJson(Map<String, dynamic> json) {
     return AdminDestination(
       id: json['id'] as int,
-      destinationType: (json['destination_type'] ?? 'MOSQUE').toString(),
       label: (json['label'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       mosque: json['mosque'] is Map
@@ -227,15 +234,22 @@ class AdminOrderDetail extends Equatable {
           : null,
       hasGift: json['gift'] != null,
       proofs: (json['proofs'] as List<dynamic>? ?? const [])
-          .map((e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
       destinations: (json['destinations'] as List<dynamic>? ?? const [])
-          .map((e) =>
-              AdminDestination.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                AdminDestination.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
       timeline: (json['timeline'] as List<dynamic>? ?? const [])
-          .map((e) =>
-              OrderTimelineEvent.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => OrderTimelineEvent.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
           .toList(),
       createdAt: json['created_at'] as String?,
     );

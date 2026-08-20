@@ -57,12 +57,12 @@ class WorkshopPickerSheet extends StatelessWidget {
                     height: 42,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: context.colors.primaryTint,
+                      color: context.colors.surfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.engineering_outlined,
-                      color: context.colors.primary,
+                      color: context.colors.textSecondary,
                       size: 22,
                     ),
                   ),

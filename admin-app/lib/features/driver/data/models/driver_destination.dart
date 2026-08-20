@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sapbaq_admin/core/utils/distance.dart';
 import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/features/shared/data/models/mosque.dart';
 import 'package:sapbaq_admin/features/shared/data/models/order_customer.dart';
@@ -12,7 +13,6 @@ class DriverDestination extends Equatable {
   final int orderId;
   final String orderReference;
   final String orderCode; // human-readable "ORD-00001" (FLUTTER_TASKS item 17)
-  final String destinationType; // MOSQUE | MOST_NEEDED
   final String label;
   final String status; // ASSIGNED | IN_DELIVERY | DELIVERED | ...
   final Mosque? mosque;
@@ -21,6 +21,11 @@ class DriverDestination extends Equatable {
   final String subtotal;
   final List<OrderItem> items;
   final List<DeliveryProof> proofs;
+
+  /// Straight-line km to this destination's mosque — present only when the
+  /// list request carried the driver's position (sorting doc §6).
+  final double? distanceKm;
+
   final String? assignedAt;
   final String? acceptedAt;
   final String? inDeliveryAt;
@@ -30,7 +35,6 @@ class DriverDestination extends Equatable {
     required this.id,
     required this.orderId,
     required this.orderReference,
-    required this.destinationType,
     required this.label,
     required this.status,
     required this.subtotal,
@@ -40,6 +44,7 @@ class DriverDestination extends Equatable {
     this.mosque,
     this.customer,
     this.customerNotes,
+    this.distanceKm,
     this.assignedAt,
     this.acceptedAt,
     this.inDeliveryAt,
@@ -63,7 +68,8 @@ class DriverDestination extends Equatable {
 
   /// What to show the user as the order number: the readable [orderCode],
   /// falling back to the reference prefix if the backend didn't send one.
-  String get displayCode => orderCode.isNotEmpty ? orderCode : '#$shortReference';
+  String get displayCode =>
+      orderCode.isNotEmpty ? orderCode : '#$shortReference';
 
   factory DriverDestination.fromJson(Map<String, dynamic> json) {
     return DriverDestination(
@@ -71,7 +77,6 @@ class DriverDestination extends Equatable {
       orderId: json['order_id'] as int? ?? 0,
       orderReference: (json['order_reference'] ?? '').toString(),
       orderCode: (json['order_code'] ?? '').toString(),
-      destinationType: (json['destination_type'] ?? 'MOSQUE').toString(),
       label: (json['label'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       mosque: json['mosque'] is Map
@@ -92,6 +97,7 @@ class DriverDestination extends Equatable {
             (e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)),
           )
           .toList(),
+      distanceKm: parseDistanceKm(json['distance_km']),
       assignedAt: json['assigned_at'] as String?,
       acceptedAt: json['accepted_at'] as String?,
       inDeliveryAt: json['in_delivery_at'] as String?,
@@ -107,5 +113,6 @@ class DriverDestination extends Equatable {
     inDeliveryAt,
     deliveredAt,
     proofs,
+    distanceKm,
   ];
 }

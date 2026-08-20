@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sapbaq_admin/core/constants/app_assets.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
+import 'package:sapbaq_admin/core/widgets/brand_backdrop.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
+import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 /// Shared layout for auth screens: a full-width **ink header** with rounded
 /// bottom corners holding the brand logo (the white/mint-on-black lockup), then
@@ -29,18 +30,16 @@ class AuthScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Full-width ink header behind the logo, with rounded bottom
-            // corners — keeps the white/mint-on-black lockup legible in any
-            // theme. Light status-bar icons + back button for contrast.
+            // Full-width flat ink header behind the logo, with rounded bottom
+            // corners — keeps the white/mint lockup legible in any theme.
+            // Light status-bar icons + back button for contrast. This panel
+            // used to be solid mint, which put the white back button at
+            // 1.85:1; ink also matches the customer app's header.
             AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle.light,
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: ColorsCustom.brandMint,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(28),
-                  ),
+              child: BrandBackdrop(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(28),
                 ),
                 child: SafeArea(
                   bottom: false,
@@ -53,7 +52,7 @@ class AuthScaffold extends StatelessWidget {
                           child: canPop
                               ? const Align(
                                   alignment: AlignmentDirectional.centerStart,
-                                  child: BackButton(color: Colors.white),
+                                  child: BackButton(color: ColorsCustom.white),
                                 )
                               : null,
                         ),

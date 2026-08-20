@@ -179,12 +179,12 @@ class _CustomerSection extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.person_rounded,
-                  color: context.colors.primary,
+                  color: context.colors.textSecondary,
                   size: 24,
                 ),
               ),

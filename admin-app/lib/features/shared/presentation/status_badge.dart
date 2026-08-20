@@ -48,11 +48,6 @@ Color statusColor(BuildContext context, String status) {
   }
 }
 
-/// Arabic label for a destination type (MOSQUE / MOST_NEEDED).
-String destinationTypeLabel(AppLocalizations l10n, String type) {
-  return type == 'MOST_NEEDED' ? l10n.typeMostNeeded : l10n.typeMosque;
-}
-
 /// A small pill rendering a status with its color (tinted background).
 class StatusBadge extends StatelessWidget {
   final String status;

@@ -89,10 +89,14 @@ class _ThemeTile extends StatelessWidget {
                 height: 38,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: context.colors.primary, size: 18),
+                child: Icon(
+                  icon,
+                  color: context.colors.textSecondary,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

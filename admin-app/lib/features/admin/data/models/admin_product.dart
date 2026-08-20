@@ -13,6 +13,16 @@ class AdminProduct extends Equatable {
   final bool isActive;
   final bool isAvailable;
 
+  /// Product cover, absolute URL, null when the product has none. Staff suspend
+  /// and hide products from this list, and a name alone is a thin thing to act
+  /// on when a catalogue holds several near-identical units.
+  final String? image;
+
+  /// How many combinations this product sells. Suspending the product suspends
+  /// every one of them, so the count is the blast radius of the toggle beside
+  /// it. 0 for a product without variants.
+  final int variantCount;
+
   const AdminProduct({
     required this.id,
     required this.name,
@@ -22,6 +32,8 @@ class AdminProduct extends Equatable {
     this.price = '0',
     this.isActive = true,
     this.isAvailable = true,
+    this.image,
+    this.variantCount = 0,
   });
 
   AdminProduct copyWith({bool? isAvailable}) => AdminProduct(
@@ -33,6 +45,8 @@ class AdminProduct extends Equatable {
     price: price,
     isActive: isActive,
     isAvailable: isAvailable ?? this.isAvailable,
+    image: image,
+    variantCount: variantCount,
   );
 
   factory AdminProduct.fromJson(Map<String, dynamic> json) {
@@ -45,6 +59,11 @@ class AdminProduct extends Equatable {
       price: (json['price'] ?? '0').toString(),
       isActive: json['is_active'] as bool? ?? true,
       isAvailable: json['is_available'] as bool? ?? true,
+      image: switch ((json['image'] ?? '').toString()) {
+        '' => null,
+        final url => url,
+      },
+      variantCount: json['variant_count'] as int? ?? 0,
     );
   }
 

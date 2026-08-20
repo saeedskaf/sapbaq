@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/settings/settings_cubit.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
@@ -77,21 +76,14 @@ class _IdentityCard extends StatelessWidget {
             height: 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               shape: BoxShape.circle,
             ),
-            child: name.isEmpty
-                ? Icon(
-                    Icons.person_rounded,
-                    size: 30,
-                    color: context.colors.primary,
-                  )
-                : TextCustom(
-                    text: name.characters.first,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: context.colors.primary,
-                  ),
+            child: Icon(
+              Icons.person_rounded,
+              size: 30,
+              color: context.colors.textSecondary,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -153,12 +145,12 @@ class _LanguageTile extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.translate_rounded,
-              color: context.colors.primary,
+              color: context.colors.textSecondary,
               size: 18,
             ),
           ),
@@ -212,12 +204,12 @@ class _AppearanceTile extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.dark_mode_rounded,
-              color: context.colors.primary,
+              color: context.colors.textSecondary,
               size: 18,
             ),
           ),
@@ -263,12 +255,12 @@ class _LogoutTile extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ColorsCustom.error.withValues(alpha: 0.10),
+              color: context.colors.danger.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.logout_rounded,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
               size: 18,
             ),
           ),
@@ -278,7 +270,7 @@ class _LogoutTile extends StatelessWidget {
               text: l10n.logout,
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ),
           Icon(

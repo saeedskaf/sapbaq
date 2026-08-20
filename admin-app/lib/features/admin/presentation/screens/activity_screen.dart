@@ -125,12 +125,12 @@ class _ActivityRow extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               _iconFor(entry.action),
-              color: context.colors.primary,
+              color: context.colors.textSecondary,
               size: 20,
             ),
           ),

@@ -19,8 +19,10 @@ class CustomerLookupResult extends Equatable {
             : const {},
       ),
       orders: (json['orders'] as List<dynamic>? ?? const [])
-          .map((e) =>
-              AdminOrderSummary.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                AdminOrderSummary.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
     );
   }

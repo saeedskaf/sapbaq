@@ -47,8 +47,15 @@ class EscalationsState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [status, items, hasMore, loadingMore, actioningId, submitting, message];
+  List<Object?> get props => [
+    status,
+    items,
+    hasMore,
+    loadingMore,
+    actioningId,
+    submitting,
+    message,
+  ];
 }
 
 class EscalationsCubit extends Cubit<EscalationsState> {
@@ -59,19 +66,23 @@ class EscalationsCubit extends Cubit<EscalationsState> {
 
   Future<void> load() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      items: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        items: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchEscalations(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        items: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          items: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
@@ -87,11 +98,13 @@ class EscalationsCubit extends Cubit<EscalationsState> {
     try {
       final page = await _repo.fetchEscalations(page: _page + 1);
       _page += 1;
-      emit(state.copyWith(
-        items: [...state.items, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          items: [...state.items, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }
@@ -127,11 +140,13 @@ class EscalationsCubit extends Cubit<EscalationsState> {
     _page = 1;
     try {
       final page = await _repo.fetchEscalations(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        items: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          items: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException {
       // Keep the current list; the action still succeeded.
     }

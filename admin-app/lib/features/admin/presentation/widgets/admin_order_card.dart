@@ -5,6 +5,7 @@ import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
 import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
+import 'package:sapbaq_admin/features/shared/presentation/distance_badge.dart';
 import 'package:sapbaq_admin/features/shared/presentation/pill.dart';
 import 'package:sapbaq_admin/features/shared/presentation/status_badge.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
@@ -16,7 +17,16 @@ class AdminOrderCard extends StatelessWidget {
   final AdminOrderSummary order;
   final VoidCallback onTap;
 
-  const AdminOrderCard({super.key, required this.order, required this.onTap});
+  /// Whether the list was sorted nearest-first — gates the distance badge,
+  /// which here is the distance to the order's *nearest* destination.
+  final bool sorted;
+
+  const AdminOrderCard({
+    super.key,
+    required this.order,
+    required this.onTap,
+    this.sorted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +105,19 @@ class AdminOrderCard extends StatelessWidget {
                 color: context.colors.primary,
               ),
               const Spacer(),
-              if (order.awaitingAssignment)
+              DistanceBadge(
+                distanceKm: order.distanceKm,
+                sorted: sorted,
+                nearestOfMany: true,
+              ),
+              if (order.awaitingAssignment) ...[
+                const SizedBox(width: 8),
                 Pill(
                   text: l10n.awaitingAssignmentBadge,
                   color: ColorsCustom.warning,
                   fontSize: 11,
                 ),
+              ],
             ],
           ),
           // Two dates (FLUTTER_TASKS item 8): when the order was placed and
@@ -155,11 +172,7 @@ class _DateChip extends StatelessWidget {
       children: [
         Icon(icon, size: 13, color: context.colors.textHint),
         const SizedBox(width: 5),
-        TextCustom(
-          text: label,
-          fontSize: 11.5,
-          color: context.colors.textHint,
-        ),
+        TextCustom(text: label, fontSize: 11.5, color: context.colors.textHint),
         const SizedBox(width: 5),
         TextCustom(
           text: date,

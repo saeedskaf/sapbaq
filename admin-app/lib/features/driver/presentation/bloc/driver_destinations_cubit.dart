@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
+import 'package:sapbaq_admin/core/location/location_service.dart';
 import 'package:sapbaq_admin/core/network/api_exception.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
@@ -35,6 +36,10 @@ class DriverDestinationsState extends Equatable {
   /// resolves; persists across tab switches (optional chrome).
   final DriverTabCounts? counts;
 
+  /// True when the list came back sorted nearest-first — i.e. the request
+  /// carried the driver's position (sorting doc §0).
+  final bool sortedByDistance;
+
   const DriverDestinationsState({
     this.status = LoadStatus.initial,
     this.destinations = const [],
@@ -43,6 +48,7 @@ class DriverDestinationsState extends Equatable {
     this.loadingMore = false,
     this.message,
     this.counts,
+    this.sortedByDistance = false,
   });
 
   /// Destinations visible under the active tab (client-side split of ASSIGNED).
@@ -67,6 +73,7 @@ class DriverDestinationsState extends Equatable {
     bool? loadingMore,
     String? message,
     DriverTabCounts? counts,
+    bool? sortedByDistance,
   }) {
     return DriverDestinationsState(
       status: status ?? this.status,
@@ -76,19 +83,38 @@ class DriverDestinationsState extends Equatable {
       loadingMore: loadingMore ?? this.loadingMore,
       message: message,
       counts: counts ?? this.counts,
+      sortedByDistance: sortedByDistance ?? this.sortedByDistance,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [status, destinations, tab, hasMore, loadingMore, message, counts];
+  List<Object?> get props => [
+    status,
+    destinations,
+    tab,
+    hasMore,
+    loadingMore,
+    message,
+    counts,
+    sortedByDistance,
+  ];
 }
 
 class DriverDestinationsCubit extends Cubit<DriverDestinationsState> {
   final DriverRepository _repo;
-  DriverDestinationsCubit(this._repo) : super(const DriverDestinationsState());
+
+  /// The handler is a field role, so this is normally provided; null only makes
+  /// the queue keep the server's default order.
+  final LocationService? _location;
+
+  DriverDestinationsCubit(this._repo, {LocationService? location})
+    : _location = location,
+      super(const DriverDestinationsState());
 
   int _page = 1;
+
+  /// Pinned for the whole list so paging can't reshuffle the server's order.
+  LatLng? _origin;
 
   Future<void> load() => _loadFirstPage();
 
@@ -105,22 +131,29 @@ class DriverDestinationsCubit extends Cubit<DriverDestinationsState> {
 
   Future<void> _loadFirstPage() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      destinations: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    _origin = await _location?.current();
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        destinations: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchDestinations(
         page: 1,
         status: _apiStatusFor(state.tab),
+        at: _origin,
       );
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        destinations: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          destinations: page.results,
+          hasMore: page.hasMore,
+          sortedByDistance: _origin != null,
+        ),
+      );
       _refreshCounts();
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
@@ -149,13 +182,16 @@ class DriverDestinationsCubit extends Cubit<DriverDestinationsState> {
       final page = await _repo.fetchDestinations(
         page: _page + 1,
         status: _apiStatusFor(state.tab),
+        at: _origin,
       );
       _page += 1;
-      emit(state.copyWith(
-        destinations: [...state.destinations, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          destinations: [...state.destinations, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }

@@ -77,7 +77,7 @@ class _EscalationsViewState extends State<_EscalationsView> {
       hint: l10n.raiseEscalationHint,
       confirmLabel: l10n.raiseEscalationTitle,
     );
-    if (reason == null || reason.isEmpty) return;
+    if (reason == null) return;
     final ok = await cubit.raise(reason);
     if (ok && context.mounted) {
       ShowMessage.success(context, l10n.escalationRaised);
@@ -91,14 +91,14 @@ class _EscalationsViewState extends State<_EscalationsView> {
       appBar: AppBar(title: TextCustom.subheading(text: l10n.escalationsTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _raise(context),
-        backgroundColor: ColorsCustom.brandMint,
-        foregroundColor: ColorsCustom.onMint,
+        backgroundColor: context.colors.primaryFill,
+        foregroundColor: context.colors.onPrimary,
         icon: const Icon(Icons.campaign_outlined),
         label: TextCustom(
           text: l10n.raiseEscalationTitle,
           fontSize: 14,
           fontWeight: FontWeight.w700,
-          color: ColorsCustom.onMint,
+          color: context.colors.onPrimary,
         ),
       ),
       body: BlocConsumer<EscalationsCubit, EscalationsState>(

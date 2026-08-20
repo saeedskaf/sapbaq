@@ -48,19 +48,23 @@ class ActivityCubit extends Cubit<ActivityState> {
 
   Future<void> load() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      entries: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        entries: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchActivity(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        entries: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          entries: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
@@ -76,11 +80,13 @@ class ActivityCubit extends Cubit<ActivityState> {
     try {
       final page = await _repo.fetchActivity(page: _page + 1);
       _page += 1;
-      emit(state.copyWith(
-        entries: [...state.entries, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          entries: [...state.entries, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }

@@ -9,8 +9,9 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Ink background with the unified white/mint-on-black lockup — matches
-      // the customer app so both apps open on the same brand moment.
+      // Mint ground under the logo lockup — the staff app's own opening
+      // moment. The customer app opens on ink instead; this is the one
+      // place the two deliberately differ.
       body: Container(
         color: ColorsCustom.brandMint,
         child: Center(
@@ -25,7 +26,7 @@ class SplashScreen extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    ColorsCustom.textOnPrimary,
+                    ColorsCustom.onMint,
                   ),
                 ),
               ),

@@ -57,7 +57,7 @@ class AdminOrderDetailCubit extends Cubit<AdminOrderDetailState> {
   final int orderId;
 
   AdminOrderDetailCubit(this._repo, this.orderId)
-      : super(const AdminOrderDetailState());
+    : super(const AdminOrderDetailState());
 
   Future<void> load() async {
     emit(state.copyWith(status: LoadStatus.loading, message: null));

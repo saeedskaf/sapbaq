@@ -40,7 +40,7 @@ class UploadProofCubit extends Cubit<UploadProofState> {
   final int destinationId;
 
   UploadProofCubit(this._repo, this.destinationId)
-      : super(const UploadProofState());
+    : super(const UploadProofState());
 
   void addFile(String path) {
     if (state.files.contains(path)) return;

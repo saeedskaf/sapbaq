@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
+import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 /// The one card surface used across the app: a borderless white panel lifted by
 /// a single soft shadow (no hairline borders). Keeping every card identical is
@@ -35,7 +36,7 @@ class AppCard extends StatelessWidget {
         borderRadius: br,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: ColorsCustom.shadow,
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),

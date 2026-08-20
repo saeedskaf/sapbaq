@@ -5,6 +5,7 @@ import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/in_app_media.dart';
 import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
+import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 /// A delivery-proof strip for one destination (or order-level): a small header
 /// and a horizontal row of tappable thumbnails, followed by the handler's
@@ -46,7 +47,8 @@ class DeliveryProofStrip extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: proofs.length,
               separatorBuilder: (_, _) => const SizedBox(width: 10),
-              itemBuilder: (context, i) => _ProofThumb(proof: proofs[i]),
+              itemBuilder: (context, i) =>
+                  _ProofThumb(proof: proofs[i], siblings: proofs),
             ),
           ),
           // The handler's note written at upload time (FLUTTER_TASKS item 6),
@@ -83,14 +85,25 @@ class DeliveryProofStrip extends StatelessWidget {
 
 class _ProofThumb extends StatelessWidget {
   final DeliveryProof proof;
-  const _ProofThumb({required this.proof});
+
+  /// The whole strip this thumb belongs to: a tapped photo opens as one
+  /// swipeable set, so a reviewer flips through the delivery's photos in the
+  /// viewer instead of closing it after each one.
+  final List<DeliveryProof> siblings;
+
+  const _ProofThumb({required this.proof, required this.siblings});
 
   void _open(BuildContext context) {
     if (proof.isImage) {
-      // No caption: the note belongs to the whole delivery (there can be
+      // No captions: the note belongs to the whole delivery (there can be
       // several photos) and is already shown once in the proofs section, so we
-      // don't repeat it over a single image.
-      openInAppImage(context, url: proof.file);
+      // don't repeat it over each image.
+      final photos = siblings.where((p) => p.isImage).toList();
+      openInAppImageGallery(
+        context,
+        urls: [for (final p in photos) p.file],
+        initialIndex: photos.indexOf(proof),
+      );
     } else {
       // Video and audio both play in the in-app player.
       openInAppVideo(context, proof.file);
@@ -114,6 +127,9 @@ class _ProofThumb extends StatelessWidget {
                 Image.network(
                   url,
                   fit: BoxFit.cover,
+                  // Camera-sized uploads in an 80px tile — decode to the tile.
+                  cacheWidth: (80 * MediaQuery.devicePixelRatioOf(context))
+                      .round(),
                   errorBuilder: (_, _, _) =>
                       const _ProofPlaceholder(icon: Icons.image_outlined),
                 )
@@ -151,10 +167,17 @@ class _PlayDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DecoratedBox(
-      decoration: BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: ColorsCustom.scrim,
+        shape: BoxShape.circle,
+      ),
       child: Padding(
         padding: EdgeInsets.all(5),
-        child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+        child: Icon(
+          Icons.play_arrow_rounded,
+          color: ColorsCustom.white,
+          size: 20,
+        ),
       ),
     );
   }

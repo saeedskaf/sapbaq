@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:sapbaq_admin/core/location/location_service.dart' show LatLng;
 import 'package:sapbaq_admin/core/network/api_endpoints.dart';
 import 'package:sapbaq_admin/core/network/api_guard.dart';
 import 'package:sapbaq_admin/core/network/pagination.dart';
@@ -15,16 +16,24 @@ class DriverRepository {
 
   /// One page of destinations assigned to me, optionally filtered by status
   /// (ASSIGNED | IN_DELIVERY).
+  /// [at] sorts the queue nearest-first and fills each row's `distance_km`
+  /// (sorting doc §3); omitted, the server's default order applies.
   Future<PaginatedResponse<DriverDestination>> fetchDestinations({
     int page = 1,
     String? status,
+    LatLng? at,
   }) {
     return guardApi(() async {
+      final valid = at != null && at.lat.abs() <= 90 && at.lng.abs() <= 180
+          ? at
+          : null;
       final res = await _dio.get(
         ApiEndpoints.driverDestinations,
         queryParameters: {
           'page': page,
           if (status != null && status.isNotEmpty) 'status': status,
+          if (valid != null) 'lat': valid.lat,
+          if (valid != null) 'lng': valid.lng,
         },
       );
       return PaginatedResponse.fromJson(
@@ -39,6 +48,9 @@ class DriverRepository {
   /// status and are split by `accepted_at`, so we walk all ASSIGNED pages (a
   /// driver's active assignments are few); IN_DELIVERY and DELIVERED only need
   /// their totals, read from the paginated `count`.
+  ///
+  /// Deliberately unsorted: the badges are counts, so paying for a
+  /// nearest-first sort of every page would buy nothing.
   Future<DriverTabCounts> fetchCounts() async {
     var newJobs = 0;
     var accepted = 0;
@@ -109,9 +121,7 @@ class DriverRepository {
         ApiEndpoints.uploadProof(destinationId),
         data: form,
       );
-      return DeliveryProof.fromJson(
-        Map<String, dynamic>.from(res.data as Map),
-      );
+      return DeliveryProof.fromJson(Map<String, dynamic>.from(res.data as Map));
     });
   }
 }

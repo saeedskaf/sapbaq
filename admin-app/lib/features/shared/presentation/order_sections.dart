@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
@@ -57,7 +56,6 @@ class SectionCard extends StatelessWidget {
 /// from [status] and the lifecycle timestamps.
 class DestinationSection extends StatelessWidget {
   final String label;
-  final String destinationType;
   final String status;
   final Mosque? mosque;
   final List<OrderItem> items;
@@ -77,7 +75,6 @@ class DestinationSection extends StatelessWidget {
   const DestinationSection({
     super.key,
     required this.label,
-    required this.destinationType,
     required this.status,
     required this.items,
     required this.subtotal,
@@ -123,12 +120,6 @@ class DestinationSection extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-                    TextCustom(
-                      text: destinationTypeLabel(l10n, destinationType),
-                      fontSize: 12.5,
-                      color: context.colors.textHint,
                     ),
                   ],
                 ),
@@ -191,7 +182,7 @@ class DestinationSection extends StatelessWidget {
                   _DestinationAction(
                     icon: Icons.task_alt_rounded,
                     label: l10n.approveCompletion,
-                    color: ColorsCustom.success,
+                    color: context.colors.primary,
                     onPressed: onComplete!,
                   ),
                 if (onReassign != null)
@@ -315,7 +306,7 @@ class DestinationStatusTimeline extends StatelessWidget {
         time: formatShortDateTime(cancelledAt),
         done: true,
         isLast: true,
-        color: ColorsCustom.error,
+        color: context.colors.danger,
       );
     }
 
@@ -433,6 +424,45 @@ class _MetaLine extends StatelessWidget {
   }
 }
 
+/// The engraved name + alive/deceased status shown under a dedication item, so
+/// the fulfilment team knows what to engrave on the cooler.
+class _DedicationLine extends StatelessWidget {
+  final String name;
+  final String status; // ALIVE | DECEASED | ''
+  final AppLocalizations l10n;
+  const _DedicationLine({
+    required this.name,
+    required this.status,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusLabel = switch (status) {
+      'ALIVE' => l10n.dedicationAlive,
+      'DECEASED' => l10n.dedicationDeceased,
+      _ => '',
+    };
+    final text = statusLabel.isEmpty ? name : '$name · $statusLabel';
+    return Row(
+      children: [
+        Icon(Icons.edit_note_rounded, size: 15, color: context.colors.primary),
+        const SizedBox(width: 4),
+        Flexible(
+          child: TextCustom(
+            text: text,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: context.colors.primary,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ItemRow extends StatelessWidget {
   final OrderItem item;
   final AppLocalizations l10n;
@@ -455,13 +485,29 @@ class _ItemRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: TextCustom(
-              text: item.product.name,
-              fontSize: 14,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextCustom(
+                  // The order-time snapshot name, variant included — the crew
+                  // must know which option to deliver.
+                  text: item.displayName,
+                  fontSize: 14,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (item.dedicationName.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  _DedicationLine(
+                    name: item.dedicationName,
+                    status: item.dedicationStatus,
+                    l10n: l10n,
+                  ),
+                ],
+              ],
             ),
           ),
+          const SizedBox(width: 8),
           TextCustom(
             text: l10n.priceKwd(item.lineTotal),
             fontSize: 13,

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
+import 'package:sapbaq_admin/core/location/location_service.dart';
 import 'package:sapbaq_admin/core/network/api_exception.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_order.dart';
@@ -9,14 +10,36 @@ import 'package:sapbaq_admin/features/admin/data/models/admin_order_counts.dart'
 /// Admin orders list tabs. [awaiting] (needs workshop assignment) is the default
 /// working queue. Declaration order is the display order — «الكل» stays last
 /// (FLUTTER_TASKS item 9); [inProgress] maps to `?bucket=in_progress` (item 10).
-enum AdminOrdersTab { awaiting, inProgress, delivered, cancelled, all }
+///
+/// Two axes are mixed here, by design: [pending]/[confirmed]/[delivered]/
+/// [cancelled] filter on the *order* status, while [awaiting]/[inProgress]
+/// filter on *destination* state. So [confirmed] and [inProgress] overlap and
+/// are not alternatives to each other.
+///
+/// Order mirrors the dashboard stat tiles, which deep-link here by [name] via
+/// `?tab=` — see [adminOrdersTabFor].
+enum AdminOrdersTab {
+  pending,
+  awaiting,
+  confirmed,
+  inProgress,
+  delivered,
+  cancelled,
+  all,
+}
+
+/// Resolves the `?tab=` query of [AppRoutes.adminOrders] to a tab, defaulting to
+/// the [AdminOrdersTab.awaiting] working queue for an absent or unknown value.
+AdminOrdersTab adminOrdersTabFor(String? tab) => AdminOrdersTab.values
+    .firstWhere((t) => t.name == tab, orElse: () => AdminOrdersTab.awaiting);
 
 class AdminOrdersState extends Equatable {
   final LoadStatus status;
   final List<AdminOrderSummary> orders;
   final AdminOrdersTab tab;
   final String search;
-  final int total; // total matching orders (across all pages) for the active tab
+  final int
+  total; // total matching orders (across all pages) for the active tab
   final bool hasMore;
   final bool loadingMore;
 
@@ -24,6 +47,9 @@ class AdminOrdersState extends Equatable {
   /// across tab switches (it doesn't depend on the active tab).
   final AdminOrderCounts? counts;
   final String? message;
+
+  /// True when the list came back sorted nearest-first.
+  final bool sortedByDistance;
 
   const AdminOrdersState({
     this.status = LoadStatus.initial,
@@ -35,6 +61,7 @@ class AdminOrdersState extends Equatable {
     this.loadingMore = false,
     this.counts,
     this.message,
+    this.sortedByDistance = false,
   });
 
   AdminOrdersState copyWith({
@@ -47,6 +74,7 @@ class AdminOrdersState extends Equatable {
     bool? loadingMore,
     AdminOrderCounts? counts,
     String? message,
+    bool? sortedByDistance,
   }) {
     return AdminOrdersState(
       status: status ?? this.status,
@@ -58,6 +86,7 @@ class AdminOrdersState extends Equatable {
       loadingMore: loadingMore ?? this.loadingMore,
       counts: counts ?? this.counts,
       message: message,
+      sortedByDistance: sortedByDistance ?? this.sortedByDistance,
     );
   }
 
@@ -72,14 +101,29 @@ class AdminOrdersState extends Equatable {
     loadingMore,
     counts,
     message,
+    sortedByDistance,
   ];
 }
 
 class AdminOrdersCubit extends Cubit<AdminOrdersState> {
   final AdminRepository _repo;
-  AdminOrdersCubit(this._repo) : super(const AdminOrdersState());
+
+  /// [initialTab] seeds the first load — a dashboard stat tile opens this list
+  /// already filtered to the bucket it counts.
+  /// Null for roles that aren't asked for their location (office staff).
+  final LocationService? _location;
+
+  AdminOrdersCubit(
+    this._repo, {
+    AdminOrdersTab initialTab = AdminOrdersTab.awaiting,
+    LocationService? location,
+  }) : _location = location,
+       super(AdminOrdersState(tab: initialTab));
 
   int _page = 1;
+
+  /// Pinned for the whole list so paging can't reshuffle the server's order.
+  LatLng? _origin;
 
   /// An "ORD-00001"-style query is an order-code lookup (`?code=`, FLUTTER_TASKS
   /// item 17); anything else goes through the generic `?search=`.
@@ -111,8 +155,12 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
     AdminOrdersTab tab,
   ) {
     switch (tab) {
+      case AdminOrdersTab.pending:
+        return (status: 'PENDING', awaiting: null, bucket: null);
       case AdminOrdersTab.awaiting:
         return (status: null, awaiting: true, bucket: null);
+      case AdminOrdersTab.confirmed:
+        return (status: 'CONFIRMED', awaiting: null, bucket: null);
       case AdminOrdersTab.inProgress:
         return (status: null, awaiting: null, bucket: 'in_progress');
       case AdminOrdersTab.delivered:
@@ -126,12 +174,15 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
 
   Future<void> _loadFirstPage() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      orders: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    _origin = await _location?.current();
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        orders: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     final f = _filterFor(state.tab);
     try {
       final q = _searchParams();
@@ -142,13 +193,17 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         bucket: f.bucket,
         search: q.search,
         code: q.code,
+        at: _origin,
       );
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        orders: page.results,
-        total: page.count,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          orders: page.results,
+          total: page.count,
+          hasMore: page.hasMore,
+          sortedByDistance: _origin != null,
+        ),
+      );
       _refreshCounts();
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
@@ -183,13 +238,16 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         bucket: f.bucket,
         search: q.search,
         code: q.code,
+        at: _origin,
       );
       _page += 1;
-      emit(state.copyWith(
-        orders: [...state.orders, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          orders: [...state.orders, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }

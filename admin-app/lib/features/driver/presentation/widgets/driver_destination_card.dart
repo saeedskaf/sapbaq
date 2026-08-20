@@ -3,6 +3,7 @@ import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/features/driver/data/models/driver_destination.dart';
 import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
+import 'package:sapbaq_admin/features/shared/presentation/distance_badge.dart';
 import 'package:sapbaq_admin/features/shared/presentation/status_badge.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -11,10 +12,14 @@ class DriverDestinationCard extends StatelessWidget {
   final DriverDestination destination;
   final VoidCallback onTap;
 
+  /// Whether the queue was sorted nearest-first — gates the distance badge.
+  final bool sorted;
+
   const DriverDestinationCard({
     super.key,
     required this.destination,
     required this.onTap,
+    this.sorted = false,
   });
 
   @override
@@ -47,12 +52,20 @@ class DriverDestinationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          TextCustom(
-            text: meta,
-            fontSize: 13,
-            color: context.colors.textSecondary,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              Expanded(
+                child: TextCustom(
+                  text: meta,
+                  fontSize: 13,
+                  color: context.colors.textSecondary,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DistanceBadge(distanceKm: destination.distanceKm, sorted: sorted),
+              DirectionsButton(mapsUrl: destination.mosque?.mapsUrl),
+            ],
           ),
           if ((destination.customerNotes ?? '').isNotEmpty) ...[
             const SizedBox(height: 8),

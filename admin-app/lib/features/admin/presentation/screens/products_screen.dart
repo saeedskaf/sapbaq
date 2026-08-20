@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
@@ -11,6 +10,7 @@ import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/admin_product.dart';
 import 'package:sapbaq_admin/features/admin/presentation/bloc/products_cubit.dart';
 import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
+import 'package:sapbaq_admin/features/shared/presentation/model_thumb.dart';
 import 'package:sapbaq_admin/features/shared/presentation/pill.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -72,7 +72,8 @@ class _ProductsViewState extends State<_ProductsView> {
         title: l10n.suspendReasonTitle,
         hint: l10n.suspendReasonHint,
         confirmLabel: l10n.suspendConfirm,
-        accent: ColorsCustom.error,
+        required: false,
+        danger: true,
       );
       if (reason == null) return;
     }
@@ -190,6 +191,10 @@ class _ProductRow extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [
+          // Suspending the wrong unit is the mistake this prevents: several
+          // products in a catalogue read almost the same in text.
+          ModelThumb(url: product.image, zoomUrl: product.image),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,6 +229,18 @@ class _ProductRow extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: context.colors.primary,
                     ),
+                    // The toggle beside this row suspends every combination of
+                    // the product, so say how many that is.
+                    if (product.variantCount > 1) ...[
+                      const SizedBox(width: 6),
+                      TextCustom(text: '·', color: context.colors.textHint),
+                      const SizedBox(width: 6),
+                      TextCustom(
+                        text: l10n.productVariantsCount(product.variantCount),
+                        fontSize: 12,
+                        color: context.colors.textHint,
+                      ),
+                    ],
                   ],
                 ),
                 if (!product.isActive) ...[
@@ -238,7 +255,7 @@ class _ProductRow extends StatelessWidget {
                   const SizedBox(height: 6),
                   Pill(
                     text: l10n.productSuspended,
-                    color: ColorsCustom.error,
+                    color: context.colors.danger,
                     background: context.colors.surfaceVariant,
                     fontSize: 10.5,
                   ),

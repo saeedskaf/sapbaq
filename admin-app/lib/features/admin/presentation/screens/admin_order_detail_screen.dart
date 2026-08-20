@@ -17,7 +17,6 @@ import 'package:sapbaq_admin/features/shared/data/models/delivery_proof.dart';
 import 'package:sapbaq_admin/features/shared/presentation/delivery_proofs.dart';
 import 'package:sapbaq_admin/features/admin/data/models/workshop.dart';
 import 'package:sapbaq_admin/features/admin/presentation/bloc/admin_order_detail_cubit.dart';
-import 'package:sapbaq_admin/features/admin/presentation/widgets/mosque_picker_sheet.dart';
 import 'package:sapbaq_admin/features/admin/presentation/widgets/workshop_picker_sheet.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/features/shared/presentation/order_sections.dart';
@@ -45,15 +44,14 @@ class _DetailView extends StatelessWidget {
   Future<void> _confirmCancel(BuildContext context) async {
     final cubit = context.read<AdminOrderDetailCubit>();
     final l10n = AppLocalizations.of(context)!;
-    final reason = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: context.colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const _CancelSheet(),
+    final reason = await ReasonSheet.show(
+      context,
+      title: l10n.cancelOrderTitle,
+      hint: l10n.cancelReasonHint,
+      confirmLabel: l10n.confirmCancel,
+      // The backend accepts a cancellation with no stated reason.
+      required: false,
+      danger: true,
     );
     if (reason == null) return;
     final ok = await cubit.cancel(reason);
@@ -87,11 +85,7 @@ class _DetailView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final picked = await _pickHandler(context, d, l10n.chooseWorkshop);
     if (picked == null || !context.mounted) return;
-    final ok = await cubit.assignHandler(
-      d.id,
-      picked.driverId,
-      mosqueId: picked.mosqueId,
-    );
+    final ok = await cubit.assignHandler(d.id, picked.driverId);
     if (ok && context.mounted) {
       ShowMessage.success(context, l10n.distributeSuccess);
     }
@@ -108,30 +102,20 @@ class _DetailView extends StatelessWidget {
       l10n.chooseHandlerWhoDelivered,
     );
     if (picked == null || !context.mounted) return;
-    final ok = await cubit.completeDestination(
-      d.id,
-      picked.driverId,
-      mosqueId: picked.mosqueId,
-    );
+    final ok = await cubit.completeDestination(d.id, picked.driverId);
     if (ok && context.mounted) {
       ShowMessage.success(context, l10n.completeSuccess);
     }
   }
 
-  /// Pick a handler (and a mosque first, for an unlocated MOST_NEEDED
-  /// destination). Returns null if the user aborts at any step.
-  Future<({int driverId, int? mosqueId})?> _pickHandler(
+  /// Pick a handler. Every destination arrives with its mosque now, so there is
+  /// no "choose a mosque first" step any more.
+  Future<({int driverId})?> _pickHandler(
     BuildContext context,
     AdminDestination d,
     String title,
   ) async {
     final cubit = context.read<AdminOrderDetailCubit>();
-    int? mosqueId;
-    if (d.needsMosque) {
-      final mosque = await _pickMosque(context);
-      if (mosque == null || !context.mounted) return null;
-      mosqueId = mosque.id;
-    }
     final workshops = await cubit.fetchWorkshops();
     if (workshops == null || !context.mounted) return null;
     final l10n = AppLocalizations.of(context)!;
@@ -141,7 +125,7 @@ class _DetailView extends StatelessWidget {
     }
     final chosen = await _pickStaff(context, workshops, title);
     if (chosen == null) return null;
-    return (driverId: chosen.id, mosqueId: mosqueId);
+    return (driverId: chosen.id);
   }
 
   Future<Workshop?> _pickStaff(
@@ -158,20 +142,6 @@ class _DetailView extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => WorkshopPickerSheet(workshops: staff, title: title),
-    );
-  }
-
-  Future<({int id, String name})?> _pickMosque(BuildContext context) {
-    return showModalBottomSheet<({int id, String name})>(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: context.colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) =>
-          MosquePickerSheet(repository: context.read<AdminRepository>()),
     );
   }
 
@@ -225,7 +195,7 @@ class _DetailView extends StatelessWidget {
       hint: l10n.raiseEscalationHint,
       confirmLabel: l10n.raiseEscalationTitle,
     );
-    if (reason == null || reason.isEmpty) return;
+    if (reason == null) return;
     final ok = await cubit.raiseEscalation(reason);
     if (ok && context.mounted) {
       ShowMessage.success(context, l10n.escalationRaised);
@@ -362,7 +332,7 @@ class _DetailView extends StatelessWidget {
                         child: _ContactButton(
                           icon: Icons.chat_rounded,
                           label: l10n.whatsappButton,
-                          color: ColorsCustom.success,
+                          color: context.colors.primary,
                           onTap: () =>
                               _whatsapp(context, order.customer!.phone),
                         ),
@@ -383,9 +353,7 @@ class _DetailView extends StatelessWidget {
                       ? Icons.check_circle_rounded
                       : Icons.pending_rounded,
                   size: 18,
-                  color: order.payment!.isPaid
-                      ? ColorsCustom.success
-                      : ColorsCustom.warning,
+                  color: context.colors.primary,
                 ),
                 const SizedBox(width: 8),
                 TextCustom(
@@ -394,9 +362,7 @@ class _DetailView extends StatelessWidget {
                       : l10n.paymentUnpaid,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: order.payment!.isPaid
-                      ? ColorsCustom.success
-                      : ColorsCustom.warning,
+                  color: context.colors.primary,
                 ),
                 const Spacer(),
                 TextCustom(
@@ -422,7 +388,6 @@ class _DetailView extends StatelessWidget {
         for (final d in order.destinations) ...[
           DestinationSection(
             label: d.label,
-            destinationType: d.destinationType,
             status: d.status,
             mosque: d.mosque,
             items: d.items,
@@ -456,7 +421,7 @@ class _DetailView extends StatelessWidget {
             child: TextCustom(
               text: order.cancellationReason!,
               fontSize: 14,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ),
         ],
@@ -685,11 +650,7 @@ class _ActionBar extends StatelessWidget {
           if (showAssign)
             ButtonCustom.primary(
               text: l10n.assignToTeamLeaderButton,
-              icon: const Icon(
-                Icons.groups_outlined,
-                color: ColorsCustom.onMint,
-                size: 20,
-              ),
+              icon: const Icon(Icons.groups_outlined, size: 20),
               onPressed: onAssign,
             ),
           if (showAssign && showCancel) const SizedBox(height: 10),
@@ -701,76 +662,6 @@ class _ActionBar extends StatelessWidget {
               isLoading: cancelling,
               onPressed: onCancel,
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Bottom sheet collecting a cancellation reason; pops the reason string.
-class _CancelSheet extends StatefulWidget {
-  const _CancelSheet();
-
-  @override
-  State<_CancelSheet> createState() => _CancelSheetState();
-}
-
-class _CancelSheetState extends State<_CancelSheet> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: context.colors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextCustom.subheading(
-            text: l10n.cancelOrderTitle,
-            color: ColorsCustom.error,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _controller,
-            maxLines: 3,
-            decoration: InputDecoration(hintText: l10n.cancelReasonHint),
-          ),
-          const SizedBox(height: 20),
-          ButtonCustom(
-            text: l10n.confirmCancel,
-            color: ColorsCustom.error,
-            textColor: ColorsCustom.textOnPrimary,
-            onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
-          ),
-          const SizedBox(height: 10),
-          ButtonCustom.secondary(
-            text: l10n.keepOrder,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
         ],
       ),
     );

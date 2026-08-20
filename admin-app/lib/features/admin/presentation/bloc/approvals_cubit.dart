@@ -44,8 +44,14 @@ class ApprovalsState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [status, items, hasMore, loadingMore, actioningId, message];
+  List<Object?> get props => [
+    status,
+    items,
+    hasMore,
+    loadingMore,
+    actioningId,
+    message,
+  ];
 }
 
 class ApprovalsCubit extends Cubit<ApprovalsState> {
@@ -56,19 +62,23 @@ class ApprovalsCubit extends Cubit<ApprovalsState> {
 
   Future<void> load() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      items: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        items: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchApprovals(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        items: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          items: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
@@ -84,11 +94,13 @@ class ApprovalsCubit extends Cubit<ApprovalsState> {
     try {
       final page = await _repo.fetchApprovals(page: _page + 1);
       _page += 1;
-      emit(state.copyWith(
-        items: [...state.items, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          items: [...state.items, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }
@@ -116,11 +128,13 @@ class ApprovalsCubit extends Cubit<ApprovalsState> {
     _page = 1;
     try {
       final page = await _repo.fetchApprovals(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        items: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          items: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException {
       // Keep the current list; the decision still succeeded.
     }

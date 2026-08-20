@@ -40,7 +40,8 @@ class Escalation extends Equatable {
 
   /// What to show the user as the order number: the readable [orderCode],
   /// falling back to the reference prefix if the backend didn't send one.
-  String get displayCode => orderCode.isNotEmpty ? orderCode : '#$shortReference';
+  String get displayCode =>
+      orderCode.isNotEmpty ? orderCode : '#$shortReference';
 
   static StaffRef? _ref(dynamic v) =>
       v is Map ? StaffRef.fromJson(Map<String, dynamic>.from(v)) : null;

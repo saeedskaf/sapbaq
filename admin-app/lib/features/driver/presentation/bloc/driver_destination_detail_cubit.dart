@@ -36,13 +36,12 @@ class DriverDestinationDetailState extends Equatable {
   List<Object?> get props => [status, destination, acting, message];
 }
 
-class DriverDestinationDetailCubit
-    extends Cubit<DriverDestinationDetailState> {
+class DriverDestinationDetailCubit extends Cubit<DriverDestinationDetailState> {
   final DriverRepository _repo;
   final int destinationId;
 
   DriverDestinationDetailCubit(this._repo, this.destinationId)
-      : super(const DriverDestinationDetailState());
+    : super(const DriverDestinationDetailState());
 
   Future<void> load() async {
     emit(state.copyWith(status: LoadStatus.loading, message: null));

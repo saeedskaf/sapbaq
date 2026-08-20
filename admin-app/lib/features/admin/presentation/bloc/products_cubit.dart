@@ -47,8 +47,15 @@ class ProductsState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [status, items, search, hasMore, loadingMore, togglingId, message];
+  List<Object?> get props => [
+    status,
+    items,
+    search,
+    hasMore,
+    loadingMore,
+    togglingId,
+    message,
+  ];
 }
 
 class ProductsCubit extends Cubit<ProductsState> {
@@ -68,22 +75,26 @@ class ProductsCubit extends Cubit<ProductsState> {
 
   Future<void> _loadFirstPage() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      items: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        items: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchProducts(
         page: 1,
         search: state.search.isEmpty ? null : state.search,
       );
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        items: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          items: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
@@ -102,11 +113,13 @@ class ProductsCubit extends Cubit<ProductsState> {
         search: state.search.isEmpty ? null : state.search,
       );
       _page += 1;
-      emit(state.copyWith(
-        items: [...state.items, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          items: [...state.items, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       emit(state.copyWith(loadingMore: false));
     }

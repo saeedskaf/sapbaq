@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/dashboard_summary.dart';
+import 'package:sapbaq_admin/features/admin/presentation/bloc/admin_orders_cubit.dart';
 import 'package:sapbaq_admin/features/admin/presentation/bloc/dashboard_cubit.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/features/shared/presentation/app_card.dart';
@@ -90,6 +90,9 @@ class _DashboardView extends StatelessWidget {
                   onTap: () =>
                       context.pushNamed(AppRoutes.adminEscalationsName),
                 ),
+                // No operations tile here — the centre is the shell's first tab
+                // now, and a duplicate entry buried in this list is what made
+                // it look like a footnote.
                 if (canLookup) ...[
                   const SizedBox(height: 12),
                   _DashboardTile(
@@ -121,6 +124,15 @@ class _StatGrid extends StatelessWidget {
   final AppLocalizations l10n;
   const _StatGrid({required this.orders, required this.l10n});
 
+  /// Opens the orders tab filtered to the bucket [tab] counts, so the list the
+  /// user lands on holds exactly the orders the tile tallied.
+  void _openOrders(BuildContext context, AdminOrdersTab tab) {
+    context.goNamed(
+      AppRoutes.adminOrdersName,
+      queryParameters: {AppRoutes.adminOrdersTabQuery: tab.name},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tiles = <Widget>[
@@ -128,37 +140,43 @@ class _StatGrid extends StatelessWidget {
         label: l10n.dashNew,
         value: orders.newOrders,
         icon: Icons.fiber_new_outlined,
-        color: ColorsCustom.warning,
+        color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.pending),
       ),
       _StatTile(
         label: l10n.dashAwaiting,
         value: orders.awaitingAssignment,
         icon: Icons.assignment_late_outlined,
         color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.awaiting),
       ),
       _StatTile(
         label: l10n.dashAssigned,
         value: orders.assigned,
         icon: Icons.local_shipping_outlined,
         color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.confirmed),
       ),
       _StatTile(
         label: l10n.dashCompleted,
         value: orders.completed,
         icon: Icons.check_circle_outline,
-        color: ColorsCustom.success,
+        color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.delivered),
       ),
       _StatTile(
         label: l10n.dashCancelled,
         value: orders.cancelled,
         icon: Icons.cancel_outlined,
-        color: ColorsCustom.error,
+        color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.cancelled),
       ),
       _StatTile(
         label: l10n.dashAll,
         value: orders.all,
         icon: Icons.receipt_long_outlined,
-        color: context.colors.textSecondary,
+        color: context.colors.primary,
+        onTap: () => _openOrders(context, AdminOrdersTab.all),
       ),
     ];
     return LayoutBuilder(
@@ -182,16 +200,19 @@ class _StatTile extends StatelessWidget {
   final int value;
   final IconData icon;
   final Color color;
+  final VoidCallback onTap;
   const _StatTile({
     required this.label,
     required this.value,
     required this.icon,
     required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      onTap: onTap,
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [
@@ -200,7 +221,7 @@ class _StatTile extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -358,7 +379,7 @@ class _DashboardTile extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: context.colors.primary, size: 20),

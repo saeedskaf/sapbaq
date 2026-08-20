@@ -56,12 +56,14 @@ class CustomerLookupCubit extends Cubit<CustomerLookupState> {
       emit(const CustomerLookupState());
       return;
     }
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      query: query,
-      byId: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        query: query,
+        byId: false,
+        message: null,
+      ),
+    );
     final isPhone = _phonePattern.hasMatch(query);
     try {
       final results = await _repo.lookupCustomers(
@@ -82,12 +84,14 @@ class CustomerLookupCubit extends Cubit<CustomerLookupState> {
       return;
     }
     final id = int.tryParse(query);
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      query: query,
-      byId: true,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        query: query,
+        byId: true,
+        message: null,
+      ),
+    );
     if (id == null) {
       emit(state.copyWith(status: LoadStatus.success, results: const []));
       return;

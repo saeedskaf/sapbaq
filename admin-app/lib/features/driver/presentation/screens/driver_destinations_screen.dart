@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
+import 'package:sapbaq_admin/core/location/location_for_role.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
@@ -10,6 +11,7 @@ import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
 import 'package:sapbaq_admin/features/driver/presentation/bloc/driver_destinations_cubit.dart';
 import 'package:sapbaq_admin/features/driver/presentation/widgets/driver_destination_card.dart';
+import 'package:sapbaq_admin/features/shared/presentation/distance_badge.dart';
 import 'package:sapbaq_admin/features/shared/presentation/filter_tabs.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -19,8 +21,10 @@ class DriverDestinationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          DriverDestinationsCubit(context.read<DriverRepository>())..load(),
+      create: (context) => DriverDestinationsCubit(
+        context.read<DriverRepository>(),
+        location: locationForRole(context),
+      )..load(),
       child: const _DriverDestinationsView(),
     );
   }
@@ -82,13 +86,18 @@ class _DriverDestinationsViewState extends State<_DriverDestinationsView> {
               return FilterTabs(
                 labels: labels,
                 selectedIndex: DriverTab.values.indexOf(state.tab),
-                onChanged: (i) => context.read<DriverDestinationsCubit>().setTab(
-                  DriverTab.values[i],
-                ),
+                onChanged: (i) => context
+                    .read<DriverDestinationsCubit>()
+                    .setTab(DriverTab.values[i]),
               );
             },
           ),
-          const SizedBox(height: 12),
+          BlocBuilder<DriverDestinationsCubit, DriverDestinationsState>(
+            buildWhen: (a, b) => a.sortedByDistance != b.sortedByDistance,
+            builder: (context, state) =>
+                NearestFirstHint(sorted: state.sortedByDistance),
+          ),
+          const SizedBox(height: 4),
           Expanded(
             child:
                 BlocBuilder<DriverDestinationsCubit, DriverDestinationsState>(
@@ -150,6 +159,7 @@ class _DriverDestinationsViewState extends State<_DriverDestinationsView> {
                           final dest = visible[i];
                           return DriverDestinationCard(
                             destination: dest,
+                            sorted: state.sortedByDistance,
                             onTap: () async {
                               await context.pushNamed(
                                 AppRoutes.driverDestinationName,

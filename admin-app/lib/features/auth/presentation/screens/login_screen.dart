@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/form_status.dart';
+import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/utils/form_validators.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_form_field.dart';
+import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
 import 'package:sapbaq_admin/features/auth/data/auth_repository.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/login_cubit.dart';
@@ -90,6 +94,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       text: l10n.loginButton,
                       isLoading: loading,
                       onPressed: loading ? null : () => _submit(context),
+                    ),
+                    const SizedBox(height: 16),
+                    // Mosque-representative entry (spec §3: «هل أنت ممثل
+                    // مسجد؟ اضغط هنا») — a separate /rep/* auth flow.
+                    Center(
+                      child: TextButton(
+                        onPressed: loading
+                            ? null
+                            : () => context.pushNamed(AppRoutes.repLoginName),
+                        child: TextCustom(
+                          text: l10n.repEntryPrompt,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),

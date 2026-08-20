@@ -37,6 +37,7 @@ class FilterTabs extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
+                // Which filter is applied is a state, not an action — mint.
                 color: selected ? ColorsCustom.brandMint : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),

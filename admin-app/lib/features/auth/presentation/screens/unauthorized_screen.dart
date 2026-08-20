@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
@@ -32,9 +31,9 @@ class UnauthorizedScreen extends StatelessWidget {
                     color: context.colors.surfaceVariant,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.lock_outline_rounded,
-                    color: ColorsCustom.error,
+                    color: context.colors.danger,
                     size: 44,
                   ),
                 ),

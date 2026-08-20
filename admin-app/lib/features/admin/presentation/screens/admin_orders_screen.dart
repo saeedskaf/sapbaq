@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_routes.dart';
 import 'package:sapbaq_admin/core/bloc/load_status.dart';
+import 'package:sapbaq_admin/core/location/location_for_role.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/floating_nav_bar.dart';
@@ -10,17 +11,28 @@ import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/presentation/bloc/admin_orders_cubit.dart';
 import 'package:sapbaq_admin/features/admin/presentation/widgets/admin_order_card.dart';
+import 'package:sapbaq_admin/features/shared/presentation/distance_badge.dart';
 import 'package:sapbaq_admin/features/shared/presentation/filter_tabs.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
 class AdminOrdersScreen extends StatelessWidget {
-  const AdminOrdersScreen({super.key});
+  /// Which tab to open on — a dashboard stat tile lands on the tab holding the
+  /// orders it counts. See [adminOrdersTabFor].
+  final AdminOrdersTab initialTab;
+
+  const AdminOrdersScreen({
+    super.key,
+    this.initialTab = AdminOrdersTab.awaiting,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          AdminOrdersCubit(context.read<AdminRepository>())..load(),
+      create: (context) => AdminOrdersCubit(
+        context.read<AdminRepository>(),
+        initialTab: initialTab,
+        location: locationForRole(context),
+      )..load(),
       child: const _AdminOrdersView(),
     );
   }
@@ -79,12 +91,37 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
               final counts = state.counts;
               String withCount(String label, int? n) =>
                   n == null ? label : '$label ($n)';
+              // Built from the enum so the labels stay aligned with the tab
+              // order FilterTabs indexes into.
               final labels = [
-                withCount(l10n.tabAwaiting, counts?.awaitingAssignment),
-                withCount(l10n.tabInProgress, counts?.inProgress),
-                withCount(l10n.tabDelivered, counts?.delivered),
-                withCount(l10n.tabCancelled, counts?.cancelled),
-                withCount(l10n.tabAll, counts?.all),
+                for (final tab in AdminOrdersTab.values)
+                  switch (tab) {
+                    AdminOrdersTab.pending => withCount(
+                      l10n.tabNew,
+                      counts?.pending,
+                    ),
+                    AdminOrdersTab.awaiting => withCount(
+                      l10n.tabAwaiting,
+                      counts?.awaitingAssignment,
+                    ),
+                    AdminOrdersTab.confirmed => withCount(
+                      l10n.tabConfirmed,
+                      counts?.confirmed,
+                    ),
+                    AdminOrdersTab.inProgress => withCount(
+                      l10n.tabInProgress,
+                      counts?.inProgress,
+                    ),
+                    AdminOrdersTab.delivered => withCount(
+                      l10n.tabDelivered,
+                      counts?.delivered,
+                    ),
+                    AdminOrdersTab.cancelled => withCount(
+                      l10n.tabCancelled,
+                      counts?.cancelled,
+                    ),
+                    AdminOrdersTab.all => withCount(l10n.tabAll, counts?.all),
+                  },
               ];
               return FilterTabs(
                 labels: labels,
@@ -96,6 +133,11 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
             },
           ),
           const SizedBox(height: 10),
+          BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
+            buildWhen: (a, b) => a.sortedByDistance != b.sortedByDistance,
+            builder: (context, state) =>
+                NearestFirstHint(sorted: state.sortedByDistance),
+          ),
           BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
             buildWhen: (a, b) => a.status != b.status || a.total != b.total,
             builder: (context, state) {
@@ -161,6 +203,7 @@ class _AdminOrdersViewState extends State<_AdminOrdersView> {
                       final order = state.orders[i];
                       return AdminOrderCard(
                         order: order,
+                        sorted: state.sortedByDistance,
                         onTap: () => context.pushNamed(
                           AppRoutes.adminOrderDetailName,
                           pathParameters: {'id': '${order.id}'},

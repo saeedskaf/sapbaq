@@ -7,6 +7,7 @@ import 'package:sapbaq_admin/core/utils/date_format.dart';
 import 'package:sapbaq_admin/core/widgets/custom_button.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
+import 'package:sapbaq_admin/core/widgets/reason_sheet.dart';
 import 'package:sapbaq_admin/core/widgets/state_views.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
 import 'package:sapbaq_admin/features/admin/data/models/approval.dart';
@@ -70,17 +71,14 @@ class _ApprovalsViewState extends State<_ApprovalsView> {
   Future<void> _reject(BuildContext context, Approval a) async {
     final cubit = context.read<ApprovalsCubit>();
     final l10n = AppLocalizations.of(context)!;
-    final reason = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: context.colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const _RejectSheet(),
+    final reason = await ReasonSheet.show(
+      context,
+      title: l10n.approvalRejectTitle,
+      hint: l10n.approvalRejectHint,
+      confirmLabel: l10n.confirmReject,
+      danger: true,
     );
-    if (reason == null || reason.isEmpty) return;
+    if (reason == null) return;
     final ok = await cubit.reject(a.id, reason);
     if (ok && context.mounted) ShowMessage.success(context, l10n.rejectSuccess);
   }
@@ -278,76 +276,6 @@ class _MetaRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Collects a required rejection reason; pops the trimmed string.
-class _RejectSheet extends StatefulWidget {
-  const _RejectSheet();
-
-  @override
-  State<_RejectSheet> createState() => _RejectSheetState();
-}
-
-class _RejectSheetState extends State<_RejectSheet> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: context.colors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextCustom.subheading(
-            text: l10n.approvalRejectTitle,
-            color: ColorsCustom.error,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _controller,
-            maxLines: 3,
-            decoration: InputDecoration(hintText: l10n.approvalRejectHint),
-          ),
-          const SizedBox(height: 20),
-          ButtonCustom(
-            text: l10n.confirmReject,
-            color: ColorsCustom.error,
-            textColor: ColorsCustom.textOnPrimary,
-            onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
-          ),
-          const SizedBox(height: 10),
-          ButtonCustom.secondary(
-            text: l10n.cancelButton,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
     );
   }
 }

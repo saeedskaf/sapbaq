@@ -122,7 +122,11 @@ class User extends Equatable {
   /// on the backend, so we hide those screens (FLUTTER_TASKS T1).
   bool get isRetailOperator => userType == retailOperator;
 
-  /// Whether this account may use the staff app at all.
+  /// The mosque representative (الإمام) — report-only, scoped to his mosque,
+  /// landing in the rep shell (ADMIN_APP_BACKEND_INTEGRATION §1).
+  bool get isMosqueRep => userType == mosqueRep;
+
+  /// Whether this account may use the staff areas of the app.
   bool get isStaff => isOfficeStaff || isServiceHandler;
 
   // Legacy aliases — existing call sites (router, notifications) read these.
@@ -174,6 +178,80 @@ class User extends Equatable {
   bool get canViewTeamHistory => isGlobalAdmin || userType == teamLeader;
   bool get canViewRegionalHistory =>
       isGlobalAdmin || userType == regionalManager;
+
+  // --- Mosque-needs & maintenance moderation (ADMIN_APP_ADDITIONS_BY_ROLE §2) ---
+  /// The dispatch desk (retail operator + support admin, plus the global admin):
+  /// triages maintenance and cancels equipment. Maintenance triage stays desk-
+  /// only; water-flag moderation now includes the regional manager (below).
+  bool get isDispatchDesk =>
+      isGlobalAdmin || userType == retailOperator || userType == supportAdmin;
+
+  /// Approve/cancel water flags: the dispatch desk, plus the regional manager
+  /// for his own governorate (server-scoped) — FLUTTER_OPERATIONS_CENTER §3.3.
+  bool get canModerateWaterFlags =>
+      isDispatchDesk || userType == regionalManager;
+
+  /// Maintenance desk actions (acknowledge/set-priority/approve/assign-leader/
+  /// duplicate/cancel): the dispatch desk, plus the regional manager within
+  /// his governorate — unified-dispatch doc §4-b (out-of-scope cases 404).
+  bool get canTriageMaintenance =>
+      isDispatchDesk || userType == regionalManager;
+
+  /// Any staff role touches maintenance (the server scopes the list): the desk
+  /// triages, the regional manager views his governorate, the team leader his
+  /// team, the service handler his own assignments.
+  bool get canAccessMaintenance => isStaff;
+
+  /// Equipment requests: approved/rejected by the regional manager for his
+  /// governorate; the dispatch desk may only cancel.
+  bool get canApproveEquipment => isGlobalAdmin || userType == regionalManager;
+  bool get canCancelEquipment => isDispatchDesk;
+
+  /// The dispatch chain that works the marketplace fulfilment-task queue
+  /// (unified-dispatch doc §1/§5): the desk assigns leaders, leaders assign
+  /// handlers, handlers/leaders fulfil, and the regional manager does all of
+  /// it within his governorate. Gates the queue's entry points.
+  bool get canFulfilContribution =>
+      isDispatchDesk ||
+      userType == regionalManager ||
+      userType == teamLeader ||
+      isServiceHandler;
+
+  /// Assign a fulfilment task to a team leader: the dispatch desk plus the
+  /// regional manager (server-scoped to his governorate).
+  bool get canAssignTaskLeader => isDispatchDesk || userType == regionalManager;
+
+  /// Override the task's assignment chain — assign a handler past the leader,
+  /// or fulfil a task that isn't one's own (unified-dispatch doc §5).
+  bool get canBypassTaskChain => isGlobalAdmin || userType == regionalManager;
+
+  // --- Manager direct provision (FLUTTER_MANAGER_DIRECT_PROVISION) ---
+
+  /// Raise a water/equipment/maintenance need for a chosen mosque, published
+  /// immediately with no approval step: the regional manager within his
+  /// governorate, the global admin anywhere. Gates the "direct provision"
+  /// entry points; the server re-checks scope and answers 403.
+  bool get canProvisionDirect => isGlobalAdmin || userType == regionalManager;
+
+  /// Pull an unassigned `APPROVED` case in one's governorate onto one's own
+  /// team (§4.3) — the team leader's counterpart to the desk pushing a case.
+  bool get canClaimMaintenance => isGlobalAdmin || userType == teamLeader;
+
+  /// Roles that actually drive between mosques, and so are the only ones asked
+  /// for location to sort their queues nearest-first. Office roles work from a
+  /// desk: prompting them would buy nothing (nearest-first sorting doc §0).
+  bool get isFieldRole =>
+      isGlobalAdmin || userType == teamLeader || isServiceHandler;
+
+  /// True when the user can act on any operations-center queue. Every staff
+  /// shell now carries the hub as a tab, so this holds for every staff role —
+  /// asserted by the ops-permissions tests as the invariant behind that tab.
+  bool get canAccessOperations =>
+      canApproveEquipment ||
+      canCancelEquipment ||
+      canModerateWaterFlags ||
+      canAccessMaintenance ||
+      canFulfilContribution;
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
