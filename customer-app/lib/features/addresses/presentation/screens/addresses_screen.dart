@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
+import 'package:sapbaq/core/widgets/confirm_sheet.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
@@ -88,36 +89,18 @@ class AddressesScreen extends StatelessWidget {
     if (saved == true) cubit.load();
   }
 
-  void _confirmDelete(BuildContext context, Address address) {
+  Future<void> _confirmDelete(BuildContext context, Address address) async {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<AddressesCubit>();
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: context.colors.surface,
-        title: TextCustom.subheading(text: l10n.deleteAddressConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: TextCustom(
-              text: l10n.cancelButton,
-              color: context.colors.textSecondary,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              cubit.delete(address.id);
-            },
-            child: TextCustom(
-              text: l10n.deleteButton,
-              color: Theme.of(context).colorScheme.error,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmSheet.ask(
+      context,
+      title: l10n.deleteAddressConfirm,
+      body: address.summary,
+      icon: Icons.delete_outline_rounded,
+      confirmLabel: l10n.deleteButton,
+      cancelLabel: l10n.cancelButton,
     );
+    if (confirmed) cubit.delete(address.id);
   }
 }
 
@@ -151,13 +134,13 @@ class _AddressCard extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.location_on_outlined,
               size: 18,
-              color: context.colors.primary,
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -226,14 +209,14 @@ class _DefaultBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: context.colors.primaryTint,
+        color: context.colors.surfaceVariant,
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextCustom(
         text: label,
         fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: context.colors.primary,
+        color: context.colors.textSecondary,
       ),
     );
   }

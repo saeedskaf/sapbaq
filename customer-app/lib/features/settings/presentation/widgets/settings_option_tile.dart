@@ -68,10 +68,14 @@ class SettingsOptionTile extends StatelessWidget {
                 height: 34,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: context.colors.primary),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: context.colors.textSecondary,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -63,6 +63,10 @@ class ProfileScreen extends StatelessWidget {
           final name = user?.fullName ?? '';
           final phone = user?.phone ?? '';
           final email = user?.email ?? '';
+          // §1 of the email contract: a verified address is an account key (it
+          // is what lets a Google/Apple sign-in resolve here), so the badge
+          // reads the flag — never the mere presence of an address.
+          final emailVerified = user?.emailVerified ?? false;
           return ListView(
             padding: EdgeInsets.fromLTRB(
               16,
@@ -71,9 +75,16 @@ class ProfileScreen extends StatelessWidget {
               MediaQuery.of(context).padding.bottom + 24,
             ),
             children: [
-              // Name/email are edited only by staff (Sapbaq_AUTH_Flow §12) — the
-              // identity card is read-only, no edit affordance.
-              _IdentityCard(name: name, phone: phone, email: email),
+              // The name is staff-edited only (Sapbaq_AUTH_Flow §12), so the
+              // card carries no edit affordance for it. The email is the one
+              // exception: it is changed through the verified path below, and
+              // the card only reports whether it has been proven.
+              _IdentityCard(
+                name: name,
+                phone: phone,
+                email: email,
+                emailVerified: emailVerified,
+              ),
               const SizedBox(height: 22),
               _SectionLabel(l10n.accountSection),
               const SizedBox(height: 8),
@@ -85,9 +96,17 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () => context.pushNamed(AppRoutes.favoritesName),
                   ),
                   _TileData(
+                    icon: Icons.alternate_email_rounded,
+                    label: emailVerified
+                        ? l10n.changeEmailTile
+                        : l10n.verifyEmailTile,
+                    onTap: () => context.pushNamed(AppRoutes.verifyEmailName),
+                  ),
+                  _TileData(
                     icon: Icons.devices_rounded,
                     label: l10n.trustedDevicesTitle,
-                    onTap: () => context.pushNamed(AppRoutes.trustedDevicesName),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.trustedDevicesName),
                   ),
                 ],
               ),
@@ -182,17 +201,19 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// Compact identity card at the top of the profile: avatar (initial or icon),
+/// Compact identity card at the top of the profile: avatar (person icon),
 /// name + phone, and a circular edit-name button on the trailing edge.
 class _IdentityCard extends StatelessWidget {
   final String name;
   final String phone;
   final String email;
+  final bool emailVerified;
 
   const _IdentityCard({
     required this.name,
     required this.phone,
     required this.email,
+    required this.emailVerified,
   });
 
   @override
@@ -212,21 +233,14 @@ class _IdentityCard extends StatelessWidget {
             height: 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: context.colors.primaryTint,
+              color: context.colors.surfaceVariant,
               shape: BoxShape.circle,
             ),
-            child: name.isEmpty
-                ? Icon(
-                    Icons.person_rounded,
-                    size: 30,
-                    color: context.colors.primary,
-                  )
-                : TextCustom(
-                    text: name.characters.first,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: context.colors.primary,
-                  ),
+            child: Icon(
+              Icons.person_rounded,
+              size: 30,
+              color: context.colors.textSecondary,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -253,18 +267,54 @@ class _IdentityCard extends StatelessWidget {
                 ],
                 if (email.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  TextCustom(
-                    text: email,
-                    fontSize: 13,
-                    color: context.colors.textSecondary,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: TextCustom(
+                          text: email,
+                          fontSize: 13,
+                          color: context.colors.textSecondary,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      _EmailBadge(verified: emailVerified),
+                    ],
                   ),
                 ],
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Says whether the address above has been proven, in the one place the address
+/// is shown. Verified is a signal fill (the mint); unverified is the warning
+/// amber — not an error, since nothing is broken, just unproven.
+class _EmailBadge extends StatelessWidget {
+  final bool verified;
+
+  const _EmailBadge({required this.verified});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final fill = verified ? ColorsCustom.success : ColorsCustom.warning;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextCustom(
+        text: verified ? l10n.emailVerifiedBadge : l10n.emailUnverifiedBadge,
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        color: ColorsCustom.onSignal(fill),
       ),
     );
   }
@@ -323,12 +373,12 @@ class _BiometricToggleCardState extends State<_BiometricToggleCard> {
               height: 38,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: context.colors.primaryTint,
+                color: context.colors.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.fingerprint_rounded,
-                color: context.colors.primary,
+                color: context.colors.textSecondary,
                 size: 18,
               ),
             ),
@@ -439,14 +489,14 @@ class _ProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fg = data.destructive
-        ? ColorsCustom.error
+        ? context.colors.danger
         : context.colors.textPrimary;
     final iconFg = data.destructive
-        ? ColorsCustom.error
+        ? context.colors.danger
         : context.colors.primary;
     final iconBg = data.destructive
-        ? ColorsCustom.error.withValues(alpha: 0.10)
-        : context.colors.primaryTint;
+        ? context.colors.danger.withValues(alpha: 0.10)
+        : context.colors.surfaceVariant;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -556,12 +606,13 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Padding(
+    final media = MediaQuery.of(context);
+    return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         20,
         12,
         20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
+        media.viewInsets.bottom + media.padding.bottom + 20,
       ),
       child: Form(
         key: _formKey,
@@ -582,15 +633,15 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
             const SizedBox(height: 20),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.delete_outline_rounded,
-                  color: ColorsCustom.error,
+                  color: context.colors.danger,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
                 TextCustom.subheading(
                   text: l10n.deleteAccount,
-                  color: ColorsCustom.error,
+                  color: context.colors.danger,
                 ),
               ],
             ),
@@ -729,7 +780,7 @@ class _GuestProfileView extends StatelessWidget {
               const SizedBox(height: 6),
               TextCustom(
                 text: l10n.guestWelcomeDesc,
-                color: context.colors.primaryTint,
+                color: ColorsCustom.brandMint,
                 fontSize: 14,
                 textAlign: TextAlign.center,
               ),
@@ -820,7 +871,7 @@ class _SupportBadge extends StatelessWidget {
             text: '$count',
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: Colors.white,
+            color: ColorsCustom.white,
           ),
         );
       },

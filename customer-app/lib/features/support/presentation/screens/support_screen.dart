@@ -227,7 +227,7 @@ class _UnreadBadge extends StatelessWidget {
         text: '$count',
         fontSize: 11,
         fontWeight: FontWeight.w800,
-        color: Colors.white,
+        color: ColorsCustom.white,
       ),
     );
   }

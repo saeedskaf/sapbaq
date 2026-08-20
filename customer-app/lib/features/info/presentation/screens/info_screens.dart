@@ -317,10 +317,14 @@ class _ContactRow extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: context.colors.primary, size: 22),
+                child: Icon(
+                  icon,
+                  color: context.colors.textSecondary,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(

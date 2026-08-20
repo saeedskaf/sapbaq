@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq/app/router/app_routes.dart';
 import 'package:sapbaq/core/network/session_manager.dart';
+import 'package:sapbaq/core/payments/payment_recovery.dart';
 import 'package:sapbaq/core/widgets/floating_nav_bar.dart';
+import 'package:sapbaq/core/widgets/message_dialog.dart';
+import 'package:sapbaq/features/orders/data/payment_repository.dart';
 import 'package:sapbaq/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sapbaq/features/cart/presentation/widgets/floating_cart_bar.dart';
 import 'package:sapbaq/features/mosques/presentation/bloc/favorites_cubit.dart';
+import 'package:sapbaq/features/notifications/presentation/bloc/notifications_badge_cubit.dart';
 import 'package:sapbaq/features/support/presentation/bloc/support_unread_cubit.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
@@ -34,11 +38,29 @@ class _AppShellState extends State<AppShell> {
       context.read<CartCubit>().load();
       context.read<FavoritesCubit>().load();
       context.read<SupportUnreadCubit>().load();
+      context.read<NotificationsBadgeCubit>().load();
+      _recoverUnsettledPayment();
     } else {
       context.read<CartCubit>().reset();
       context.read<FavoritesCubit>().reset();
       context.read<SupportUnreadCubit>().reset();
+      context.read<NotificationsBadgeCubit>().reset();
     }
+  }
+
+  /// If a previous session was killed mid-payment, ask the server how it ended.
+  /// Silent unless it turns out the customer actually paid — that is the one
+  /// outcome they'd otherwise never hear about.
+  Future<void> _recoverUnsettledPayment() async {
+    final payments = context.read<PaymentRepository>();
+    final paid = await PaymentRecovery.settlePending(payments);
+    if (!mounted || !paid) return;
+    // A recovered payment means a paid order, and a paid order means the carts
+    // it was made from are already gone server-side. The shell loaded them a
+    // moment ago, before we knew — so re-read rather than leave a cart bar
+    // hovering over things the customer has just been told they paid for.
+    context.read<CartCubit>().load();
+    ShowMessage.success(context, AppLocalizations.of(context)!.payRecovered);
   }
 
   void _onTap(int index) {
@@ -61,41 +83,41 @@ class _AppShellState extends State<AppShell> {
         context.read<CartCubit>().load();
         context.read<FavoritesCubit>().load();
         context.read<SupportUnreadCubit>().load();
+        context.read<NotificationsBadgeCubit>().load();
       },
       child: BlocBuilder<CartCubit, CartState>(
         buildWhen: (a, b) =>
-            a.itemCount != b.itemCount ||
-            a.cart.totalAmount != b.cart.totalAmount,
+            a.itemCount != b.itemCount || a.totalAmount != b.totalAmount,
         builder: (context, state) {
-        final isGuest =
-            context.watch<AuthBloc>().state.status == AuthStatus.guest;
-        final cartCount = isGuest ? 0 : state.itemCount;
-        final hasItems = cartCount > 0;
-        return Scaffold(
-          // Let tab content extend behind the floating bars so the blur picks
-          // it up; reserve extra clearance while the cart bar is showing.
-          extendBody: true,
-          body: FloatingBottomInset(
-            extraInset: hasItems ? FloatingCartBar.height : 0,
-            child: widget.navigationShell,
-          ),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FloatingCartBar(
-                itemCount: cartCount,
-                total: state.cart.totalAmount,
-                onTap: () => context.pushNamed(AppRoutes.cartName),
-              ),
-              FloatingNavBar(
-                currentIndex: widget.navigationShell.currentIndex,
-                onTap: _onTap,
-                items: _navItems(l10n),
-              ),
-            ],
-          ),
-        );
-      },
+          final isGuest =
+              context.watch<AuthBloc>().state.status == AuthStatus.guest;
+          final cartCount = isGuest ? 0 : state.itemCount;
+          final hasItems = cartCount > 0;
+          return Scaffold(
+            // Let tab content extend behind the floating bars so the blur picks
+            // it up; reserve extra clearance while the cart bar is showing.
+            extendBody: true,
+            body: FloatingBottomInset(
+              extraInset: hasItems ? FloatingCartBar.height : 0,
+              child: widget.navigationShell,
+            ),
+            bottomNavigationBar: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingCartBar(
+                  itemCount: cartCount,
+                  total: state.totalAmount,
+                  onTap: () => context.pushNamed(AppRoutes.cartName),
+                ),
+                FloatingNavBar(
+                  currentIndex: widget.navigationShell.currentIndex,
+                  onTap: _onTap,
+                  items: _navItems(l10n),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

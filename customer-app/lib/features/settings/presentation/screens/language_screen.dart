@@ -4,6 +4,7 @@ import 'package:sapbaq/core/settings/settings_cubit.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
+import 'package:sapbaq/core/theme/colors_custom.dart';
 
 /// Language settings: Arabic / English. Selecting a language applies it
 /// instantly (rebuilds the app + flips RTL/LTR) and updates the API
@@ -68,7 +69,7 @@ class _LanguageCard extends StatelessWidget {
         borderRadius: br,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: ColorsCustom.shadow,
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -108,12 +109,12 @@ class _LanguageTile extends StatelessWidget {
                 height: 38,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
+                  color: context.colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   Icons.translate_rounded,
-                  color: context.colors.primary,
+                  color: context.colors.textSecondary,
                   size: 18,
                 ),
               ),

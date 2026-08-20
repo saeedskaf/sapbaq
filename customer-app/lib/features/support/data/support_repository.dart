@@ -33,7 +33,9 @@ class SupportRepository {
         ).results;
       }
       return (data as List)
-          .map((e) => SupportTicket.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => SupportTicket.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     });
   }

@@ -20,26 +20,26 @@ class NotificationPreferencesState extends Equatable {
   List<Object?> get props => [status, prefs, message];
 }
 
-class NotificationPreferencesCubit
-    extends Cubit<NotificationPreferencesState> {
+class NotificationPreferencesCubit extends Cubit<NotificationPreferencesState> {
   final NotificationsRepository _repo;
 
   NotificationPreferencesCubit(this._repo)
-      : super(const NotificationPreferencesState());
+    : super(const NotificationPreferencesState());
 
   Future<void> load() async {
     emit(const NotificationPreferencesState(status: LoadStatus.loading));
     try {
       final prefs = await _repo.fetchPreferences();
-      emit(NotificationPreferencesState(
-        status: LoadStatus.success,
-        prefs: prefs,
-      ));
+      emit(
+        NotificationPreferencesState(status: LoadStatus.success, prefs: prefs),
+      );
     } on ApiException catch (e) {
-      emit(NotificationPreferencesState(
-        status: LoadStatus.failure,
-        message: e.message,
-      ));
+      emit(
+        NotificationPreferencesState(
+          status: LoadStatus.failure,
+          message: e.message,
+        ),
+      );
     }
   }
 
@@ -47,22 +47,25 @@ class NotificationPreferencesCubit
   /// if the server rejects it.
   Future<void> toggle(String key, bool value) async {
     final previous = state.prefs;
-    emit(NotificationPreferencesState(
-      status: LoadStatus.success,
-      prefs: _apply(previous, key, value),
-    ));
+    emit(
+      NotificationPreferencesState(
+        status: LoadStatus.success,
+        prefs: _apply(previous, key, value),
+      ),
+    );
     try {
       final saved = await _repo.updatePreferences({key: value});
-      emit(NotificationPreferencesState(
-        status: LoadStatus.success,
-        prefs: saved,
-      ));
+      emit(
+        NotificationPreferencesState(status: LoadStatus.success, prefs: saved),
+      );
     } on ApiException catch (e) {
-      emit(NotificationPreferencesState(
-        status: LoadStatus.success,
-        prefs: previous,
-        message: e.message,
-      ));
+      emit(
+        NotificationPreferencesState(
+          status: LoadStatus.success,
+          prefs: previous,
+          message: e.message,
+        ),
+      );
     }
   }
 

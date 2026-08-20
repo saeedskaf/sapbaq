@@ -25,12 +25,15 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   late final _label = TextEditingController(text: widget.existing?.label ?? '');
   late final _area = TextEditingController(text: widget.existing?.area ?? '');
   late final _block = TextEditingController(text: widget.existing?.block ?? '');
-  late final _street =
-      TextEditingController(text: widget.existing?.street ?? '');
-  late final _building =
-      TextEditingController(text: widget.existing?.building ?? '');
-  late final _details =
-      TextEditingController(text: widget.existing?.details ?? '');
+  late final _street = TextEditingController(
+    text: widget.existing?.street ?? '',
+  );
+  late final _building = TextEditingController(
+    text: widget.existing?.building ?? '',
+  );
+  late final _details = TextEditingController(
+    text: widget.existing?.details ?? '',
+  );
   late bool _isDefault = widget.existing?.isDefault ?? false;
   bool _busy = false;
 

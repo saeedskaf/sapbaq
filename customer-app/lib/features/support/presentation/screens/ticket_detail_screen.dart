@@ -89,7 +89,10 @@ class _TicketDetailViewState extends State<_TicketDetailView> {
       if (picked != null && mounted) setState(() => _image = picked);
     } catch (_) {
       if (mounted) {
-        ShowMessage.error(context, AppLocalizations.of(context)!.imagePickFailed);
+        ShowMessage.error(
+          context,
+          AppLocalizations.of(context)!.imagePickFailed,
+        );
       }
     }
   }
@@ -237,8 +240,7 @@ class _MessageBubble extends StatelessWidget {
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
-          if (message.isStaff &&
-              (message.senderName ?? '').isNotEmpty) ...[
+          if (message.isStaff && (message.senderName ?? '').isNotEmpty) ...[
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 6, top: 4),
               child: TextCustom(
@@ -251,7 +253,11 @@ class _MessageBubble extends StatelessWidget {
             const SizedBox(height: 2),
           ],
           for (final att in message.attachments)
-            _AttachmentThumb(attachment: att, maxWidth: maxWidth),
+            _AttachmentThumb(
+              attachment: att,
+              siblings: message.attachments,
+              maxWidth: maxWidth,
+            ),
           if (message.body.isNotEmpty)
             Container(
               constraints: BoxConstraints(maxWidth: maxWidth),
@@ -259,7 +265,7 @@ class _MessageBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isMine
-                    ? context.colors.primaryFill
+                    ? context.colors.surfaceVariant
                     : context.colors.surfaceVariant,
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -267,7 +273,7 @@ class _MessageBubble extends StatelessWidget {
                 text: message.body,
                 fontSize: 14,
                 color: isMine
-                    ? context.colors.onPrimary
+                    ? context.colors.textSecondary
                     : context.colors.textPrimary,
               ),
             ),
@@ -277,11 +283,18 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-/// A tappable image attachment thumbnail; opens the full image in-app.
+/// A tappable image attachment thumbnail; opens in-app as one swipeable set with
+/// the other attachments of the same message.
 class _AttachmentThumb extends StatelessWidget {
   final TicketAttachment attachment;
+  final List<TicketAttachment> siblings;
   final double maxWidth;
-  const _AttachmentThumb({required this.attachment, required this.maxWidth});
+
+  const _AttachmentThumb({
+    required this.attachment,
+    required this.siblings,
+    required this.maxWidth,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -290,14 +303,15 @@ class _AttachmentThumb extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: GestureDetector(
-        onTap: () => openInAppImage(context, url: attachment.url),
+        onTap: () => openInAppImageGallery(
+          context,
+          urls: [for (final a in siblings) a.url],
+          initialIndex: siblings.indexOf(attachment),
+        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: maxWidth,
-              maxHeight: 220,
-            ),
+            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: 220),
             child: Image.network(
               url,
               fit: BoxFit.cover,
@@ -341,7 +355,11 @@ class _ClosedNote extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.lock_outline_rounded, size: 18, color: context.colors.textHint),
+          Icon(
+            Icons.lock_outline_rounded,
+            size: 18,
+            color: context.colors.textHint,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextCustom(
@@ -392,7 +410,8 @@ class _ReplyBar extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (image != null) _ImagePreview(image: image!, onClear: onClearImage),
+          if (image != null)
+            _ImagePreview(image: image!, onClear: onClearImage),
           Row(
             children: [
               IconButton(

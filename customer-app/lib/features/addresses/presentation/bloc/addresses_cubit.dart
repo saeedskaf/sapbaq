@@ -40,11 +40,13 @@ class AddressesCubit extends Cubit<AddressesState> {
       final items = state.items.where((a) => a.id != id).toList();
       emit(AddressesState(status: LoadStatus.success, items: items));
     } on ApiException catch (e) {
-      emit(AddressesState(
-        status: LoadStatus.success,
-        items: state.items,
-        message: e.message,
-      ));
+      emit(
+        AddressesState(
+          status: LoadStatus.success,
+          items: state.items,
+          message: e.message,
+        ),
+      );
     }
   }
 }

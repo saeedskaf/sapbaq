@@ -47,7 +47,10 @@ class ContentPage extends Equatable {
   factory ContentPage.fromJson(Map<String, dynamic> json) {
     final sections =
         (json['sections'] as List<dynamic>? ?? const [])
-            .map((e) => ContentSection.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) =>
+                  ContentSection.fromJson(Map<String, dynamic>.from(e as Map)),
+            )
             .toList()
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return ContentPage(

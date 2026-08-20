@@ -57,7 +57,8 @@ class TicketMessage extends Equatable {
       senderName: json['sender_name'] as String?,
       attachments: (json['attachments'] as List<dynamic>? ?? const [])
           .map(
-            (e) => TicketAttachment.fromJson(Map<String, dynamic>.from(e as Map)),
+            (e) =>
+                TicketAttachment.fromJson(Map<String, dynamic>.from(e as Map)),
           )
           .toList(),
       createdAt: json['created_at'] as String?,
@@ -155,7 +156,9 @@ class SupportTicket extends Equatable {
             )
           : null,
       messages: (json['messages'] as List<dynamic>? ?? const [])
-          .map((e) => TicketMessage.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => TicketMessage.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
     );
   }
