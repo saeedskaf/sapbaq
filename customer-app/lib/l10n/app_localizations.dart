@@ -134,6 +134,12 @@ abstract class AppLocalizations {
   /// **'قريبًا'**
   String get comingSoon;
 
+  /// No description provided for @genericError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إتمام العملية. حاول مجددًا.'**
+  String get genericError;
+
   /// No description provided for @logout.
   ///
   /// In ar, this message translates to:
@@ -467,8 +473,20 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAddressConfirm.
   ///
   /// In ar, this message translates to:
-  /// **'هل تريد حذف هذا العنوان؟'**
+  /// **'حذف هذا العنوان؟'**
   String get deleteAddressConfirm;
+
+  /// No description provided for @deleteCartTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف هذه السلة؟'**
+  String get deleteCartTitle;
+
+  /// No description provided for @deleteCartBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُحذف «{cart}» بكل ما فيه، ولا يمكن التراجع.'**
+  String deleteCartBody(String cart);
 
   /// No description provided for @areaRequired.
   ///
@@ -752,6 +770,12 @@ abstract class AppLocalizations {
   /// **'لا توجد إشعارات بعد'**
   String get emptyNotifications;
 
+  /// No description provided for @markAllRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الكل كمقروء'**
+  String get markAllRead;
+
   /// No description provided for @productsTitle.
   ///
   /// In ar, this message translates to:
@@ -788,11 +812,53 @@ abstract class AppLocalizations {
   /// **'إضافة إلى السلة'**
   String get addToCart;
 
-  /// No description provided for @productDetailsTitle.
+  /// No description provided for @dedicationTitle.
   ///
   /// In ar, this message translates to:
-  /// **'تفاصيل المنتج'**
-  String get productDetailsTitle;
+  /// **'الاسم على البرّاد'**
+  String get dedicationTitle;
+
+  /// No description provided for @dedicationSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختياري — يُنقش على البرّاد لفريق التنفيذ'**
+  String get dedicationSubtitle;
+
+  /// No description provided for @dedicationEngraveToggle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نقش اسم على البرّاد'**
+  String get dedicationEngraveToggle;
+
+  /// No description provided for @dedicationNameLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم'**
+  String get dedicationNameLabel;
+
+  /// No description provided for @dedicationNameRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرجاء إدخال الاسم'**
+  String get dedicationNameRequired;
+
+  /// No description provided for @dedicationAlive.
+  ///
+  /// In ar, this message translates to:
+  /// **'حيّ'**
+  String get dedicationAlive;
+
+  /// No description provided for @dedicationDeceased.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوفّى'**
+  String get dedicationDeceased;
+
+  /// No description provided for @seeMore.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض المزيد'**
+  String get seeMore;
 
   /// No description provided for @mosquesListTab.
   ///
@@ -824,11 +890,101 @@ abstract class AppLocalizations {
   /// **'لا توجد نتائج مطابقة'**
   String get noSearchResults;
 
-  /// No description provided for @donateMethodTitle.
+  /// No description provided for @mosquesSelectGovernorate.
   ///
   /// In ar, this message translates to:
-  /// **'اختر طريقة الإهداء'**
-  String get donateMethodTitle;
+  /// **'اختر المحافظة'**
+  String get mosquesSelectGovernorate;
+
+  /// No description provided for @mosquesSelectArea.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المنطقة'**
+  String get mosquesSelectArea;
+
+  /// No description provided for @emptyAreas.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مناطق في هذه المحافظة'**
+  String get emptyAreas;
+
+  /// No description provided for @destBarTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب لـ'**
+  String get destBarTitle;
+
+  /// No description provided for @destBarChoose.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر وجهة الطلب'**
+  String get destBarChoose;
+
+  /// No description provided for @payTotalButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع الإجمالي'**
+  String get payTotalButton;
+
+  /// No description provided for @mosquesCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{مسجد واحد} two{مسجدان} few{{count} مساجد} other{{count} مسجدًا}}'**
+  String mosquesCount(int count);
+
+  /// Its own plural rather than «لـ» + mosquesCount: after the preposition the dual is «مسجدين», not «مسجدان», so the two strings cannot share one noun phrase.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{دفعة واحدة لهذا المسجد} two{دفعة واحدة لمسجدين} few{دفعة واحدة لـ{count} مساجد} other{دفعة واحدة لـ{count} مسجدًا}}'**
+  String payOneForMosques(int count);
+
+  /// No description provided for @couponAppliedToTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُحتسب خصم الكوبون على الإجمالي عند الدفع'**
+  String get couponAppliedToTotal;
+
+  /// No description provided for @cartConflictHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'احذف الكوبون أو بطاقة الإهداء من إحدى هذه السلال للمتابعة'**
+  String get cartConflictHint;
+
+  /// No description provided for @mosqueNeedsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'احتياجات المساجد'**
+  String get mosqueNeedsTitle;
+
+  /// No description provided for @mosqueNeedsDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب مباشرةً احتياجات المساجد الحالية،\nويصل طلبك للمسجد الذي تختاره.'**
+  String get mosqueNeedsDesc;
+
+  /// No description provided for @destinationPickerTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلى أين تريد الطلب؟'**
+  String get destinationPickerTitle;
+
+  /// No description provided for @destSpecificMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسجد محدد'**
+  String get destSpecificMosque;
+
+  /// No description provided for @destSpecificMosqueDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر مسجدًا من القائمة'**
+  String get destSpecificMosqueDesc;
+
+  /// No description provided for @pickMosqueTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر مسجدًا'**
+  String get pickMosqueTitle;
 
   /// No description provided for @mostNeededTitle.
   ///
@@ -842,29 +998,335 @@ abstract class AppLocalizations {
   /// **'المساجد الأكثر حاجة'**
   String get mostNeededShort;
 
-  /// No description provided for @mostNeededDesc.
+  /// No description provided for @mostNeededBadge.
   ///
   /// In ar, this message translates to:
-  /// **'اهدِ المياه وسنوصلها للمساجد الأكثر حاجة'**
-  String get mostNeededDesc;
+  /// **'الأكثر حاجة'**
+  String get mostNeededBadge;
 
-  /// No description provided for @chooseMosqueTitle.
+  /// No description provided for @requestForMosque.
   ///
   /// In ar, this message translates to:
-  /// **'إهداء لمسجد محدد'**
-  String get chooseMosqueTitle;
+  /// **'اطلب لمسجد'**
+  String get requestForMosque;
 
-  /// No description provided for @chooseMosqueDesc.
+  /// No description provided for @needsApprovalBadge.
   ///
   /// In ar, this message translates to:
-  /// **'اختر مسجدًا من القائمة أو الخريطة'**
-  String get chooseMosqueDesc;
+  /// **'يتطلب موافقة'**
+  String get needsApprovalBadge;
+
+  /// No description provided for @mostNeededPickTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر مسجدًا من الأكثر حاجة'**
+  String get mostNeededPickTitle;
+
+  /// No description provided for @mostNeededPickBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساجد اختارتها الإدارة لحاجتها الماسّة'**
+  String get mostNeededPickBody;
 
   /// No description provided for @donateToThisMosque.
   ///
   /// In ar, this message translates to:
-  /// **'إهداء لهذا المسجد'**
+  /// **'اطلب لهذا المسجد'**
   String get donateToThisMosque;
+
+  /// No description provided for @contributionDetailTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل المساهمة'**
+  String get contributionDetailTitle;
+
+  /// No description provided for @fulfilmentStatement.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيان التنفيذ'**
+  String get fulfilmentStatement;
+
+  /// No description provided for @maintenanceCaseStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة البلاغ'**
+  String get maintenanceCaseStatus;
+
+  /// No description provided for @contractPeriod.
+  ///
+  /// In ar, this message translates to:
+  /// **'سريان العقد'**
+  String get contractPeriod;
+
+  /// No description provided for @tabWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'مياه'**
+  String get tabWater;
+
+  /// No description provided for @tabMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيانة'**
+  String get tabMaintenance;
+
+  /// No description provided for @tabEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّات'**
+  String get tabEquipment;
+
+  /// No description provided for @emptyWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مساجد بحاجة لماء حاليًا'**
+  String get emptyWater;
+
+  /// No description provided for @emptyMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات صيانة حاليًا'**
+  String get emptyMaintenance;
+
+  /// No description provided for @emptyEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات معدّات حاليًا'**
+  String get emptyEquipment;
+
+  /// No description provided for @emptyContributions.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مساهمات بعد'**
+  String get emptyContributions;
+
+  /// No description provided for @contribute.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب'**
+  String get contribute;
+
+  /// No description provided for @waterFunded.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تمويل {funded} من {max} باقة'**
+  String waterFunded(int funded, int max);
+
+  /// No description provided for @waterQtyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'كم باقة تريد أن تطلبها؟'**
+  String get waterQtyTitle;
+
+  /// No description provided for @remainingPackages.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتبقّي: {remaining} باقة'**
+  String remainingPackages(int remaining);
+
+  /// No description provided for @donate.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب'**
+  String get donate;
+
+  /// No description provided for @payRepair.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع الصيانة'**
+  String get payRepair;
+
+  /// No description provided for @maintenanceContract.
+  ///
+  /// In ar, this message translates to:
+  /// **'عقد صيانة سنة'**
+  String get maintenanceContract;
+
+  /// No description provided for @contributeAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'ساهم'**
+  String get contributeAction;
+
+  /// No description provided for @contributeAmountTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بكم تحبّ أن تساهم؟'**
+  String get contributeAmountTitle;
+
+  /// No description provided for @currencyKwd.
+  ///
+  /// In ar, this message translates to:
+  /// **'د.ك'**
+  String get currencyKwd;
+
+  /// No description provided for @fundingGoal.
+  ///
+  /// In ar, this message translates to:
+  /// **'الهدف: {amount} د.ك'**
+  String fundingGoal(String amount);
+
+  /// No description provided for @fundedOfTarget.
+  ///
+  /// In ar, this message translates to:
+  /// **'مموَّل {funded} من {target} د.ك'**
+  String fundedOfTarget(String funded, String target);
+
+  /// No description provided for @fundingRemaining.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبقٍّ {amount} د.ك'**
+  String fundingRemaining(String amount);
+
+  /// No description provided for @fundRemainder.
+  ///
+  /// In ar, this message translates to:
+  /// **'موّل المتبقّي'**
+  String get fundRemainder;
+
+  /// No description provided for @noRefundNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساهمتك تُحتسب لهذه الحملة ولا تُسترد. إن لم يكتمل التمويل تبقى الحملة مفتوحة حتى تُركّب المعدّة.'**
+  String get noRefundNote;
+
+  /// No description provided for @errAmountExceedsRemaining.
+  ///
+  /// In ar, this message translates to:
+  /// **'بقي {amount} د.ك فقط لهذه الحملة.'**
+  String errAmountExceedsRemaining(String amount);
+
+  /// No description provided for @errListingClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتمل تمويل هذه الحملة'**
+  String get errListingClosed;
+
+  /// No description provided for @yourShare.
+  ///
+  /// In ar, this message translates to:
+  /// **'حصّتك'**
+  String get yourShare;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'المبلغ'**
+  String get amountLabel;
+
+  /// No description provided for @timeLeftLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوقت المتبقّي'**
+  String get timeLeftLabel;
+
+  /// No description provided for @payWindowNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكمل الدفع خلال المهلة وإلا يعود الطلب إلى السوق'**
+  String get payWindowNote;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إغلاق'**
+  String get closeButton;
+
+  /// No description provided for @holdExpiredTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مهلة الدفع'**
+  String get holdExpiredTitle;
+
+  /// No description provided for @holdExpiredBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'عاد الطلب إلى السوق. يمكنك المحاولة مجددًا إن كان متاحًا.'**
+  String get holdExpiredBody;
+
+  /// No description provided for @paidThanks.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الدفع، شكرًا لطلبك'**
+  String get paidThanks;
+
+  /// No description provided for @backedToMarket.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت المهلة، عاد الطلب إلى السوق'**
+  String get backedToMarket;
+
+  /// No description provided for @completePayment.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكمل الدفع'**
+  String get completePayment;
+
+  /// No description provided for @contribPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد الدفع'**
+  String get contribPending;
+
+  /// No description provided for @contribPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدفوعة'**
+  String get contribPaid;
+
+  /// No description provided for @contribExpired.
+  ///
+  /// In ar, this message translates to:
+  /// **'منتهية'**
+  String get contribExpired;
+
+  /// No description provided for @contribCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get contribCancelled;
+
+  /// No description provided for @contribFulfilled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التنفيذ'**
+  String get contribFulfilled;
+
+  /// No description provided for @kindWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'مياه'**
+  String get kindWater;
+
+  /// No description provided for @kindMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيانة'**
+  String get kindMaintenance;
+
+  /// No description provided for @kindContract.
+  ///
+  /// In ar, this message translates to:
+  /// **'عقد صيانة'**
+  String get kindContract;
+
+  /// No description provided for @kindEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّة'**
+  String get kindEquipment;
+
+  /// No description provided for @proofPhotoLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'صورة التوثيق'**
+  String get proofPhotoLabel;
+
+  /// No description provided for @supportWaterTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب ماءً لهذا المسجد'**
+  String get supportWaterTitle;
 
   /// No description provided for @viewMosqueDetails.
   ///
@@ -893,7 +1355,7 @@ abstract class AppLocalizations {
   /// No description provided for @donateMosquePrompt.
   ///
   /// In ar, this message translates to:
-  /// **'هل ترغب بالإهداء لهذا المسجد؟'**
+  /// **'هل ترغب بالطلب لهذا المسجد؟'**
   String get donateMosquePrompt;
 
   /// No description provided for @viewOnMap.
@@ -905,13 +1367,13 @@ abstract class AppLocalizations {
   /// No description provided for @donatingTo.
   ///
   /// In ar, this message translates to:
-  /// **'إهداء إلى {label}'**
+  /// **'طلب إلى {label}'**
   String donatingTo(String label);
 
   /// No description provided for @addedToCart.
   ///
   /// In ar, this message translates to:
-  /// **'أُضيف إلى السلة'**
+  /// **'تمت الإضافة إلى السلة'**
   String get addedToCart;
 
   /// No description provided for @addButton.
@@ -935,7 +1397,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyCartDesc.
   ///
   /// In ar, this message translates to:
-  /// **'اختر مسجدًا أو المساجد الأكثر حاجة وابدأ الإهداء'**
+  /// **'اختر مسجدًا أو المساجد الأكثر حاجة وابدأ الطلب'**
   String get emptyCartDesc;
 
   /// No description provided for @subtotalLabel.
@@ -962,11 +1424,11 @@ abstract class AppLocalizations {
   /// **'حذف'**
   String get deleteGroupButton;
 
-  /// No description provided for @checkoutButton.
+  /// No description provided for @changeDestination.
   ///
   /// In ar, this message translates to:
-  /// **'إتمام الشراء'**
-  String get checkoutButton;
+  /// **'تغيير الوجهة'**
+  String get changeDestination;
 
   /// No description provided for @couponHint.
   ///
@@ -980,6 +1442,12 @@ abstract class AppLocalizations {
   /// **'إضافة كوبون خصم'**
   String get addCoupon;
 
+  /// No description provided for @haveCoupon.
+  ///
+  /// In ar, this message translates to:
+  /// **'لديك كوبون؟'**
+  String get haveCoupon;
+
   /// No description provided for @applyButton.
   ///
   /// In ar, this message translates to:
@@ -991,12 +1459,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'إزالة'**
   String get removeButton;
-
-  /// No description provided for @checkoutTitle.
-  ///
-  /// In ar, this message translates to:
-  /// **'إتمام الشراء'**
-  String get checkoutTitle;
 
   /// No description provided for @notesHint.
   ///
@@ -1019,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @orderSuccessDesc.
   ///
   /// In ar, this message translates to:
-  /// **'شكرًا لإهدائك، سنوصل المياه قريبًا بإذن الله'**
+  /// **'شكرًا لطلبك، سنوصل المياه قريبًا بإذن الله'**
   String get orderSuccessDesc;
 
   /// No description provided for @backToHome.
@@ -1027,6 +1489,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'العودة للرئيسية'**
   String get backToHome;
+
+  /// No description provided for @viewOrder.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض الطلب'**
+  String get viewOrder;
+
+  /// No description provided for @viewMyOrders.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض طلباتي'**
+  String get viewMyOrders;
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} منتج'**
+  String itemsCount(int count);
 
   /// No description provided for @ordersTitle.
   ///
@@ -1058,6 +1538,12 @@ abstract class AppLocalizations {
   /// **'{count} وجهة'**
   String destinationsCount(int count);
 
+  /// No description provided for @mediaCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} عنصر'**
+  String mediaCount(int count);
+
   /// No description provided for @driverLabel.
   ///
   /// In ar, this message translates to:
@@ -1069,6 +1555,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'ادفع الآن'**
   String get payNow;
+
+  /// No description provided for @activityKindProducts.
+  ///
+  /// In ar, this message translates to:
+  /// **'منتجات'**
+  String get activityKindProducts;
+
+  /// No description provided for @activityKindEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّات'**
+  String get activityKindEquipment;
+
+  /// No description provided for @activityKindContribution.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساهمة'**
+  String get activityKindContribution;
+
+  /// No description provided for @payWindowLeft.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبقّى {time}'**
+  String payWindowLeft(String time);
 
   /// No description provided for @statusPending.
   ///
@@ -1115,14 +1625,26 @@ abstract class AppLocalizations {
   /// No description provided for @cancelOrderConfirm.
   ///
   /// In ar, this message translates to:
-  /// **'هل أنت متأكد من إلغاء هذا الطلب؟'**
+  /// **'إلغاء هذا الطلب؟'**
   String get cancelOrderConfirm;
+
+  /// No description provided for @cancelOrderBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لن يُخصم أي مبلغ، ولا يمكن التراجع بعد تأكيد الإلغاء.'**
+  String get cancelOrderBody;
 
   /// No description provided for @cancelReasonHint.
   ///
   /// In ar, this message translates to:
   /// **'سبب الإلغاء (اختياري)'**
   String get cancelReasonHint;
+
+  /// No description provided for @cancelReasonPlaceholder.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب سببًا مختصرًا…'**
+  String get cancelReasonPlaceholder;
 
   /// No description provided for @confirmCancel.
   ///
@@ -1220,24 +1742,6 @@ abstract class AppLocalizations {
   /// **'تعديل الإهداء'**
   String get editGiftTitle;
 
-  /// No description provided for @chooseGiftCategory.
-  ///
-  /// In ar, this message translates to:
-  /// **'اختر صنف الإهداء'**
-  String get chooseGiftCategory;
-
-  /// No description provided for @noTemplatesInCategory.
-  ///
-  /// In ar, this message translates to:
-  /// **'لا توجد قوالب متاحة في هذا الصنف'**
-  String get noTemplatesInCategory;
-
-  /// No description provided for @chooseTemplate.
-  ///
-  /// In ar, this message translates to:
-  /// **'اختر التصميم'**
-  String get chooseTemplate;
-
   /// No description provided for @dedicatedToLabel.
   ///
   /// In ar, this message translates to:
@@ -1247,7 +1751,7 @@ abstract class AppLocalizations {
   /// No description provided for @dedicatedToHint.
   ///
   /// In ar, this message translates to:
-  /// **'مثال: والدي محمد'**
+  /// **'اسم اللي ودك تهديه'**
   String get dedicatedToHint;
 
   /// No description provided for @senderNameLabel.
@@ -1256,17 +1760,35 @@ abstract class AppLocalizations {
   /// **'تقديم من'**
   String get senderNameLabel;
 
-  /// No description provided for @relationLabel.
+  /// No description provided for @senderNameHint.
   ///
   /// In ar, this message translates to:
-  /// **'صلة القرابة'**
-  String get relationLabel;
+  /// **'اسمك'**
+  String get senderNameHint;
 
-  /// No description provided for @whatsappLabel.
+  /// No description provided for @giftSenderShownHint.
   ///
   /// In ar, this message translates to:
-  /// **'رقم واتساب للإشعار'**
-  String get whatsappLabel;
+  /// **'سيظهر اسمك على الكرت'**
+  String get giftSenderShownHint;
+
+  /// No description provided for @giftSenderPrivateHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيظهر الإهداء باسم «فاعل خير»'**
+  String get giftSenderPrivateHint;
+
+  /// No description provided for @whatsappNumberHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم الواتساب'**
+  String get whatsappNumberHint;
+
+  /// No description provided for @giftFromName.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقديم من {name}'**
+  String giftFromName(String name);
 
   /// No description provided for @saveGift.
   ///
@@ -1280,71 +1802,35 @@ abstract class AppLocalizations {
   /// **'تمت إضافة الإهداء'**
   String get giftAdded;
 
-  /// No description provided for @relGeneral.
-  ///
-  /// In ar, this message translates to:
-  /// **'عام'**
-  String get relGeneral;
-
-  /// No description provided for @relFather.
-  ///
-  /// In ar, this message translates to:
-  /// **'الوالد'**
-  String get relFather;
-
-  /// No description provided for @relMother.
-  ///
-  /// In ar, this message translates to:
-  /// **'الوالدة'**
-  String get relMother;
-
-  /// No description provided for @relHusband.
-  ///
-  /// In ar, this message translates to:
-  /// **'الزوج'**
-  String get relHusband;
-
-  /// No description provided for @relWife.
-  ///
-  /// In ar, this message translates to:
-  /// **'الزوجة'**
-  String get relWife;
-
-  /// No description provided for @relSon.
-  ///
-  /// In ar, this message translates to:
-  /// **'الابن'**
-  String get relSon;
-
-  /// No description provided for @relDaughter.
-  ///
-  /// In ar, this message translates to:
-  /// **'الابنة'**
-  String get relDaughter;
-
-  /// No description provided for @relBrother.
-  ///
-  /// In ar, this message translates to:
-  /// **'الأخ'**
-  String get relBrother;
-
-  /// No description provided for @relSister.
-  ///
-  /// In ar, this message translates to:
-  /// **'الأخت'**
-  String get relSister;
-
-  /// No description provided for @relFriend.
-  ///
-  /// In ar, this message translates to:
-  /// **'صديق'**
-  String get relFriend;
-
   /// No description provided for @priceKwd.
   ///
   /// In ar, this message translates to:
   /// **'{amount} د.ك'**
   String priceKwd(String amount);
+
+  /// No description provided for @priceFromKwd.
+  ///
+  /// In ar, this message translates to:
+  /// **'من {amount} د.ك'**
+  String priceFromKwd(String amount);
+
+  /// No description provided for @variantPickFirst.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر أحد الخيارات أولًا'**
+  String get variantPickFirst;
+
+  /// No description provided for @notAvailableNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير متوفر حاليًا'**
+  String get notAvailableNow;
+
+  /// No description provided for @inCartCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'في السلة: {count}'**
+  String inCartCount(int count);
 
   /// No description provided for @greeting.
   ///
@@ -1637,7 +2123,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestWelcomeDesc.
   ///
   /// In ar, this message translates to:
-  /// **'سجّل الدخول للوصول إلى حسابك وطلباتك وإتمام إهداءاتك.'**
+  /// **'سجّل الدخول للوصول إلى حسابك وطلباتك وإتمامها.'**
   String get guestWelcomeDesc;
 
   /// No description provided for @signupTitle.
@@ -1700,17 +2186,77 @@ abstract class AppLocalizations {
   /// **'إعادة الإرسال خلال {seconds} ثانية'**
   String resendCodeIn(int seconds);
 
+  /// No description provided for @emailVerifiedBadge.
+  ///
+  /// In ar, this message translates to:
+  /// **'موثَّق'**
+  String get emailVerifiedBadge;
+
+  /// No description provided for @emailUnverifiedBadge.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير موثَّق'**
+  String get emailUnverifiedBadge;
+
+  /// No description provided for @verifyEmailTile.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيق البريد الإلكتروني'**
+  String get verifyEmailTile;
+
+  /// No description provided for @changeEmailTile.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير البريد الإلكتروني'**
+  String get changeEmailTile;
+
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيق البريد الإلكتروني'**
+  String get verifyEmailTitle;
+
+  /// No description provided for @changeEmailTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير البريد الإلكتروني'**
+  String get changeEmailTitle;
+
+  /// No description provided for @verifyEmailSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل بريدك الإلكتروني ليصلك رمز التحقق.'**
+  String get verifyEmailSubtitle;
+
+  /// No description provided for @emailCodeSentTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز المُرسَل إلى {email}'**
+  String emailCodeSentTo(String email);
+
+  /// No description provided for @changeEmailAddress.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير البريد'**
+  String get changeEmailAddress;
+
+  /// No description provided for @emailVerifiedSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم توثيق بريدك الإلكتروني'**
+  String get emailVerifiedSuccess;
+
+  /// No description provided for @emailOldAddressNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيصل تنبيه إلى بريدك السابق بعد التغيير.'**
+  String get emailOldAddressNotice;
+
   /// No description provided for @notMe.
   ///
   /// In ar, this message translates to:
   /// **'لست أنا؟'**
   String get notMe;
-
-  /// No description provided for @phoneKuwaitOnly.
-  ///
-  /// In ar, this message translates to:
-  /// **'يُقبل رقم كويتي (+965) فقط حاليًا'**
-  String get phoneKuwaitOnly;
 
   /// No description provided for @welcomeBackTitle.
   ///
@@ -1777,6 +2323,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تعيين الرمز الجديد'**
   String get resetPasscodeButton;
+
+  /// No description provided for @back.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجوع'**
+  String get back;
 
   /// No description provided for @passcodeMismatch.
   ///
@@ -2000,6 +2552,12 @@ abstract class AppLocalizations {
   /// **'يجب أن يحتوي رقم الهاتف على أرقام فقط'**
   String get phoneOnlyNumbers;
 
+  /// No description provided for @phoneEightDigits.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب أن يتكون الرقم من 8 أرقام'**
+  String get phoneEightDigits;
+
   /// No description provided for @passwordRequired.
   ///
   /// In ar, this message translates to:
@@ -2083,6 +2641,348 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تحديثات الطلبات والهدايا والإعلانات.'**
   String get notificationChannelDescription;
+
+  /// No description provided for @payTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إتمام الدفع'**
+  String get payTitle;
+
+  /// No description provided for @payCancelTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الدفع؟'**
+  String get payCancelTitle;
+
+  /// No description provided for @payCancelBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لو كنت أكملت الدفع فسنتحقّق منه تلقائيًا. هل تريد إغلاق صفحة الدفع؟'**
+  String get payCancelBody;
+
+  /// No description provided for @payKeepGoing.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة الدفع'**
+  String get payKeepGoing;
+
+  /// No description provided for @payLeave.
+  ///
+  /// In ar, this message translates to:
+  /// **'إغلاق'**
+  String get payLeave;
+
+  /// No description provided for @paySecureNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'دفع آمن عبر ماي فاتورة'**
+  String get paySecureNote;
+
+  /// No description provided for @payRecovered.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد دفعتك السابقة بنجاح.'**
+  String get payRecovered;
+
+  /// No description provided for @payAmountAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع {amount}'**
+  String payAmountAction(String amount);
+
+  /// No description provided for @payNewCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'بطاقة جديدة'**
+  String get payNewCard;
+
+  /// No description provided for @payWithKnet.
+  ///
+  /// In ar, this message translates to:
+  /// **'كي-نت'**
+  String get payWithKnet;
+
+  /// No description provided for @payLeavesApp.
+  ///
+  /// In ar, this message translates to:
+  /// **'يفتح صفحة البنك خارج التطبيق'**
+  String get payLeavesApp;
+
+  /// No description provided for @paySaveCard.
+  ///
+  /// In ar, this message translates to:
+  /// **'احفظ البطاقة لعمليات لاحقة'**
+  String get paySaveCard;
+
+  /// No description provided for @payCardRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر قبول بيانات البطاقة. راجعها وحاول مرّة أخرى.'**
+  String get payCardRejected;
+
+  /// No description provided for @paySessionStale.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية جلسة الدفع. أعدنا فتحها — حاول مرّة أخرى.'**
+  String get paySessionStale;
+
+  /// No description provided for @payBiometricReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكّد هويّتك لإتمام الدفع'**
+  String get payBiometricReason;
+
+  /// No description provided for @payMisconfigured.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة الدفع غير متاحة حاليًا. تواصل مع الدعم — لا داعي لإعادة المحاولة.'**
+  String get payMisconfigured;
+
+  /// No description provided for @payUseHostedPage.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع عبر صفحة الدفع الآمنة'**
+  String get payUseHostedPage;
+
+  /// No description provided for @payNoResponse.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تستجب صفحة الدفع. تحقّق من اتصالك وحاول مرّة أخرى.'**
+  String get payNoResponse;
+
+  /// No description provided for @payReference.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرجع العملية: {id}'**
+  String payReference(int id);
+
+  /// No description provided for @payForOrder.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيمة الطلب #{id}'**
+  String payForOrder(int id);
+
+  /// No description provided for @payForContribution.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساهمة في احتياج مسجد'**
+  String get payForContribution;
+
+  /// No description provided for @payForEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب معدّة'**
+  String get payForEquipment;
+
+  /// No description provided for @payFailedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يكتمل الدفع'**
+  String get payFailedTitle;
+
+  /// No description provided for @payFailedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يكتمل الدفع. تحقّق من حالة الطلب قبل إعادة المحاولة تفاديًا لتكرار الخصم.'**
+  String get payFailedBody;
+
+  /// No description provided for @payDeclinedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفضت بوّابة الدفع العملية. تأكّد من بيانات البطاقة أو جرّب بطاقة أخرى.'**
+  String get payDeclinedBody;
+
+  /// No description provided for @payPendingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدفع قيد التحقّق'**
+  String get payPendingTitle;
+
+  /// No description provided for @payPendingBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم نستطع تأكيد العملية بعد. تحقّق من طلباتك بعد قليل، أو أعد المحاولة.'**
+  String get payPendingBody;
+
+  /// No description provided for @payRetry.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المحاولة'**
+  String get payRetry;
+
+  /// No description provided for @equipRequestAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقديم طلب'**
+  String get equipRequestAction;
+
+  /// No description provided for @equipRequestTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب معدّة'**
+  String get equipRequestTitle;
+
+  /// No description provided for @equipMyRequestsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات المعدّات'**
+  String get equipMyRequestsTitle;
+
+  /// No description provided for @equipPickMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'المسجد المستفيد'**
+  String get equipPickMosque;
+
+  /// No description provided for @equipMosqueRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المسجد أولًا'**
+  String get equipMosqueRequired;
+
+  /// No description provided for @equipDedicationTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نقش (اختياري)'**
+  String get equipDedicationTitle;
+
+  /// No description provided for @equipDedicationName.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم على النقش'**
+  String get equipDedicationName;
+
+  /// No description provided for @equipSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الطلب'**
+  String get equipSubmit;
+
+  /// No description provided for @equipSubmitted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال طلبك للمراجعة'**
+  String get equipSubmitted;
+
+  /// No description provided for @equipNoteUnderReview.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يُخصم أي مبلغ الآن. بعد الموافقة تُفتح مهلة دفع {hours} ساعة.'**
+  String equipNoteUnderReview(int hours);
+
+  /// No description provided for @equipNoRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات معدّات'**
+  String get equipNoRequests;
+
+  /// No description provided for @equipPayWindow.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتبقي للدفع: {time}'**
+  String equipPayWindow(String time);
+
+  /// No description provided for @equipWindowClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مهلة الدفع'**
+  String get equipWindowClosed;
+
+  /// No description provided for @equipCancelRequest.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الطلب'**
+  String get equipCancelRequest;
+
+  /// No description provided for @equipCancelConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء هذا الطلب؟'**
+  String get equipCancelConfirm;
+
+  /// No description provided for @equipCancelBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُلغى طلبك ولن يُخصم أي مبلغ.'**
+  String get equipCancelBody;
+
+  /// No description provided for @equipCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إلغاء الطلب'**
+  String get equipCancelled;
+
+  /// No description provided for @equipRejectionReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الرفض'**
+  String get equipRejectionReason;
+
+  /// No description provided for @equipInstalledCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز الوحدة المركّبة'**
+  String get equipInstalledCode;
+
+  /// No description provided for @equipStatusUnderReview.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المراجعة'**
+  String get equipStatusUnderReview;
+
+  /// No description provided for @equipStatusApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمَد — بانتظار الدفع'**
+  String get equipStatusApproved;
+
+  /// No description provided for @equipStatusPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدفوع'**
+  String get equipStatusPaid;
+
+  /// No description provided for @equipStatusInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد التنفيذ'**
+  String get equipStatusInProgress;
+
+  /// No description provided for @equipStatusInstalled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التركيب'**
+  String get equipStatusInstalled;
+
+  /// No description provided for @equipStatusRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get equipStatusRejected;
+
+  /// No description provided for @equipStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغى'**
+  String get equipStatusCancelled;
+
+  /// No description provided for @equipDesignRegular.
+  ///
+  /// In ar, this message translates to:
+  /// **'عادي'**
+  String get equipDesignRegular;
+
+  /// No description provided for @equipDesignLuxuryWood.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاخر خشبي'**
+  String get equipDesignLuxuryWood;
+
+  /// No description provided for @equipDesignIronGuarded.
+  ///
+  /// In ar, this message translates to:
+  /// **'محمي بالحديد'**
+  String get equipDesignIronGuarded;
 }
 
 class _AppLocalizationsDelegate

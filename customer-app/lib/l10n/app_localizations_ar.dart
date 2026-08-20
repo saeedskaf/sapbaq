@@ -28,6 +28,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get comingSoon => 'قريبًا';
 
   @override
+  String get genericError => 'تعذّر إتمام العملية. حاول مجددًا.';
+
+  @override
   String get logout => 'تسجيل الخروج';
 
   @override
@@ -198,7 +201,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addressSaved => 'تم حفظ العنوان';
 
   @override
-  String get deleteAddressConfirm => 'هل تريد حذف هذا العنوان؟';
+  String get deleteAddressConfirm => 'حذف هذا العنوان؟';
+
+  @override
+  String get deleteCartTitle => 'حذف هذه السلة؟';
+
+  @override
+  String deleteCartBody(String cart) {
+    return 'سيُحذف «$cart» بكل ما فيه، ولا يمكن التراجع.';
+  }
 
   @override
   String get areaRequired => 'المنطقة مطلوبة';
@@ -343,6 +354,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get emptyNotifications => 'لا توجد إشعارات بعد';
 
   @override
+  String get markAllRead => 'تعليم الكل كمقروء';
+
+  @override
   String get productsTitle => 'المنتجات';
 
   @override
@@ -361,7 +375,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addToCart => 'إضافة إلى السلة';
 
   @override
-  String get productDetailsTitle => 'تفاصيل المنتج';
+  String get dedicationTitle => 'الاسم على البرّاد';
+
+  @override
+  String get dedicationSubtitle => 'اختياري — يُنقش على البرّاد لفريق التنفيذ';
+
+  @override
+  String get dedicationEngraveToggle => 'نقش اسم على البرّاد';
+
+  @override
+  String get dedicationNameLabel => 'الاسم';
+
+  @override
+  String get dedicationNameRequired => 'الرجاء إدخال الاسم';
+
+  @override
+  String get dedicationAlive => 'حيّ';
+
+  @override
+  String get dedicationDeceased => 'متوفّى';
+
+  @override
+  String get seeMore => 'عرض المزيد';
 
   @override
   String get mosquesListTab => 'قائمة';
@@ -379,7 +414,75 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noSearchResults => 'لا توجد نتائج مطابقة';
 
   @override
-  String get donateMethodTitle => 'اختر طريقة الإهداء';
+  String get mosquesSelectGovernorate => 'اختر المحافظة';
+
+  @override
+  String get mosquesSelectArea => 'اختر المنطقة';
+
+  @override
+  String get emptyAreas => 'لا توجد مناطق في هذه المحافظة';
+
+  @override
+  String get destBarTitle => 'اطلب لـ';
+
+  @override
+  String get destBarChoose => 'اختر وجهة الطلب';
+
+  @override
+  String get payTotalButton => 'ادفع الإجمالي';
+
+  @override
+  String mosquesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مسجدًا',
+      few: '$count مساجد',
+      two: 'مسجدان',
+      one: 'مسجد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String payOneForMosques(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دفعة واحدة لـ$count مسجدًا',
+      few: 'دفعة واحدة لـ$count مساجد',
+      two: 'دفعة واحدة لمسجدين',
+      one: 'دفعة واحدة لهذا المسجد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get couponAppliedToTotal =>
+      'يُحتسب خصم الكوبون على الإجمالي عند الدفع';
+
+  @override
+  String get cartConflictHint =>
+      'احذف الكوبون أو بطاقة الإهداء من إحدى هذه السلال للمتابعة';
+
+  @override
+  String get mosqueNeedsTitle => 'احتياجات المساجد';
+
+  @override
+  String get mosqueNeedsDesc =>
+      'اطلب مباشرةً احتياجات المساجد الحالية،\nويصل طلبك للمسجد الذي تختاره.';
+
+  @override
+  String get destinationPickerTitle => 'إلى أين تريد الطلب؟';
+
+  @override
+  String get destSpecificMosque => 'مسجد محدد';
+
+  @override
+  String get destSpecificMosqueDesc => 'اختر مسجدًا من القائمة';
+
+  @override
+  String get pickMosqueTitle => 'اختر مسجدًا';
 
   @override
   String get mostNeededTitle => 'المساجد الأكثر حاجة في الكويت';
@@ -388,16 +491,184 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mostNeededShort => 'المساجد الأكثر حاجة';
 
   @override
-  String get mostNeededDesc => 'اهدِ المياه وسنوصلها للمساجد الأكثر حاجة';
+  String get mostNeededBadge => 'الأكثر حاجة';
 
   @override
-  String get chooseMosqueTitle => 'إهداء لمسجد محدد';
+  String get requestForMosque => 'اطلب لمسجد';
 
   @override
-  String get chooseMosqueDesc => 'اختر مسجدًا من القائمة أو الخريطة';
+  String get needsApprovalBadge => 'يتطلب موافقة';
 
   @override
-  String get donateToThisMosque => 'إهداء لهذا المسجد';
+  String get mostNeededPickTitle => 'اختر مسجدًا من الأكثر حاجة';
+
+  @override
+  String get mostNeededPickBody => 'مساجد اختارتها الإدارة لحاجتها الماسّة';
+
+  @override
+  String get donateToThisMosque => 'اطلب لهذا المسجد';
+
+  @override
+  String get contributionDetailTitle => 'تفاصيل المساهمة';
+
+  @override
+  String get fulfilmentStatement => 'بيان التنفيذ';
+
+  @override
+  String get maintenanceCaseStatus => 'حالة البلاغ';
+
+  @override
+  String get contractPeriod => 'سريان العقد';
+
+  @override
+  String get tabWater => 'مياه';
+
+  @override
+  String get tabMaintenance => 'صيانة';
+
+  @override
+  String get tabEquipment => 'معدّات';
+
+  @override
+  String get emptyWater => 'لا توجد مساجد بحاجة لماء حاليًا';
+
+  @override
+  String get emptyMaintenance => 'لا توجد طلبات صيانة حاليًا';
+
+  @override
+  String get emptyEquipment => 'لا توجد طلبات معدّات حاليًا';
+
+  @override
+  String get emptyContributions => 'لا توجد مساهمات بعد';
+
+  @override
+  String get contribute => 'اطلب';
+
+  @override
+  String waterFunded(int funded, int max) {
+    return 'تم تمويل $funded من $max باقة';
+  }
+
+  @override
+  String get waterQtyTitle => 'كم باقة تريد أن تطلبها؟';
+
+  @override
+  String remainingPackages(int remaining) {
+    return 'المتبقّي: $remaining باقة';
+  }
+
+  @override
+  String get donate => 'اطلب';
+
+  @override
+  String get payRepair => 'ادفع الصيانة';
+
+  @override
+  String get maintenanceContract => 'عقد صيانة سنة';
+
+  @override
+  String get contributeAction => 'ساهم';
+
+  @override
+  String get contributeAmountTitle => 'بكم تحبّ أن تساهم؟';
+
+  @override
+  String get currencyKwd => 'د.ك';
+
+  @override
+  String fundingGoal(String amount) {
+    return 'الهدف: $amount د.ك';
+  }
+
+  @override
+  String fundedOfTarget(String funded, String target) {
+    return 'مموَّل $funded من $target د.ك';
+  }
+
+  @override
+  String fundingRemaining(String amount) {
+    return 'متبقٍّ $amount د.ك';
+  }
+
+  @override
+  String get fundRemainder => 'موّل المتبقّي';
+
+  @override
+  String get noRefundNote =>
+      'مساهمتك تُحتسب لهذه الحملة ولا تُسترد. إن لم يكتمل التمويل تبقى الحملة مفتوحة حتى تُركّب المعدّة.';
+
+  @override
+  String errAmountExceedsRemaining(String amount) {
+    return 'بقي $amount د.ك فقط لهذه الحملة.';
+  }
+
+  @override
+  String get errListingClosed => 'اكتمل تمويل هذه الحملة';
+
+  @override
+  String get yourShare => 'حصّتك';
+
+  @override
+  String get amountLabel => 'المبلغ';
+
+  @override
+  String get timeLeftLabel => 'الوقت المتبقّي';
+
+  @override
+  String get payWindowNote =>
+      'أكمل الدفع خلال المهلة وإلا يعود الطلب إلى السوق';
+
+  @override
+  String get closeButton => 'إغلاق';
+
+  @override
+  String get holdExpiredTitle => 'انتهت مهلة الدفع';
+
+  @override
+  String get holdExpiredBody =>
+      'عاد الطلب إلى السوق. يمكنك المحاولة مجددًا إن كان متاحًا.';
+
+  @override
+  String get paidThanks => 'تم الدفع، شكرًا لطلبك';
+
+  @override
+  String get backedToMarket => 'انتهت المهلة، عاد الطلب إلى السوق';
+
+  @override
+  String get completePayment => 'أكمل الدفع';
+
+  @override
+  String get contribPending => 'قيد الدفع';
+
+  @override
+  String get contribPaid => 'مدفوعة';
+
+  @override
+  String get contribExpired => 'منتهية';
+
+  @override
+  String get contribCancelled => 'ملغاة';
+
+  @override
+  String get contribFulfilled => 'تم التنفيذ';
+
+  @override
+  String get kindWater => 'مياه';
+
+  @override
+  String get kindMaintenance => 'صيانة';
+
+  @override
+  String get kindContract => 'عقد صيانة';
+
+  @override
+  String get kindEquipment => 'معدّة';
+
+  @override
+  String get proofPhotoLabel => 'صورة التوثيق';
+
+  @override
+  String get supportWaterTitle => 'اطلب ماءً لهذا المسجد';
 
   @override
   String get viewMosqueDetails => 'عرض التفاصيل';
@@ -412,18 +683,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get locationLabel => 'الموقع على الخريطة';
 
   @override
-  String get donateMosquePrompt => 'هل ترغب بالإهداء لهذا المسجد؟';
+  String get donateMosquePrompt => 'هل ترغب بالطلب لهذا المسجد؟';
 
   @override
   String get viewOnMap => 'عرض على الخريطة';
 
   @override
   String donatingTo(String label) {
-    return 'إهداء إلى $label';
+    return 'طلب إلى $label';
   }
 
   @override
-  String get addedToCart => 'أُضيف إلى السلة';
+  String get addedToCart => 'تمت الإضافة إلى السلة';
 
   @override
   String get addButton => 'أضف';
@@ -435,8 +706,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get emptyCart => 'سلتك فارغة';
 
   @override
-  String get emptyCartDesc =>
-      'اختر مسجدًا أو المساجد الأكثر حاجة وابدأ الإهداء';
+  String get emptyCartDesc => 'اختر مسجدًا أو المساجد الأكثر حاجة وابدأ الطلب';
 
   @override
   String get subtotalLabel => 'المجموع الفرعي';
@@ -451,7 +721,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteGroupButton => 'حذف';
 
   @override
-  String get checkoutButton => 'إتمام الشراء';
+  String get changeDestination => 'تغيير الوجهة';
 
   @override
   String get couponHint => 'كود الخصم';
@@ -460,13 +730,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addCoupon => 'إضافة كوبون خصم';
 
   @override
+  String get haveCoupon => 'لديك كوبون؟';
+
+  @override
   String get applyButton => 'تطبيق';
 
   @override
   String get removeButton => 'إزالة';
-
-  @override
-  String get checkoutTitle => 'إتمام الشراء';
 
   @override
   String get notesHint => 'ملاحظات للسائق (اختياري)';
@@ -478,10 +748,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get orderSuccessTitle => 'تم استلام طلبك';
 
   @override
-  String get orderSuccessDesc => 'شكرًا لإهدائك، سنوصل المياه قريبًا بإذن الله';
+  String get orderSuccessDesc => 'شكرًا لطلبك، سنوصل المياه قريبًا بإذن الله';
 
   @override
   String get backToHome => 'العودة للرئيسية';
+
+  @override
+  String get viewOrder => 'عرض الطلب';
+
+  @override
+  String get viewMyOrders => 'عرض طلباتي';
+
+  @override
+  String itemsCount(int count) {
+    return '$count منتج';
+  }
 
   @override
   String get ordersTitle => 'طلباتي';
@@ -503,10 +784,29 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String mediaCount(int count) {
+    return '$count عنصر';
+  }
+
+  @override
   String get driverLabel => 'السائق';
 
   @override
   String get payNow => 'ادفع الآن';
+
+  @override
+  String get activityKindProducts => 'منتجات';
+
+  @override
+  String get activityKindEquipment => 'معدّات';
+
+  @override
+  String get activityKindContribution => 'مساهمة';
+
+  @override
+  String payWindowLeft(String time) {
+    return 'تبقّى $time';
+  }
 
   @override
   String get statusPending => 'قيد الانتظار';
@@ -530,10 +830,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancelOrder => 'إلغاء الطلب';
 
   @override
-  String get cancelOrderConfirm => 'هل أنت متأكد من إلغاء هذا الطلب؟';
+  String get cancelOrderConfirm => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get cancelOrderBody =>
+      'لن يُخصم أي مبلغ، ولا يمكن التراجع بعد تأكيد الإلغاء.';
 
   @override
   String get cancelReasonHint => 'سبب الإلغاء (اختياري)';
+
+  @override
+  String get cancelReasonPlaceholder => 'اكتب سببًا مختصرًا…';
 
   @override
   String get confirmCancel => 'نعم، ألغِ الطلب';
@@ -584,28 +891,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editGiftTitle => 'تعديل الإهداء';
 
   @override
-  String get chooseGiftCategory => 'اختر صنف الإهداء';
-
-  @override
-  String get noTemplatesInCategory => 'لا توجد قوالب متاحة في هذا الصنف';
-
-  @override
-  String get chooseTemplate => 'اختر التصميم';
-
-  @override
   String get dedicatedToLabel => 'إهداء إلى';
 
   @override
-  String get dedicatedToHint => 'مثال: والدي محمد';
+  String get dedicatedToHint => 'اسم اللي ودك تهديه';
 
   @override
   String get senderNameLabel => 'تقديم من';
 
   @override
-  String get relationLabel => 'صلة القرابة';
+  String get senderNameHint => 'اسمك';
 
   @override
-  String get whatsappLabel => 'رقم واتساب للإشعار';
+  String get giftSenderShownHint => 'سيظهر اسمك على الكرت';
+
+  @override
+  String get giftSenderPrivateHint => 'سيظهر الإهداء باسم «فاعل خير»';
+
+  @override
+  String get whatsappNumberHint => 'رقم الواتساب';
+
+  @override
+  String giftFromName(String name) {
+    return 'تقديم من $name';
+  }
 
   @override
   String get saveGift => 'حفظ الإهداء';
@@ -614,38 +923,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get giftAdded => 'تمت إضافة الإهداء';
 
   @override
-  String get relGeneral => 'عام';
-
-  @override
-  String get relFather => 'الوالد';
-
-  @override
-  String get relMother => 'الوالدة';
-
-  @override
-  String get relHusband => 'الزوج';
-
-  @override
-  String get relWife => 'الزوجة';
-
-  @override
-  String get relSon => 'الابن';
-
-  @override
-  String get relDaughter => 'الابنة';
-
-  @override
-  String get relBrother => 'الأخ';
-
-  @override
-  String get relSister => 'الأخت';
-
-  @override
-  String get relFriend => 'صديق';
-
-  @override
   String priceKwd(String amount) {
     return '$amount د.ك';
+  }
+
+  @override
+  String priceFromKwd(String amount) {
+    return 'من $amount د.ك';
+  }
+
+  @override
+  String get variantPickFirst => 'اختر أحد الخيارات أولًا';
+
+  @override
+  String get notAvailableNow => 'غير متوفر حاليًا';
+
+  @override
+  String inCartCount(int count) {
+    return 'في السلة: $count';
   }
 
   @override
@@ -802,7 +1097,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get guestWelcomeDesc =>
-      'سجّل الدخول للوصول إلى حسابك وطلباتك وإتمام إهداءاتك.';
+      'سجّل الدخول للوصول إلى حسابك وطلباتك وإتمامها.';
 
   @override
   String get signupTitle => 'إنشاء حساب';
@@ -839,10 +1134,43 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get notMe => 'لست أنا؟';
+  String get emailVerifiedBadge => 'موثَّق';
 
   @override
-  String get phoneKuwaitOnly => 'يُقبل رقم كويتي (+965) فقط حاليًا';
+  String get emailUnverifiedBadge => 'غير موثَّق';
+
+  @override
+  String get verifyEmailTile => 'توثيق البريد الإلكتروني';
+
+  @override
+  String get changeEmailTile => 'تغيير البريد الإلكتروني';
+
+  @override
+  String get verifyEmailTitle => 'توثيق البريد الإلكتروني';
+
+  @override
+  String get changeEmailTitle => 'تغيير البريد الإلكتروني';
+
+  @override
+  String get verifyEmailSubtitle => 'أدخل بريدك الإلكتروني ليصلك رمز التحقق.';
+
+  @override
+  String emailCodeSentTo(String email) {
+    return 'أدخل الرمز المُرسَل إلى $email';
+  }
+
+  @override
+  String get changeEmailAddress => 'تغيير البريد';
+
+  @override
+  String get emailVerifiedSuccess => 'تم توثيق بريدك الإلكتروني';
+
+  @override
+  String get emailOldAddressNotice =>
+      'سيصل تنبيه إلى بريدك السابق بعد التغيير.';
+
+  @override
+  String get notMe => 'لست أنا؟';
 
   @override
   String get welcomeBackTitle => 'مرحبًا بعودتك';
@@ -882,6 +1210,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetPasscodeButton => 'تعيين الرمز الجديد';
+
+  @override
+  String get back => 'رجوع';
 
   @override
   String get passcodeMismatch => 'الرمزان غير متطابقين';
@@ -1004,6 +1335,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phoneOnlyNumbers => 'يجب أن يحتوي رقم الهاتف على أرقام فقط';
 
   @override
+  String get phoneEightDigits => 'يجب أن يتكون الرقم من 8 أرقام';
+
+  @override
   String get passwordRequired => 'كلمة المرور مطلوبة';
 
   @override
@@ -1045,4 +1379,193 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get notificationChannelDescription =>
       'تحديثات الطلبات والهدايا والإعلانات.';
+
+  @override
+  String get payTitle => 'إتمام الدفع';
+
+  @override
+  String get payCancelTitle => 'إلغاء الدفع؟';
+
+  @override
+  String get payCancelBody =>
+      'لو كنت أكملت الدفع فسنتحقّق منه تلقائيًا. هل تريد إغلاق صفحة الدفع؟';
+
+  @override
+  String get payKeepGoing => 'متابعة الدفع';
+
+  @override
+  String get payLeave => 'إغلاق';
+
+  @override
+  String get paySecureNote => 'دفع آمن عبر ماي فاتورة';
+
+  @override
+  String get payRecovered => 'تم تأكيد دفعتك السابقة بنجاح.';
+
+  @override
+  String payAmountAction(String amount) {
+    return 'ادفع $amount';
+  }
+
+  @override
+  String get payNewCard => 'بطاقة جديدة';
+
+  @override
+  String get payWithKnet => 'كي-نت';
+
+  @override
+  String get payLeavesApp => 'يفتح صفحة البنك خارج التطبيق';
+
+  @override
+  String get paySaveCard => 'احفظ البطاقة لعمليات لاحقة';
+
+  @override
+  String get payCardRejected =>
+      'تعذّر قبول بيانات البطاقة. راجعها وحاول مرّة أخرى.';
+
+  @override
+  String get paySessionStale =>
+      'انتهت صلاحية جلسة الدفع. أعدنا فتحها — حاول مرّة أخرى.';
+
+  @override
+  String get payBiometricReason => 'أكّد هويّتك لإتمام الدفع';
+
+  @override
+  String get payMisconfigured =>
+      'خدمة الدفع غير متاحة حاليًا. تواصل مع الدعم — لا داعي لإعادة المحاولة.';
+
+  @override
+  String get payUseHostedPage => 'ادفع عبر صفحة الدفع الآمنة';
+
+  @override
+  String get payNoResponse =>
+      'لم تستجب صفحة الدفع. تحقّق من اتصالك وحاول مرّة أخرى.';
+
+  @override
+  String payReference(int id) {
+    return 'مرجع العملية: $id';
+  }
+
+  @override
+  String payForOrder(int id) {
+    return 'قيمة الطلب #$id';
+  }
+
+  @override
+  String get payForContribution => 'مساهمة في احتياج مسجد';
+
+  @override
+  String get payForEquipment => 'طلب معدّة';
+
+  @override
+  String get payFailedTitle => 'لم يكتمل الدفع';
+
+  @override
+  String get payFailedBody =>
+      'لم يكتمل الدفع. تحقّق من حالة الطلب قبل إعادة المحاولة تفاديًا لتكرار الخصم.';
+
+  @override
+  String get payDeclinedBody =>
+      'رفضت بوّابة الدفع العملية. تأكّد من بيانات البطاقة أو جرّب بطاقة أخرى.';
+
+  @override
+  String get payPendingTitle => 'الدفع قيد التحقّق';
+
+  @override
+  String get payPendingBody =>
+      'لم نستطع تأكيد العملية بعد. تحقّق من طلباتك بعد قليل، أو أعد المحاولة.';
+
+  @override
+  String get payRetry => 'إعادة المحاولة';
+
+  @override
+  String get equipRequestAction => 'تقديم طلب';
+
+  @override
+  String get equipRequestTitle => 'طلب معدّة';
+
+  @override
+  String get equipMyRequestsTitle => 'طلبات المعدّات';
+
+  @override
+  String get equipPickMosque => 'المسجد المستفيد';
+
+  @override
+  String get equipMosqueRequired => 'اختر المسجد أولًا';
+
+  @override
+  String get equipDedicationTitle => 'نقش (اختياري)';
+
+  @override
+  String get equipDedicationName => 'الاسم على النقش';
+
+  @override
+  String get equipSubmit => 'إرسال الطلب';
+
+  @override
+  String get equipSubmitted => 'تم إرسال طلبك للمراجعة';
+
+  @override
+  String equipNoteUnderReview(int hours) {
+    return 'لا يُخصم أي مبلغ الآن. بعد الموافقة تُفتح مهلة دفع $hours ساعة.';
+  }
+
+  @override
+  String get equipNoRequests => 'لا توجد طلبات معدّات';
+
+  @override
+  String equipPayWindow(String time) {
+    return 'المتبقي للدفع: $time';
+  }
+
+  @override
+  String get equipWindowClosed => 'انتهت مهلة الدفع';
+
+  @override
+  String get equipCancelRequest => 'إلغاء الطلب';
+
+  @override
+  String get equipCancelConfirm => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get equipCancelBody => 'سيُلغى طلبك ولن يُخصم أي مبلغ.';
+
+  @override
+  String get equipCancelled => 'تم إلغاء الطلب';
+
+  @override
+  String get equipRejectionReason => 'سبب الرفض';
+
+  @override
+  String get equipInstalledCode => 'رمز الوحدة المركّبة';
+
+  @override
+  String get equipStatusUnderReview => 'قيد المراجعة';
+
+  @override
+  String get equipStatusApproved => 'معتمَد — بانتظار الدفع';
+
+  @override
+  String get equipStatusPaid => 'مدفوع';
+
+  @override
+  String get equipStatusInProgress => 'قيد التنفيذ';
+
+  @override
+  String get equipStatusInstalled => 'تم التركيب';
+
+  @override
+  String get equipStatusRejected => 'مرفوض';
+
+  @override
+  String get equipStatusCancelled => 'ملغى';
+
+  @override
+  String get equipDesignRegular => 'عادي';
+
+  @override
+  String get equipDesignLuxuryWood => 'فاخر خشبي';
+
+  @override
+  String get equipDesignIronGuarded => 'محمي بالحديد';
 }
