@@ -50,19 +50,23 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   Future<void> load() async {
     _page = 1;
-    emit(state.copyWith(
-      status: LoadStatus.loading,
-      orders: const [],
-      loadingMore: false,
-      message: null,
-    ));
+    emit(
+      state.copyWith(
+        status: LoadStatus.loading,
+        orders: const [],
+        loadingMore: false,
+        message: null,
+      ),
+    );
     try {
       final page = await _repo.fetchOrders(page: 1);
-      emit(state.copyWith(
-        status: LoadStatus.success,
-        orders: page.results,
-        hasMore: page.hasMore,
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          orders: page.results,
+          hasMore: page.hasMore,
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
@@ -78,11 +82,13 @@ class OrdersCubit extends Cubit<OrdersState> {
     try {
       final page = await _repo.fetchOrders(page: _page + 1);
       _page += 1;
-      emit(state.copyWith(
-        orders: [...state.orders, ...page.results],
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          orders: [...state.orders, ...page.results],
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on ApiException {
       // Keep what's loaded; a later scroll can retry.
       emit(state.copyWith(loadingMore: false));

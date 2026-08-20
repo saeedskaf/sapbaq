@@ -7,8 +7,14 @@ import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
 import 'package:sapbaq/l10n/app_localizations.dart';
 
+/// Payment landed. The primary action leads to what was just created — the
+/// order itself ([orderId] from a single-cart payment) or «طلباتي» after
+/// «ادفع الكل» (several orders, no single id to open) — with home as the
+/// quiet secondary exit.
 class OrderSuccessScreen extends StatelessWidget {
-  const OrderSuccessScreen({super.key});
+  final int? orderId;
+
+  const OrderSuccessScreen({super.key, this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +25,22 @@ class OrderSuccessScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  color: context.colors.primaryTint,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle_rounded,
-                  size: 64,
-                  color: ColorsCustom.success,
+              Center(
+                child: Container(
+                  width: 110,
+                  height: 110,
+                  decoration: const BoxDecoration(
+                    color: ColorsCustom.brandMint,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_rounded,
+                    size: 64,
+                    color: ColorsCustom.onMint,
+                  ),
                 ),
               ),
               const SizedBox(height: 28),
@@ -48,8 +57,27 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               const Spacer(),
               ButtonCustom.primary(
-                text: l10n.backToHome,
+                text: orderId == null ? l10n.viewMyOrders : l10n.viewOrder,
+                onPressed: () {
+                  if (orderId == null) {
+                    context.goNamed(AppRoutes.ordersName);
+                  } else {
+                    context.goNamed(
+                      AppRoutes.orderDetailName,
+                      pathParameters: {'id': '$orderId'},
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              TextButton(
                 onPressed: () => context.goNamed(AppRoutes.homeName),
+                child: TextCustom(
+                  text: l10n.backToHome,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textSecondary,
+                ),
               ),
             ],
           ),

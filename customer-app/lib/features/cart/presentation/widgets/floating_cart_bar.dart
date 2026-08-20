@@ -18,11 +18,10 @@ class CartBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       buildWhen: (a, b) =>
-          a.itemCount != b.itemCount ||
-          a.cart.totalAmount != b.cart.totalAmount,
+          a.itemCount != b.itemCount || a.totalAmount != b.totalAmount,
       builder: (context, state) => FloatingCartBar(
         itemCount: state.itemCount,
-        total: state.cart.totalAmount,
+        total: state.totalAmount,
         onTap: () => context.pushNamed(AppRoutes.cartName),
         safeAreaBottom: safeAreaBottom,
       ),
@@ -75,7 +74,8 @@ class FloatingCartBar extends StatelessWidget {
 
   Widget _bar(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const onBrand = ColorsCustom.textOnPrimary; // white content on the brand-green bar
+    const onBrand =
+        ColorsCustom.textOnPrimary; // white content on the brand-green bar
     final bar = Padding(
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
       child: DecoratedBox(

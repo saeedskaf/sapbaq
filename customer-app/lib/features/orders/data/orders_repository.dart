@@ -3,6 +3,7 @@ import 'package:sapbaq/core/network/api_endpoints.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/core/network/api_guard.dart';
 import 'package:sapbaq/core/network/pagination.dart';
+import 'package:sapbaq/features/orders/data/models/activity.dart';
 import 'package:sapbaq/features/orders/data/models/delivery_proof.dart';
 import 'package:sapbaq/features/orders/data/models/order.dart';
 import 'package:sapbaq/features/orders/data/models/review.dart';
@@ -10,6 +11,26 @@ import 'package:sapbaq/features/orders/data/models/review.dart';
 class OrdersRepository {
   final Dio _dio;
   OrdersRepository(this._dio);
+
+  /// One page of «طلباتي» — product orders, equipment requests and
+  /// contributions merged and ordered server-side: `ACTION_REQUIRED` first
+  /// whatever its date, then newest first inside each group. That ordering is
+  /// load-bearing — with no tabs and no filters it is the only way the donor
+  /// finds what still needs paying (delivery §5.2).
+  ///
+  /// Deliberately takes no filter parameters; the server ignores any.
+  Future<PaginatedResponse<ActivityRow>> fetchActivity({int page = 1}) {
+    return guardApi(() async {
+      final res = await _dio.get(
+        ApiEndpoints.activity,
+        queryParameters: {'page': page},
+      );
+      return PaginatedResponse.fromJson(
+        Map<String, dynamic>.from(res.data as Map),
+        ActivityRow.fromJson,
+      );
+    });
+  }
 
   /// One page of the customer's orders (newest first). The list view paginates
   /// via [page] + `PaginatedResponse.hasMore` so the full history is reachable.
@@ -69,7 +90,9 @@ class OrdersRepository {
                 ? data['results'] as List
                 : const []);
       return list
-          .map((e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => DeliveryProof.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     });
   }

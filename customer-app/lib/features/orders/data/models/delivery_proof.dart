@@ -35,5 +35,12 @@ class DeliveryProof extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, file, mediaType, note, uploadedAt, destinationId];
+  List<Object?> get props => [
+    id,
+    file,
+    mediaType,
+    note,
+    uploadedAt,
+    destinationId,
+  ];
 }

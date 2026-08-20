@@ -1,71 +1,35 @@
 import 'package:equatable/equatable.dart';
 
-/// A gift-card template (the artwork the sender's/recipient's names get
-/// printed on). [categoryId] links it to a [GiftCategory].
-class GiftTemplate extends Equatable {
-  final int id;
-  final String label;
-  final String? image;
-  final int? categoryId;
-
-  const GiftTemplate({
-    required this.id,
-    required this.label,
-    this.image,
-    this.categoryId,
-  });
-
-  factory GiftTemplate.fromJson(Map<String, dynamic> json) {
-    return GiftTemplate(
-      id: json['id'] as int,
-      label: (json['label'] ?? '').toString(),
-      image: json['image'] as String?,
-      categoryId: json['category_id'] as int?,
-    );
-  }
-
-  @override
-  List<Object?> get props => [id, label, image, categoryId];
-}
-
 /// An "إهداء" attached to the cart/order: water gifted in someone's name,
 /// with a WhatsApp notice to [notifyPhone].
+///
+/// The card artwork is chosen server-side from the one design the admin marks
+/// as approved — the donor never picks it, so there is no template here
+/// (GIFT_SIMPLIFIED_2026-08-04 §2/§5).
 class Gift extends Equatable {
-  final int id;
+  /// The cart payload sends only the three fields below, so treat the id as
+  /// optional — a strict cast here would break parsing of the whole cart list.
+  final int? id;
   final String dedicatedToName;
   final String senderName;
-  final String relationType;
   final String notifyPhone;
-  final GiftTemplate? template;
 
   const Gift({
-    required this.id,
+    this.id,
     required this.dedicatedToName,
     required this.senderName,
-    required this.relationType,
     required this.notifyPhone,
-    this.template,
   });
 
   factory Gift.fromJson(Map<String, dynamic> json) {
     return Gift(
-      id: json['id'] as int,
+      id: (json['id'] as num?)?.toInt(),
       dedicatedToName: (json['dedicated_to_name'] ?? '').toString(),
       senderName: (json['sender_name'] ?? '').toString(),
-      relationType: (json['relation_type'] ?? 'GENERAL').toString(),
       notifyPhone: (json['notify_phone'] ?? '').toString(),
-      template: json['template'] is Map
-          ? GiftTemplate.fromJson(Map<String, dynamic>.from(json['template'] as Map))
-          : null,
     );
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    dedicatedToName,
-    senderName,
-    relationType,
-    notifyPhone,
-  ];
+  List<Object?> get props => [id, dedicatedToName, senderName, notifyPhone];
 }

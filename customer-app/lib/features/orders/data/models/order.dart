@@ -10,33 +10,46 @@ class OrderItem extends Equatable {
   final String unitPrice;
   final String lineTotal;
 
+  /// The picked variant's name, snapshotted at order time (variants doc §4) —
+  /// stays correct even if the variant is later renamed or deleted. '' for
+  /// products without variants.
+  final String variantName;
+
   const OrderItem({
     required this.id,
     required this.product,
     required this.quantity,
     required this.unitPrice,
     required this.lineTotal,
+    this.variantName = '',
   });
+
+  /// Product + variant for display, e.g. «براد سبيل — بحنفيتين».
+  String get displayName =>
+      variantName.isEmpty ? product.name : '${product.name} — $variantName';
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
       id: json['id'] as int,
-      product: Product.fromJson(Map<String, dynamic>.from(json['product'] as Map)),
+      product: Product.fromJson(
+        Map<String, dynamic>.from(json['product'] as Map),
+      ),
       quantity: json['quantity'] as int? ?? 0,
       unitPrice: (json['unit_price'] ?? '0').toString(),
       lineTotal: (json['line_total'] ?? '0').toString(),
+      variantName: (json['variant_name'] ?? '').toString(),
     );
   }
 
   @override
-  List<Object?> get props => [id, quantity, lineTotal];
+  List<Object?> get props => [id, quantity, lineTotal, variantName];
 }
 
-/// One delivery destination inside an order (a mosque, or the most-needed pool),
-/// with its own independent [status].
+/// One delivery destination inside an order — always a mosque now — with its
+/// own independent [status]. The anonymous most-needed destination is gone;
+/// whether the mosque is *tagged* most-needed reads off [mosque] itself.
 class OrderDestination extends Equatable {
   final int id;
-  final String destinationType; // MOSQUE | MOST_NEEDED
   final String label;
   final Mosque? mosque;
   final User? driver;
@@ -53,7 +66,6 @@ class OrderDestination extends Equatable {
 
   const OrderDestination({
     required this.id,
-    required this.destinationType,
     required this.label,
     required this.status,
     required this.subtotal,
@@ -66,12 +78,12 @@ class OrderDestination extends Equatable {
     this.cancelledAt,
   });
 
-  bool get isMostNeeded => destinationType == 'MOST_NEEDED';
+  /// The mosque is on the admin's most-needed list — a badge beside its name.
+  bool get isMostNeeded => mosque?.isMostNeeded ?? false;
 
   factory OrderDestination.fromJson(Map<String, dynamic> json) {
     return OrderDestination(
       id: json['id'] as int,
-      destinationType: (json['destination_type'] ?? 'MOSQUE').toString(),
       label: (json['label'] ?? '').toString(),
       mosque: json['mosque'] is Map
           ? Mosque.fromJson(Map<String, dynamic>.from(json['mosque'] as Map))
@@ -107,6 +119,14 @@ class Order extends Equatable {
   final String? customerNotes;
   final String? createdAt;
 
+  /// Why the order was cancelled, in the server's own Arabic.
+  ///
+  /// It matters most for a cancellation the customer did not ask for: an unpaid
+  /// order is now swept away automatically after 48 hours, so one can turn
+  /// CANCELLED on its own while they are looking elsewhere. Without the reason
+  /// on screen that reads as the app losing their order.
+  final String? cancellationReason;
+
   const Order({
     required this.id,
     required this.reference,
@@ -118,9 +138,11 @@ class Order extends Equatable {
     this.code = '',
     this.customerNotes,
     this.createdAt,
+    this.cancellationReason,
   });
 
   bool get isPending => status == 'PENDING';
+  bool get isCancelled => status == 'CANCELLED';
   int get destinationCount => destinations.length;
   String get shortReference =>
       reference.length >= 8 ? reference.substring(0, 8) : reference;
@@ -136,14 +158,17 @@ class Order extends Equatable {
       code: (json['code'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       destinations: (json['destinations'] as List<dynamic>? ?? const [])
-          .map((e) =>
-              OrderDestination.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                OrderDestination.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
       subtotal: (json['subtotal'] ?? '0').toString(),
       discountAmount: (json['discount_amount'] ?? '0').toString(),
       totalAmount: (json['total_amount'] ?? '0').toString(),
       customerNotes: json['customer_notes'] as String?,
       createdAt: json['created_at'] as String?,
+      cancellationReason: json['cancellation_reason'] as String?,
     );
   }
 

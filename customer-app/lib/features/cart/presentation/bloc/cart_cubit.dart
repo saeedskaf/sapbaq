@@ -5,94 +5,110 @@ import 'package:sapbaq/core/network/api_exception.dart';
 import 'package:sapbaq/features/cart/data/cart_repository.dart';
 import 'package:sapbaq/features/cart/data/models/cart.dart';
 import 'package:sapbaq/features/cart/data/models/donation_destination.dart';
-import 'package:sapbaq/features/gifts/data/gifts_repository.dart';
-import 'package:sapbaq/features/gifts/data/models/gift.dart';
 
 class CartState extends Equatable {
   final LoadStatus status;
-  final Cart cart;
-  final Gift? gift;
+  final List<DonationCart> carts;
   final bool mutating;
   final String? message;
 
+  /// The destination the next add-to-cart will use (chosen via the picker on
+  /// first add, or a mosque-first entry). Kept sticky for the session.
+  final DonationDestination? currentDestination;
+
   const CartState({
     this.status = LoadStatus.initial,
-    this.cart = Cart.empty,
-    this.gift,
+    this.carts = const [],
     this.mutating = false,
     this.message,
+    this.currentDestination,
   });
 
-  int get itemCount => cart.itemCount;
+  bool get isEmpty => carts.isEmpty;
+
+  /// Total items across all carts (drives the floating cart badge).
+  int get itemCount => carts.fold(0, (sum, c) => sum + c.itemCount);
+
+  /// Combined total across all carts — now what one payment actually settles,
+  /// not just a badge figure, since checkout combines every cart into a single
+  /// order. Provisional all the same: one coupon is discounted against the
+  /// combined total server-side (§5), so the amount on the payment sheet is the
+  /// one that counts. Money is 2-decimal per the backend policy.
+  String get totalAmount {
+    final sum = carts.fold<double>(
+      0,
+      (acc, c) => acc + (double.tryParse(c.totalAmount) ?? 0),
+    );
+    return sum.toStringAsFixed(2);
+  }
 
   CartState copyWith({
     LoadStatus? status,
-    Cart? cart,
-    Gift? gift,
-    bool clearGift = false,
+    List<DonationCart>? carts,
     bool? mutating,
     String? message,
+    DonationDestination? currentDestination,
   }) {
     return CartState(
       status: status ?? this.status,
-      cart: cart ?? this.cart,
-      gift: clearGift ? null : (gift ?? this.gift),
+      carts: carts ?? this.carts,
       mutating: mutating ?? this.mutating,
       message: message, // transient — cleared unless explicitly set
+      currentDestination: currentDestination ?? this.currentDestination,
     );
   }
 
   @override
-  List<Object?> get props => [status, cart, gift, mutating, message];
+  List<Object?> get props => [
+    status,
+    carts,
+    mutating,
+    message,
+    currentDestination,
+  ];
 }
 
-/// App-global cart (+ its gift). Provided once at the root so the bottom-nav
-/// badge and the cart screen share one source of truth.
+/// App-global donation carts (one per destination). Provided once at the root so
+/// the floating badge and the cart screen share one source of truth.
 class CartCubit extends Cubit<CartState> {
   final CartRepository _repo;
-  final GiftsRepository _gifts;
-  CartCubit(this._repo, this._gifts) : super(const CartState());
+  CartCubit(this._repo) : super(const CartState());
 
-  /// Clear the in-memory cart locally (no API call). Used when switching to
-  /// guest mode — the cart is account-bound server-side, so a guest has none
-  /// and must not see a previous session's items.
+  /// Clear the in-memory carts locally (guest switch) + the sticky destination.
   void reset() => emit(const CartState());
 
+  /// Set the sticky donation destination for subsequent add-to-cart actions
+  /// (driven by the Home destination bar, the picker, or a mosque-first entry).
+  void selectDestination(DonationDestination destination) =>
+      emit(state.copyWith(currentDestination: destination));
+
   Future<void> load() async {
-    if (state.status == LoadStatus.loading) return; // a load is already in flight
+    if (state.status == LoadStatus.loading) return;
     emit(state.copyWith(status: LoadStatus.loading));
     try {
-      final cart = await _repo.getCart();
-      Gift? gift;
-      try {
-        gift = await _gifts.getGift();
-      } catch (_) {
-        gift = null; // a gift error shouldn't block the cart
-      }
-      emit(
-        state.copyWith(
-          status: LoadStatus.success,
-          cart: cart,
-          gift: gift,
-          clearGift: gift == null,
-        ),
-      );
+      final carts = await _repo.getCarts();
+      emit(state.copyWith(status: LoadStatus.success, carts: carts));
     } on ApiException catch (e) {
       emit(state.copyWith(status: LoadStatus.failure, message: e.message));
     }
   }
 
-  /// Returns true on success (so the UI can confirm "added").
   Future<bool> addItem({
     required int productId,
     required int quantity,
     required DonationDestination destination,
+    int? variantId,
+    String? dedicationName,
+    String? dedicationStatus,
   }) {
     return _mutate(
       () => _repo.addItem(
         productId: productId,
         quantity: quantity,
         destination: destination,
+        variantId: variantId,
+        dedicationName: dedicationName,
+        dedicationStatus: dedicationStatus,
       ),
     );
   }
@@ -103,18 +119,23 @@ class CartCubit extends Cubit<CartState> {
   Future<bool> removeItem(int itemId) =>
       _mutate(() => _repo.removeItem(itemId));
 
-  Future<bool> removeGroup(int groupId) =>
-      _mutate(() => _repo.removeGroup(groupId));
+  Future<bool> deleteCart(int cartId) =>
+      _mutate(() => _repo.deleteCart(cartId));
 
-  /// Apply a coupon. On failure the backend nests the useful message under
-  /// `details.coupon` (e.g. "الكوبون غير موجود…") while the top-level message
-  /// is generic — surface the field-specific one.
-  Future<bool> applyCoupon(String code) async {
+  Future<bool> changeDestination(int cartId, DonationDestination destination) =>
+      _mutate(() => _repo.changeDestination(cartId, destination));
+
+  /// Coupon failure nests the useful message under `details.coupon`; surface it.
+  Future<bool> applyCoupon(int cartId, String code) async {
     emit(state.copyWith(mutating: true));
     try {
-      final cart = await _repo.applyCoupon(code);
+      final carts = await _repo.applyCoupon(cartId, code);
       emit(
-        state.copyWith(status: LoadStatus.success, cart: cart, mutating: false),
+        state.copyWith(
+          status: LoadStatus.success,
+          carts: carts,
+          mutating: false,
+        ),
       );
       return true;
     } on ApiException catch (e) {
@@ -128,48 +149,38 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
-  Future<bool> removeCoupon() => _mutate(_repo.removeCoupon);
+  Future<bool> removeCoupon(int cartId) =>
+      _mutate(() => _repo.removeCoupon(cartId));
 
-  Future<bool> attachGift({
+  Future<bool> attachGift(
+    int cartId, {
     required String dedicatedToName,
     required String senderName,
     required String notifyPhone,
-    required int templateId,
-  }) async {
-    emit(state.copyWith(mutating: true));
-    try {
-      final gift = await _gifts.attachGift(
+  }) {
+    return _mutate(
+      () => _repo.attachGift(
+        cartId,
         dedicatedToName: dedicatedToName,
         senderName: senderName,
         notifyPhone: notifyPhone,
-        templateId: templateId,
-      );
-      emit(state.copyWith(status: LoadStatus.success, gift: gift, mutating: false));
-      return true;
-    } on ApiException catch (e) {
-      emit(state.copyWith(mutating: false, message: e.message));
-      return false;
-    }
+      ),
+    );
   }
 
-  Future<bool> removeGift() async {
-    emit(state.copyWith(mutating: true));
-    try {
-      await _gifts.removeGift();
-      emit(state.copyWith(status: LoadStatus.success, clearGift: true, mutating: false));
-      return true;
-    } on ApiException catch (e) {
-      emit(state.copyWith(mutating: false, message: e.message));
-      return false;
-    }
-  }
+  Future<bool> removeGift(int cartId) =>
+      _mutate(() => _repo.removeGift(cartId));
 
-  Future<bool> _mutate(Future<Cart> Function() action) async {
+  Future<bool> _mutate(Future<List<DonationCart>> Function() action) async {
     emit(state.copyWith(mutating: true));
     try {
-      final cart = await action();
+      final carts = await action();
       emit(
-        state.copyWith(status: LoadStatus.success, cart: cart, mutating: false),
+        state.copyWith(
+          status: LoadStatus.success,
+          carts: carts,
+          mutating: false,
+        ),
       );
       return true;
     } on ApiException catch (e) {

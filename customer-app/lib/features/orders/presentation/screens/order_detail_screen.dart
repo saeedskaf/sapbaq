@@ -6,13 +6,17 @@ import 'package:sapbaq/core/theme/colors_custom.dart';
 import 'package:sapbaq/core/theme/theme_colors.dart';
 import 'package:sapbaq/core/utils/date_format.dart';
 import 'package:sapbaq/core/utils/media_url.dart';
+import 'package:sapbaq/core/widgets/confirm_sheet.dart';
 import 'package:sapbaq/core/widgets/custom_button.dart';
 import 'package:sapbaq/core/widgets/custom_form_field.dart';
 import 'package:sapbaq/core/widgets/custom_text.dart';
+import 'package:sapbaq/core/widgets/most_needed_badge.dart';
 import 'package:sapbaq/core/widgets/in_app_media.dart';
 import 'package:sapbaq/core/widgets/message_dialog.dart';
+import 'package:sapbaq/core/widgets/product_thumb.dart';
 import 'package:sapbaq/core/widgets/state_views.dart';
 import 'package:sapbaq/features/auth/data/models/user.dart';
+import 'package:sapbaq/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sapbaq/features/orders/data/models/delivery_proof.dart';
 import 'package:sapbaq/features/orders/data/models/order.dart';
 import 'package:sapbaq/features/orders/data/models/review.dart';
@@ -27,10 +31,17 @@ class OrderDetailScreen extends StatelessWidget {
   const OrderDetailScreen({super.key, required this.orderId});
 
   Future<void> _confirmCancel(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<OrderDetailCubit>();
-    final reason = await showDialog<String?>(
-      context: context,
-      builder: (_) => const _CancelDialog(),
+    final reason = await ConfirmSheet.askWithReason(
+      context,
+      title: l10n.cancelOrderConfirm,
+      body: l10n.cancelOrderBody,
+      icon: Icons.remove_shopping_cart_outlined,
+      reasonLabel: l10n.cancelReasonHint,
+      reasonHint: l10n.cancelReasonPlaceholder,
+      confirmLabel: l10n.confirmCancel,
+      cancelLabel: l10n.keepOrder,
     );
     if (reason == null) return; // dismissed / kept the order
     cubit.cancel(reason: reason.isEmpty ? null : reason);
@@ -59,78 +70,89 @@ class OrderDetailScreen extends StatelessWidget {
         context.read<OrdersRepository>(),
         context.read<PaymentRepository>(),
       )..load(orderId),
-      child: Scaffold(
-        appBar: AppBar(
-          title: TextCustom.subheading(text: l10n.orderDetailsTitle),
-        ),
-        body: BlocConsumer<OrderDetailCubit, OrderDetailState>(
-          listenWhen: (a, b) => b.message != null && a.message != b.message,
-          listener: (context, state) =>
-              ShowMessage.error(context, state.message!),
-          builder: (context, state) {
-            switch (state.status) {
-              case LoadStatus.initial:
-              case LoadStatus.loading:
-                return const LoadingView();
-              case LoadStatus.failure:
-                return ErrorView(
-                  message: state.message ?? l10n.comingSoon,
-                  retryLabel: l10n.retry,
-                  onRetry: () => context.read<OrderDetailCubit>().load(orderId),
-                );
-              case LoadStatus.success:
-                return RefreshIndicator(
-                  color: Theme.of(context).colorScheme.primary,
-                  onRefresh: () => context.read<OrderDetailCubit>().refresh(),
-                  child: _Body(
-                    order: state.order!,
-                    review: state.review,
-                    proofs: state.proofs,
+      // Paying a PENDING order empties, server-side, every cart it was made
+      // from — and one order is now made from all of them. Nothing else tells
+      // the app that, so the floating cart bar would go on offering carts that
+      // no longer exist until something happened to reload them.
+      child: BlocListener<OrderDetailCubit, OrderDetailState>(
+        listenWhen: (a, b) =>
+            a.order?.isPending == true && b.order?.isPending == false,
+        listener: (context, _) => context.read<CartCubit>().load(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: TextCustom.subheading(text: l10n.orderDetailsTitle),
+          ),
+          body: BlocConsumer<OrderDetailCubit, OrderDetailState>(
+            listenWhen: (a, b) => b.message != null && a.message != b.message,
+            listener: (context, state) =>
+                ShowMessage.error(context, state.message!),
+            builder: (context, state) {
+              switch (state.status) {
+                case LoadStatus.initial:
+                case LoadStatus.loading:
+                  return const LoadingView();
+                case LoadStatus.failure:
+                  return ErrorView(
+                    message: state.message ?? l10n.comingSoon,
+                    retryLabel: l10n.retry,
+                    onRetry: () =>
+                        context.read<OrderDetailCubit>().load(orderId),
+                  );
+                case LoadStatus.success:
+                  return RefreshIndicator(
+                    color: Theme.of(context).colorScheme.primary,
+                    onRefresh: () => context.read<OrderDetailCubit>().refresh(),
+                    child: _Body(
+                      order: state.order!,
+                      review: state.review,
+                      proofs: state.proofs,
+                    ),
+                  );
+              }
+            },
+          ),
+          bottomNavigationBar: BlocBuilder<OrderDetailCubit, OrderDetailState>(
+            builder: (context, state) {
+              final order = state.order;
+              if (order == null) return const SizedBox.shrink();
+
+              if (order.isPending) {
+                return _BottomBar(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ButtonCustom.secondary(
+                          text: l10n.cancelOrder,
+                          enabled: !state.busy,
+                          onPressed: () => _confirmCancel(context),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ButtonCustom.primary(
+                          text: l10n.payNow,
+                          isLoading: state.busy,
+                          onPressed: () =>
+                              context.read<OrderDetailCubit>().pay(context),
+                        ),
+                      ),
+                    ],
                   ),
                 );
-            }
-          },
-        ),
-        bottomNavigationBar: BlocBuilder<OrderDetailCubit, OrderDetailState>(
-          builder: (context, state) {
-            final order = state.order;
-            if (order == null) return const SizedBox.shrink();
+              }
 
-            if (order.isPending) {
-              return _BottomBar(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ButtonCustom.secondary(
-                        text: l10n.cancelOrder,
-                        enabled: !state.busy,
-                        onPressed: () => _confirmCancel(context),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ButtonCustom.primary(
-                        text: l10n.payNow,
-                        isLoading: state.busy,
-                        onPressed: () => context.read<OrderDetailCubit>().pay(),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (order.status == 'DELIVERED' && state.review == null) {
-              return _BottomBar(
-                child: ButtonCustom.primary(
-                  text: l10n.rateOrder,
-                  isLoading: state.busy,
-                  onPressed: () => _rate(context),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
+              if (order.status == 'DELIVERED' && state.review == null) {
+                return _BottomBar(
+                  child: ButtonCustom.primary(
+                    text: l10n.rateOrder,
+                    isLoading: state.busy,
+                    onPressed: () => _rate(context),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
     );
@@ -199,7 +221,7 @@ class _SummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: ColorsCustom.shadow,
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -249,6 +271,43 @@ class _SummaryCard extends StatelessWidget {
           if (date.isNotEmpty) ...[
             const SizedBox(height: 10),
             _MetaRow(icon: Icons.calendar_today_rounded, text: date),
+          ],
+          // Why it was cancelled, whenever the server says.
+          //
+          // An unpaid order is now closed automatically after 48 hours, so this
+          // is often the answer to a question the customer never asked: they
+          // left an order pending, came back, and found it gone. The badge
+          // alone says CANCELLED and lets them assume the worst — that we lost
+          // it, or cancelled it on them. The server's sentence says the payment
+          // window ran out and they may simply order again.
+          if (order.isCancelled &&
+              (order.cancellationReason?.trim().isNotEmpty ?? false)) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: context.colors.danger.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: context.colors.danger,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextCustom(
+                      text: order.cancellationReason!.trim(),
+                      fontSize: 13,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
           if (notes != null && notes.isNotEmpty) ...[
             const SizedBox(height: 14),
@@ -322,7 +381,7 @@ class _BottomBar extends StatelessWidget {
         color: context.colors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: ColorsCustom.shadow,
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -346,7 +405,7 @@ class _ReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: context.colors.primaryTint,
+        color: context.colors.surfaceVariant,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -356,7 +415,7 @@ class _ReviewCard extends StatelessWidget {
             text: l10n.yourReview,
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: ColorsCustom.primaryDark,
+            color: context.colors.primary,
           ),
           const SizedBox(height: 6),
           _Stars(rating: review.rating),
@@ -387,7 +446,9 @@ class _Stars extends StatelessWidget {
           Icon(
             i <= rating ? Icons.star_rounded : Icons.star_outline_rounded,
             size: 22,
-            color: ColorsCustom.warning,
+            color: i <= rating
+                ? context.colors.primary
+                : context.colors.textHint,
           ),
       ],
     );
@@ -410,7 +471,7 @@ class _DestinationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: ColorsCustom.shadow,
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -431,7 +492,7 @@ class _DestinationCard extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: context.colors.primaryTint,
+                        color: context.colors.surfaceVariant,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -439,10 +500,14 @@ class _DestinationCard extends StatelessWidget {
                             ? Icons.volunteer_activism_rounded
                             : Icons.place_rounded,
                         size: 20,
-                        color: context.colors.primary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                     const SizedBox(width: 12),
+                    if (destination.isMostNeeded) ...[
+                      const MostNeededBadge(),
+                      const SizedBox(width: 6),
+                    ],
                     Expanded(
                       child: TextCustom(
                         text: destination.label,
@@ -546,7 +611,7 @@ class _DestinationTimeline extends StatelessWidget {
         time: formatShortDateTime(destination.cancelledAt),
         done: true,
         isLast: true,
-        color: ColorsCustom.error,
+        color: context.colors.danger,
       );
     }
 
@@ -709,7 +774,6 @@ class _ItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final imageUrl = resolveMediaUrl(item.product.image);
     // Arabic → align right; English → align left (same rule for name & quantity).
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final textAlign = isArabic ? TextAlign.right : TextAlign.left;
@@ -717,38 +781,12 @@ class _ItemRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              width: 48,
-              height: 48,
-              child: imageUrl == null
-                  ? ColoredBox(
-                      color: context.colors.surfaceVariant,
-                      child: Icon(
-                        Icons.water_drop_outlined,
-                        color: context.colors.textHint,
-                        size: 20,
-                      ),
-                    )
-                  : Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => ColoredBox(
-                        color: context.colors.surfaceVariant,
-                        child: Icon(
-                          Icons.water_drop_outlined,
-                          color: context.colors.textHint,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
+          ProductThumb(url: item.product.image),
           const SizedBox(width: 12),
           Expanded(
             child: TextCustom(
-              text: item.product.name,
+              // The order-time snapshot name, variant included (doc §4).
+              text: item.displayName,
               fontSize: 14,
               fontWeight: FontWeight.w600,
               maxLines: 2,
@@ -799,7 +837,7 @@ class _ProofStrip extends StatelessWidget {
               text: l10n.deliveryProofs,
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: ColorsCustom.primaryDark,
+              color: context.colors.primary,
             ),
           ],
         ),
@@ -810,7 +848,8 @@ class _ProofStrip extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: proofs.length,
             separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, i) => _ProofThumb(proof: proofs[i]),
+            itemBuilder: (context, i) =>
+                _ProofThumb(proof: proofs[i], siblings: proofs),
           ),
         ),
         // The delivery note belongs to the delivery, not to any one image
@@ -847,7 +886,13 @@ class _ProofStrip extends StatelessWidget {
 
 class _ProofThumb extends StatelessWidget {
   final DeliveryProof proof;
-  const _ProofThumb({required this.proof});
+
+  /// The whole proofs row this thumb belongs to — a tapped photo opens as one
+  /// swipeable set, so the customer flips through the delivery's photos in the
+  /// viewer instead of closing it after each one.
+  final List<DeliveryProof> siblings;
+
+  const _ProofThumb({required this.proof, required this.siblings});
 
   @override
   Widget build(BuildContext context) {
@@ -858,7 +903,20 @@ class _ProofThumb extends StatelessWidget {
           ? null
           : () {
               if (proof.isImage) {
-                _showProof(context, proof, url);
+                final photos = siblings.where((p) => p.isImage).toList();
+                openInAppImageGallery(
+                  context,
+                  urls: [for (final p in photos) p.file],
+                  initialIndex: photos.indexOf(proof),
+                  // Each photo keeps its own upload time; the delivery note is
+                  // shown once in the section, not per image.
+                  captions: [
+                    for (final p in photos)
+                      p.uploadedAt == null
+                          ? null
+                          : _formatProofDate(p.uploadedAt!),
+                  ],
+                );
               } else {
                 openInAppVideo(context, proof.file);
               }
@@ -887,14 +945,14 @@ class _ProofThumb extends StatelessWidget {
                   start: 6,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.black54,
+                      color: ColorsCustom.scrim,
                       shape: BoxShape.circle,
                     ),
                     child: Padding(
                       padding: EdgeInsets.all(3),
                       child: Icon(
                         Icons.play_arrow_rounded,
-                        color: Colors.white,
+                        color: ColorsCustom.white,
                         size: 16,
                       ),
                     ),
@@ -916,7 +974,7 @@ class _VideoCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.black,
+      color: ColorsCustom.black,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Image.asset(AppAssets.logoMark, fit: BoxFit.contain),
@@ -937,125 +995,12 @@ class _ProofPlaceholder extends StatelessWidget {
   }
 }
 
-void _showProof(BuildContext context, DeliveryProof proof, String url) {
-  showDialog<void>(
-    context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.9),
-    builder: (dialogContext) => Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: IconButton(
-              icon: const Icon(
-                Icons.close_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-              onPressed: () => Navigator.pop(dialogContext),
-            ),
-          ),
-          Flexible(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: proof.isImage
-                  ? InteractiveViewer(
-                      child: Image.network(
-                        url,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => const _ProofPlaceholder(),
-                      ),
-                    )
-                  : const AspectRatio(
-                      aspectRatio: 1,
-                      child: _ProofPlaceholder(),
-                    ),
-            ),
-          ),
-          // The delivery note is shown once in the proofs section, not here —
-          // it belongs to the whole delivery, not to this single image. The
-          // caption keeps only this photo's own upload time.
-          if (proof.uploadedAt != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextCustom(
-                text: _formatProofDate(proof.uploadedAt!),
-                fontSize: 12,
-                color: Colors.white70,
-              ),
-            ),
-          ],
-        ],
-      ),
-    ),
-  );
-}
-
 String _formatProofDate(String iso) {
   final date = DateTime.tryParse(iso)?.toLocal();
   if (date == null) return '';
   String two(int n) => n.toString().padLeft(2, '0');
   return '${date.year}/${two(date.month)}/${two(date.day)} • '
       '${two(date.hour)}:${two(date.minute)}';
-}
-
-class _CancelDialog extends StatefulWidget {
-  const _CancelDialog();
-
-  @override
-  State<_CancelDialog> createState() => _CancelDialogState();
-}
-
-class _CancelDialogState extends State<_CancelDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      backgroundColor: context.colors.surface,
-      title: TextCustom.subheading(text: l10n.cancelOrderConfirm),
-      content: FormFieldCustom(
-        controller: _controller,
-        hintText: l10n.cancelReasonHint,
-        isRequired: false,
-        maxLines: 2,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: TextCustom(
-            text: l10n.keepOrder,
-            color: context.colors.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, _controller.text.trim()),
-          child: TextCustom(
-            text: l10n.confirmCancel,
-            color: ColorsCustom.error,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _ReviewSheet extends StatefulWidget {
@@ -1088,60 +1033,64 @@ class _ReviewSheetState extends State<_ReviewSheet> {
           color: context.colors.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + safeBottom),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.colors.border,
-                  borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + safeBottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: context.colors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextCustom.subheading(
-              text: l10n.rateOrderTitle,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var i = 1; i <= 5; i++)
-                  GestureDetector(
-                    onTap: () => setState(() => _rating = i),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Icon(
-                        i <= _rating
-                            ? Icons.star_rounded
-                            : Icons.star_outline_rounded,
-                        size: 40,
-                        color: ColorsCustom.warning,
+              const SizedBox(height: 16),
+              TextCustom.subheading(
+                text: l10n.rateOrderTitle,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 1; i <= 5; i++)
+                    GestureDetector(
+                      onTap: () => setState(() => _rating = i),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          i <= _rating
+                              ? Icons.star_rounded
+                              : Icons.star_outline_rounded,
+                          size: 40,
+                          color: i <= _rating
+                              ? context.colors.primary
+                              : context.colors.textHint,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            FormFieldCustom(
-              controller: _controller,
-              hintText: l10n.reviewCommentHint,
-              isRequired: false,
-              maxLines: 3,
-            ),
-            const SizedBox(height: 20),
-            ButtonCustom.primary(
-              text: l10n.submitReview,
-              onPressed: () =>
-                  Navigator.pop(context, (_rating, _controller.text.trim())),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 20),
+              FormFieldCustom(
+                controller: _controller,
+                hintText: l10n.reviewCommentHint,
+                isRequired: false,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 20),
+              ButtonCustom.primary(
+                text: l10n.submitReview,
+                onPressed: () =>
+                    Navigator.pop(context, (_rating, _controller.text.trim())),
+              ),
+            ],
+          ),
         ),
       ),
     );

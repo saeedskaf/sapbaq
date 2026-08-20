@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sapbaq/core/bloc/load_status.dart';
 import 'package:sapbaq/core/network/api_exception.dart';
+import 'package:sapbaq/core/payments/payment_gateway.dart';
+import 'package:sapbaq/core/payments/payment_sheet.dart';
 import 'package:sapbaq/features/orders/data/models/delivery_proof.dart';
 import 'package:sapbaq/features/orders/data/models/order.dart';
 import 'package:sapbaq/features/orders/data/models/review.dart';
@@ -52,6 +55,7 @@ class OrderDetailState extends Equatable {
 class OrderDetailCubit extends Cubit<OrderDetailState> {
   final OrdersRepository _repo;
   final PaymentRepository _payment;
+  final PaymentGateway _gateway;
   int? _id;
 
   // While an order is still in progress, quietly re-fetch it so the status and
@@ -61,15 +65,17 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
   static const Set<String> _terminalStatuses = {'DELIVERED', 'CANCELLED'};
 
   OrderDetailCubit(this._repo, this._payment)
-    : super(const OrderDetailState());
+    : _gateway = PaymentGateway(_payment),
+      super(const OrderDetailState());
 
   Future<void> load(int id) async {
     _id = id;
     emit(const OrderDetailState(status: LoadStatus.loading));
     try {
       final order = await _repo.fetchOrder(id);
-      final review =
-          order.status == 'DELIVERED' ? await _repo.getReview(id) : null;
+      final review = order.status == 'DELIVERED'
+          ? await _repo.getReview(id)
+          : null;
       final proofs = await _loadProofs(order);
       emit(
         OrderDetailState(
@@ -92,8 +98,9 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
     if (id == null) return;
     try {
       final order = await _repo.fetchOrder(id);
-      final review =
-          order.status == 'DELIVERED' ? await _repo.getReview(id) : null;
+      final review = order.status == 'DELIVERED'
+          ? await _repo.getReview(id)
+          : null;
       final proofs = await _loadProofs(order);
       emit(
         state.copyWith(
@@ -131,10 +138,34 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
     _poll ??= Timer.periodic(_pollInterval, (_) => refresh());
   }
 
-  Future<void> pay() => _action(() async {
-    await _payment.payOrder(_id!);
-    return _repo.fetchOrder(_id!);
-  });
+  /// Pay an unpaid order. Needs a [BuildContext] because a live gateway hosts
+  /// its own payment page; the order is re-fetched either way so a failed
+  /// attempt leaves the screen showing the real (still unpaid) state.
+  Future<void> pay(BuildContext context) async {
+    final id = _id;
+    if (id == null) return;
+    emit(state.copyWith(busy: true));
+    final result = await _gateway.run(
+      context,
+      initiate: () => _payment.initiateOrderPayment(id),
+      verifyPaid: () async => !(await _repo.fetchOrder(id)).isPending,
+      target: PaymentTarget.order(id),
+    );
+    try {
+      final order = await _repo.fetchOrder(id);
+      emit(
+        state.copyWith(
+          status: LoadStatus.success,
+          order: order,
+          busy: false,
+          message: result.isPaid ? null : result.message,
+        ),
+      );
+      _syncPolling(order.status);
+    } on ApiException catch (e) {
+      emit(state.copyWith(busy: false, message: result.message ?? e.message));
+    }
+  }
 
   Future<void> cancel({String? reason}) =>
       _action(() => _repo.cancelOrder(_id!, reason: reason));

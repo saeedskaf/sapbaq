@@ -51,18 +51,21 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // A signal colour is painted solid and labelled by onSignal; a neutral
+    // status stays quiet on a grey fill. See [ColorsCustom.isSignal].
     final color = orderStatusColor(context, status);
+    final signal = ColorsCustom.isSignal(color);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
+        color: signal ? color : context.colors.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextCustom(
         text: orderStatusLabel(l10n, status),
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: color,
+        color: signal ? ColorsCustom.onSignal(color) : color,
       ),
     );
   }
