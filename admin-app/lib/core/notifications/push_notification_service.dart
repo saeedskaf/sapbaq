@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
-import 'package:sapbaq_admin/core/notifications/notification_deep_link.dart';
 import 'package:sapbaq_admin/features/notifications/data/notifications_repository.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
@@ -29,11 +28,20 @@ class PushNotificationService {
   PushNotificationService({
     required NotificationsRepository notifications,
     required SessionManager session,
+    required ValueNotifier<String> languageCode,
   }) : _notifications = notifications,
-       _session = session;
+       _session = session,
+       _languageCode = languageCode;
 
   final NotificationsRepository _notifications;
   final SessionManager _session;
+
+  /// The active UI language (`ar`/`en`), shared with the networking layer. Sent
+  /// with the device registration and used to pick the right foreground copy.
+  final ValueNotifier<String> _languageCode;
+
+  /// Normalized to a supported push language (falls back to Arabic).
+  String get _lang => _languageCode.value == 'en' ? 'en' : 'ar';
 
   // Resolved lazily: accessing FirebaseMessaging.instance touches Firebase.app(),
   // which throws [core/no-app] until Firebase.initializeApp() has run. main()
@@ -47,9 +55,15 @@ class PushNotificationService {
   StreamSubscription<RemoteMessage>? _foregroundSub;
   StreamSubscription<RemoteMessage>? _openedSub;
 
-  /// Set when the user taps a notification (foreground/background or a cold
-  /// launch); the app observes this and navigates, then clears it (§14).
-  final ValueNotifier<NotificationRoute?> pendingRoute = ValueNotifier(null);
+  /// The raw `data` of a tapped notification (foreground/background or a cold
+  /// launch); the app observes this, resolves it against the signed-in role and
+  /// navigates, then clears it (§14).
+  ///
+  /// The payload is held unresolved because the target depends on the reader's
+  /// role (an imam and a staff member land on different screens for the same
+  /// case), and a cold launch establishes the session only after the tap.
+  final ValueNotifier<Map<String, dynamic>?> pendingNotification =
+      ValueNotifier(null);
 
   /// The token currently registered with the backend, kept so we can unregister
   /// the exact one on logout.
@@ -61,6 +75,11 @@ class PushNotificationService {
   final StreamController<RemoteMessage> _foregroundMessages =
       StreamController<RemoteMessage>.broadcast();
   Stream<RemoteMessage> get onForegroundMessage => _foregroundMessages.stream;
+
+  /// The same stream reduced to each push's `data` map — what badge/inbox
+  /// consumers actually read.
+  Stream<Map<String, dynamic>> get onForegroundData =>
+      _foregroundMessages.stream.map((message) => message.data);
 
   /// The Android channel every notification lands on — the one the backend
   /// targets via `channel_id`, and the one whose sound the OS plays.
@@ -114,11 +133,17 @@ class PushNotificationService {
           .getNotificationAppLaunchDetails();
       if (launch?.didNotificationLaunchApp ?? false) {
         final payload = launch!.notificationResponse?.payload;
-        if (payload != null && payload.isNotEmpty) _routeFromPayload(payload);
+        if (payload != null && payload.isNotEmpty) {
+          _publishTapFromPayload(payload);
+        }
       }
     } catch (error) {
       debugPrint('notification launch details skipped: $error');
     }
+
+    // Re-register (same token, new language) when the user switches the app
+    // language, so the backend localizes future background pushes correctly.
+    _languageCode.addListener(_onLanguageChanged);
 
     // Register/unregister as the session changes. Subscribe first, then check
     // the current status so we don't miss a transition that already happened.
@@ -126,6 +151,11 @@ class PushNotificationService {
     if (_session.status == AuthStatus.authenticated) {
       unawaited(_register());
     }
+  }
+
+  void _onLanguageChanged() {
+    final token = _registeredToken;
+    if (_registered && token != null) unawaited(_sendToken(token));
   }
 
   /// Re-applies the channel's localized name/description after a language
@@ -138,7 +168,10 @@ class PushNotificationService {
     if (status == AuthStatus.authenticated) {
       await _register();
     } else if (status == AuthStatus.unauthenticated) {
-      await _unregister();
+      // Only local teardown here — the session's tokens are already gone by the
+      // time this fires, so the *network* unregister must happen earlier, via
+      // [unregisterForLogout]. See the note on that method.
+      await _teardownLocal();
     }
     // unknown / guest: nothing to do.
   }
@@ -193,19 +226,48 @@ class PushNotificationService {
     }
   }
 
+  /// Backoff between registration attempts. Short and bounded: a device that
+  /// stays unregistered receives no pushes for the whole session, so a flaky
+  /// network at login is worth riding out — but after these, we stop and wait
+  /// for the next trigger (login, token refresh, language switch).
+  static const List<Duration> _registerRetryDelays = [
+    Duration(seconds: 5),
+    Duration(seconds: 20),
+    Duration(minutes: 1),
+  ];
+
+  /// Bumped on every [_sendToken] call and on teardown, so a superseded retry
+  /// chain (new token arrived, or the user logged out) stops quietly.
+  int _sendGeneration = 0;
+
   Future<void> _sendToken(String token) async {
-    try {
-      await _notifications.registerDevice(token: token, platform: _platform);
-      _registeredToken = token;
-    } catch (_) {
-      // Best-effort: a transient failure shouldn't surface to the user.
+    final generation = ++_sendGeneration;
+    for (var attempt = 0; ; attempt++) {
+      if (generation != _sendGeneration || !_registered) return;
+      try {
+        await _notifications.registerDevice(
+          token: token,
+          platform: _platform,
+          language: _lang,
+        );
+        _registeredToken = token;
+        return;
+      } catch (_) {
+        // Best-effort: a transient failure shouldn't surface to the user.
+        if (attempt >= _registerRetryDelays.length) return;
+        await Future<void>.delayed(_registerRetryDelays[attempt]);
+      }
     }
   }
 
-  Future<void> _unregister() async {
-    await _tokenRefreshSub?.cancel();
-    _tokenRefreshSub = null;
-
+  /// Unregisters this device's FCM token with the backend, then tears down
+  /// locally. Call this **while the access token is still valid** — i.e. from
+  /// `logout()` *before* the session clears its tokens. The DELETE endpoint is
+  /// authenticated, so reacting to the `unauthenticated` status instead would
+  /// send it after the Bearer is already gone and earn a 401 on every logout
+  /// (see FLUTTER_FCM_DEVICE_UNREGISTER_NOTE.md). Safe to call when push is
+  /// disabled or no token was ever registered.
+  Future<void> unregisterForLogout() async {
     String? token = _registeredToken;
     if (token == null) {
       // May throw `apns-token-not-set` on iOS (e.g. the Simulator, or before
@@ -223,6 +285,18 @@ class PushNotificationService {
         // Ignore — the backend also prunes stale tokens on its own.
       }
     }
+    await _teardownLocal();
+  }
+
+  /// Offline teardown, no network. Runs both from [unregisterForLogout] and
+  /// reactively when the session ends for any other reason (e.g. a failed token
+  /// refresh, where there's no valid Bearer left to unregister with anyway).
+  /// Idempotent — logout runs it twice (once here, once via the status event).
+  Future<void> _teardownLocal() async {
+    _sendGeneration++; // abort any in-flight registration retry chain.
+    await _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
+
     // Drop the local token so the next login gets a fresh device identity.
     try {
       await _messaging.deleteToken();
@@ -284,36 +358,27 @@ class PushNotificationService {
   }
 
   /// A tapped FCM notification (background/terminated) — deep-link from it.
-  void _handleOpened(RemoteMessage message) => _routeFromData(message.data);
+  void _handleOpened(RemoteMessage message) => _publishTap(message.data);
 
   /// A tapped foreground (Android) local notification — parse the payload we
   /// stored on it and route exactly like an FCM-delivered tap.
   void _onLocalTap(NotificationResponse response) {
     final payload = response.payload;
-    if (payload != null && payload.isNotEmpty) _routeFromPayload(payload);
+    if (payload != null && payload.isNotEmpty) _publishTapFromPayload(payload);
   }
 
-  void _routeFromPayload(String payload) {
+  void _publishTapFromPayload(String payload) {
     try {
-      _routeFromData(Map<String, dynamic>.from(jsonDecode(payload) as Map));
+      _publishTap(Map<String, dynamic>.from(jsonDecode(payload) as Map));
     } catch (_) {
       // Malformed payload — nothing to navigate to.
     }
   }
 
-  /// Maps an FCM `data` map to a deep link and publishes it for the app to
-  /// navigate (the backend sends `notification_type` and ids in `data`).
-  void _routeFromData(Map<String, dynamic> data) {
-    final type = (data['notification_type'] ?? data['type'] ?? '').toString();
-    final route = resolveNotificationRoute(
-      type,
-      orderId: notificationDataInt(data, 'order_id'),
-      destinationId: notificationDataInt(data, 'destination_id'),
-      approvalId: notificationDataInt(data, 'approval_id'),
-      escalationId: notificationDataInt(data, 'escalation_id'),
-    );
-    if (route != null) pendingRoute.value = route;
-  }
+  /// Publishes a tapped notification's `data` for the app to resolve against
+  /// the signed-in role and navigate (see [pendingNotification]).
+  void _publishTap(Map<String, dynamic> data) =>
+      pendingNotification.value = data;
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
     // Let app-level state (badges, inboxes) react before we draw anything —
@@ -321,19 +386,38 @@ class PushNotificationService {
     if (!_foregroundMessages.isClosed) _foregroundMessages.add(message);
 
     // iOS presents foreground notifications itself (see init's
-    // setForegroundNotificationPresentationOptions); showing a local one too
-    // would duplicate it. Only surface the local notification on Android — and
-    // carry the data as the payload so a tap can deep-link via [_onLocalTap].
-    if (defaultTargetPlatform != TargetPlatform.android) return;
+    // setForegroundNotificationPresentationOptions) — but only when the push
+    // carries an aps alert (a `notification` block). Drawing a local one too
+    // would duplicate those, so on iOS we only draw for data-only pushes,
+    // which the system silently swallows in the foreground. Android never
+    // auto-presents in the foreground, so it always needs the local draw. The
+    // data rides along as the payload so a tap deep-links via [_onLocalTap].
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+    if (!isAndroid && message.notification != null) return;
 
+    // The Android channel is created in init; without it the OS would drop
+    // the notification. Irrelevant on iOS (no channels).
     final channel = _channel;
-    if (channel == null) return;
+    if (isAndroid && channel == null) return;
 
-    // Fall back to the data map: a data-only message carries no `notification`
-    // block, and without this it would surface nothing at all.
+    // Prefer the copy matching the CURRENT UI language: every push carries both
+    // languages in `data` (title_ar/title_en/body_ar/body_en), so a user who
+    // just switched language sees the right text even before re-registering.
+    // Then the `notification` block (server-resolved to this device's
+    // registered language — more likely right than the fixed-language keys),
+    // then Arabic, then the legacy `data['title']`.
     final notification = message.notification;
-    final title = notification?.title ?? message.data['title']?.toString();
-    final body = notification?.body ?? message.data['body']?.toString();
+    final data = message.data;
+    final title =
+        data['title_$_lang']?.toString() ??
+        notification?.title ??
+        data['title_ar']?.toString() ??
+        data['title']?.toString();
+    final body =
+        data['body_$_lang']?.toString() ??
+        notification?.body ??
+        data['body_ar']?.toString() ??
+        data['body']?.toString();
     if ((title == null || title.isEmpty) && (body == null || body.isEmpty)) {
       return; // A genuinely silent data push — nothing to display.
     }
@@ -344,20 +428,25 @@ class PushNotificationService {
       body: body,
       payload: jsonEncode(message.data),
       notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@drawable/ic_stat_notification',
-          // Long Arabic bodies otherwise truncate to a single line with no way
-          // to expand them.
-          styleInformation: BigTextStyleInformation(
-            body ?? '',
-            contentTitle: title,
-          ),
-        ),
+        android: channel == null
+            ? null
+            : AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channelDescription: channel.description,
+                importance: Importance.high,
+                priority: Priority.high,
+                icon: '@drawable/ic_stat_notification',
+                // Long Arabic bodies otherwise truncate to a single line with
+                // no way to expand them.
+                styleInformation: BigTextStyleInformation(
+                  body ?? '',
+                  contentTitle: title,
+                ),
+              ),
+        // The data-only iOS path: same custom tone the backend puts in
+        // `aps.sound` on alert-bearing pushes (ios/Runner/notify.caf).
+        iOS: const DarwinNotificationDetails(sound: 'notify.caf'),
       ),
     );
   }
@@ -376,11 +465,12 @@ class PushNotificationService {
       defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
 
   Future<void> dispose() async {
+    _languageCode.removeListener(_onLanguageChanged);
     await _authSub?.cancel();
     await _tokenRefreshSub?.cancel();
     await _foregroundSub?.cancel();
     await _openedSub?.cancel();
     await _foregroundMessages.close();
-    pendingRoute.dispose();
+    pendingNotification.dispose();
   }
 }

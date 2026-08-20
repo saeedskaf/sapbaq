@@ -1,5 +1,6 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/constants/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists non-sensitive UI preferences (the selected language) in
@@ -15,8 +16,12 @@ class SettingsService {
   static const String _kLanguage = 'settings.language';
   static const String _kThemeMode = 'settings.theme_mode';
 
-  /// Supported UI languages. Arabic is the default (Arabic-first app).
+  /// Supported UI languages.
   static const List<String> supportedLanguages = ['ar', 'en'];
+
+  /// Fallback UI language when the device language is neither Arabic nor
+  /// English on first launch.
+  static const String _fallbackLanguage = 'en';
 
   static Future<SettingsService> create() async {
     final prefs = await SharedPreferences.getInstance();
@@ -45,13 +50,25 @@ class SettingsService {
 
   // --- Language -------------------------------------------------------------
 
-  /// The selected UI locale, defaulting to Arabic on first run.
+  /// The selected UI locale.
+  ///
+  /// Once the staff member picks a language it is honoured. On first launch (no
+  /// stored choice) we follow the device language when it is one we support,
+  /// otherwise fall back to English.
   Locale get locale {
     final code = _prefs.getString(_kLanguage);
     if (code != null && supportedLanguages.contains(code)) {
       return Locale(code);
     }
-    return const Locale(AppConstants.defaultLanguageCode);
+    return Locale(_deviceLanguageOrFallback());
+  }
+
+  /// The device's UI language when supported, else [_fallbackLanguage].
+  String _deviceLanguageOrFallback() {
+    final deviceCode = PlatformDispatcher.instance.locale.languageCode;
+    return supportedLanguages.contains(deviceCode)
+        ? deviceCode
+        : _fallbackLanguage;
   }
 
   Future<void> setLocale(Locale locale) =>

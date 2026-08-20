@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
+import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 class LoadingModal {
   static bool _isShowing = false;
@@ -13,7 +14,7 @@ class LoadingModal {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black45,
+      barrierColor: ColorsCustom.scrim,
       useRootNavigator: true,
       builder: (context) => PopScope(
         canPop: false,

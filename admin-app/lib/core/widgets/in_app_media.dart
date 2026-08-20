@@ -6,6 +6,7 @@ import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/core/widgets/message_dialog.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
+import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 
 /// In-app media viewers for delivery proofs the manager reviews. Nothing here
 /// hands off to an external player: images zoom in a dialog, videos/audio play
@@ -13,7 +14,9 @@ import 'package:video_player/video_player.dart';
 /// [resolveMediaUrl], so callers can pass the raw API field directly.
 
 /// Opens [url] (an image) in a full-screen zoom viewer with an optional
-/// [caption]. No-op when [url] is null/empty.
+/// [caption]. No-op when [url] is null/empty. Use [openInAppImageGallery]
+/// whenever the image has siblings — a proof strip, a photo row — so the viewer
+/// swipes between them.
 Future<void> openInAppImage(
   BuildContext context, {
   required String? url,
@@ -23,8 +26,46 @@ Future<void> openInAppImage(
   if (resolved == null) return Future<void>.value();
   return showDialog<void>(
     context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.92),
+    barrierColor: ColorsCustom.scrimHeavy,
     builder: (_) => _ImageViewer(url: resolved, caption: caption),
+  );
+}
+
+/// Opens a swipeable full-screen gallery over [urls], starting at
+/// [initialIndex]. Every page zooms exactly like [openInAppImage]; swiping to
+/// the neighbouring page is locked while the current one is zoomed in.
+/// [captions] runs parallel to [urls]. Unresolvable URLs are skipped; a no-op
+/// when nothing resolves.
+Future<void> openInAppImageGallery(
+  BuildContext context, {
+  required List<String> urls,
+  int initialIndex = 0,
+  List<String?>? captions,
+}) {
+  final pages = <({String url, String? caption})>[];
+  var start = 0;
+  for (var i = 0; i < urls.length; i++) {
+    final resolved = resolveMediaUrl(urls[i]);
+    if (resolved == null) continue;
+    if (i == initialIndex) start = pages.length;
+    pages.add((
+      url: resolved,
+      caption: captions != null && i < captions.length ? captions[i] : null,
+    ));
+  }
+  if (pages.isEmpty) return Future<void>.value();
+  // A transparent fade route on the root navigator (not a dialog) so it covers
+  // the whole shell, bottom navigation included, like the media player does.
+  return Navigator.of(context, rootNavigator: true).push<void>(
+    PageRouteBuilder<void>(
+      opaque: false,
+      transitionDuration: const Duration(milliseconds: 200),
+      reverseTransitionDuration: const Duration(milliseconds: 160),
+      pageBuilder: (_, _, _) =>
+          _GalleryViewer(pages: pages, initialIndex: start),
+      transitionsBuilder: (_, animation, _, child) =>
+          FadeTransition(opacity: animation, child: child),
+    ),
   );
 }
 
@@ -44,19 +85,84 @@ Future<void> openInAppVideo(BuildContext context, String? url) {
   );
 }
 
-class _ImageViewer extends StatefulWidget {
+class _ImageViewer extends StatelessWidget {
   final String url;
   final String? caption;
 
   const _ImageViewer({required this.url, this.caption});
 
   @override
-  State<_ImageViewer> createState() => _ImageViewerState();
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: _CloseButton(scrim: true),
+          ),
+          Flexible(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: _ZoomableImage(url: url),
+            ),
+          ),
+          if (caption != null && caption!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _CaptionChip(text: caption!),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
-/// Zoomable image body: pinch zooms between fitted and [_maxScale]; double-tap
-/// toggles between fit and [_doubleTapScale], anchored on the tapped point.
-class _ImageViewerState extends State<_ImageViewer>
+/// The caption pill shown under a viewed image.
+class _CaptionChip extends StatelessWidget {
+  final String text;
+
+  const _CaptionChip({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: ColorsCustom.scrim,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextCustom(
+        text: text,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+/// Pinch/double-tap zoomable image — the shared body of the single viewer and
+/// every gallery page. Pinch zooms between the fitted size and [_maxScale];
+/// double-tap toggles between fit and [_doubleTapScale], anchored on the tapped
+/// point so the spot under the finger stays in view. Reports zoom-state flips
+/// through [onZoomChanged] so a host [PageView] can lock swiping while the image
+/// is zoomed.
+class _ZoomableImage extends StatefulWidget {
+  /// Already-resolved URL.
+  final String url;
+  final ValueChanged<bool>? onZoomChanged;
+
+  const _ZoomableImage({required this.url, this.onZoomChanged});
+
+  @override
+  State<_ZoomableImage> createState() => _ZoomableImageState();
+}
+
+class _ZoomableImageState extends State<_ZoomableImage>
     with SingleTickerProviderStateMixin {
   static const double _maxScale = 5;
   static const double _doubleTapScale = 2.5;
@@ -70,6 +176,7 @@ class _ImageViewerState extends State<_ImageViewer>
   late final AnimationController _zoomAnimation;
   Animation<Matrix4>? _zoomFrames;
   Offset _doubleTapPosition = Offset.zero;
+  bool _reportedZoomed = false;
 
   @override
   void initState() {
@@ -78,6 +185,7 @@ class _ImageViewerState extends State<_ImageViewer>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     )..addListener(_applyZoomFrame);
+    _transform.addListener(_reportZoom);
   }
 
   @override
@@ -85,6 +193,15 @@ class _ImageViewerState extends State<_ImageViewer>
     _zoomAnimation.dispose();
     _transform.dispose();
     super.dispose();
+  }
+
+  void _reportZoom() {
+    // The 1.01 tolerance absorbs float drift from pinch gestures that ended
+    // back at the fitted size.
+    final zoomed = _transform.value.getMaxScaleOnAxis() > 1.01;
+    if (zoomed == _reportedZoomed) return;
+    _reportedZoomed = zoomed;
+    widget.onZoomChanged?.call(zoomed);
   }
 
   void _applyZoomFrame() {
@@ -116,57 +233,124 @@ class _ImageViewerState extends State<_ImageViewer>
 
   @override
   Widget build(BuildContext context) {
-    final caption = widget.caption;
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: _CloseButton(),
-          ),
-          Flexible(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: GestureDetector(
-                onDoubleTapDown: (details) =>
-                    _doubleTapPosition = details.localPosition,
-                onDoubleTap: _onDoubleTap,
-                child: InteractiveViewer(
-                  transformationController: _transform,
-                  minScale: 1,
-                  maxScale: _maxScale,
-                  onInteractionStart: (_) => _zoomAnimation.stop(),
-                  child: Image.network(
-                    widget.url,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) =>
-                        const MediaFallback(isVideo: false),
+    return GestureDetector(
+      onDoubleTapDown: (details) => _doubleTapPosition = details.localPosition,
+      onDoubleTap: _onDoubleTap,
+      child: InteractiveViewer(
+        transformationController: _transform,
+        minScale: 1,
+        maxScale: _maxScale,
+        onInteractionStart: (_) => _zoomAnimation.stop(),
+        child: Image.network(
+          widget.url,
+          fit: BoxFit.contain,
+          loadingBuilder: (_, child, progress) {
+            if (progress == null) return child;
+            return const Center(
+              child: CircularProgressIndicator(color: ColorsCustom.glassEdge),
+            );
+          },
+          errorBuilder: (_, _, _) => const MediaFallback(isVideo: false),
+        ),
+      ),
+    );
+  }
+}
+
+/// Swipeable full-screen image gallery: one zoomable page per image, a small
+/// «3/12» position chip, and the page's caption underneath. Swiping is locked
+/// while the current page is zoomed so panning the enlarged image never flips
+/// the page.
+class _GalleryViewer extends StatefulWidget {
+  final List<({String url, String? caption})> pages;
+  final int initialIndex;
+
+  const _GalleryViewer({required this.pages, required this.initialIndex});
+
+  @override
+  State<_GalleryViewer> createState() => _GalleryViewerState();
+}
+
+class _GalleryViewerState extends State<_GalleryViewer> {
+  late final PageController _controller = PageController(
+    initialPage: widget.initialIndex,
+  );
+  late int _index = widget.initialIndex;
+  bool _zoomed = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onZoomChanged(bool zoomed) {
+    if (zoomed == _zoomed) return;
+    setState(() => _zoomed = zoomed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final caption = widget.pages[_index].caption;
+    return Material(
+      color: ColorsCustom.scrimHeavy,
+      child: SafeArea(
+        minimum: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  if (widget.pages.length > 1)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: TextCustom(
+                        text: '${_index + 1}/${widget.pages.length}',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  const Spacer(),
+                  // Scrimmed like the media player's: the bar sits above the
+                  // photo, but a bright edge-to-edge shot must never leave the
+                  // way out hard to find.
+                  const _CloseButton(scrim: true),
+                ],
+              ),
+            ),
+            Expanded(
+              child: PageView.builder(
+                controller: _controller,
+                physics: _zoomed
+                    ? const NeverScrollableScrollPhysics()
+                    : const PageScrollPhysics(),
+                onPageChanged: (i) => setState(() => _index = i),
+                itemCount: widget.pages.length,
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: _ZoomableImage(
+                    url: widget.pages[i].url,
+                    onZoomChanged: _onZoomChanged,
                   ),
                 ),
               ),
             ),
-          ),
-          if (caption != null && caption.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
+            if (caption != null && caption.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+                child: _CaptionChip(text: caption),
               ),
-              child: TextCustom(
-                text: caption,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -261,7 +445,7 @@ class _MediaPlayerScreenState extends State<_MediaPlayerScreen> {
         children: [
           const Icon(
             Icons.error_outline_rounded,
-            color: Colors.white54,
+            color: ColorsCustom.glassEdge,
             size: 48,
           ),
           const SizedBox(height: 12),
@@ -297,7 +481,7 @@ class _CloseButton extends StatelessWidget {
     if (!scrim) return button;
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Colors.black54,
+        color: ColorsCustom.scrim,
         shape: BoxShape.circle,
       ),
       child: button,

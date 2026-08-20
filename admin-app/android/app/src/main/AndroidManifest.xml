@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Android 13+ (API 33) runtime permission to post notifications. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Approximate location only: the server sorts a field user's queues by
+         straight-line distance shown to the kilometre, so city-block accuracy
+         is enough and the permission prompt stays the softer one. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:label="Sapbaq Admin"

@@ -34,6 +34,21 @@ class ApiException implements Exception {
               : const {},
         );
       }
+      // Some newer endpoints answer in raw DRF shape instead of the envelope
+      // (`{detail: "…"}` or `{field: ["…"]}`). Their Arabic messages are just
+      // as display-ready, so surface them rather than a generic status line.
+      if (data is Map) {
+        final raw = Map<String, dynamic>.from(data);
+        final detail = _firstMessage(raw['detail']) ?? _firstFieldMessage(raw);
+        if (detail != null) {
+          return ApiException(
+            statusCode: response.statusCode ?? 0,
+            code: 'unknown',
+            message: detail,
+            details: raw,
+          );
+        }
+      }
       return ApiException(
         statusCode: response.statusCode ?? 0,
         code: 'unknown',
@@ -47,6 +62,29 @@ class ApiException implements Exception {
     );
   }
 
+  /// A non-empty message out of a raw DRF error value — a string, or the first
+  /// entry of a list of strings.
+  static String? _firstMessage(Object? value) {
+    if (value is String && value.trim().isNotEmpty) return value;
+    if (value is List) {
+      for (final item in value) {
+        final message = _firstMessage(item);
+        if (message != null) return message;
+      }
+    }
+    return null;
+  }
+
+  /// The first field-level message in a raw DRF error map (`{mosque_id: [...]}`),
+  /// used when there's no `detail` to show.
+  static String? _firstFieldMessage(Map<String, dynamic> data) {
+    for (final entry in data.entries) {
+      final message = _firstMessage(entry.value);
+      if (message != null) return message;
+    }
+    return null;
+  }
+
   /// First field-level error for [field] (e.g. to highlight a form input).
   String? fieldError(String field) {
     final value = details[field];
@@ -57,6 +95,13 @@ class ApiException implements Exception {
 
   bool get isNetworkError => statusCode == 0;
   bool get isUnauthorized => statusCode == 401;
+
+  /// True when an OTP resend was rejected for being too soon (HTTP 429).
+  bool get isThrottled => code == 'otp_throttled' || statusCode == 429;
+
+  /// Seconds to wait before retrying, from `error.details.retry_after` (the OTP
+  /// throttle response). Null when absent.
+  int? get retryAfter => (details['retry_after'] as num?)?.toInt();
 
   static String _messageForStatus(int? status) {
     switch (status) {

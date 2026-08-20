@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 
@@ -29,6 +28,10 @@ class ButtonCustom extends StatelessWidget {
     this.isOutlined = false,
   });
 
+  /// The app's primary action. Leaves both colors null so they resolve from
+  /// the active theme in [build] — the action pair inverts with the mode
+  /// (ink + white on light, near-white + ink on dark) and so cannot be baked
+  /// into a const initialiser.
   const ButtonCustom.primary({
     super.key,
     required this.text,
@@ -38,8 +41,8 @@ class ButtonCustom extends StatelessWidget {
     this.height = 48,
     this.width,
     this.icon,
-  }) : color = ColorsCustom.brandMint,
-       textColor = ColorsCustom.onMint,
+  }) : color = null,
+       textColor = null,
        isOutlined = false;
 
   const ButtonCustom.secondary({
@@ -61,11 +64,11 @@ class ButtonCustom extends StatelessWidget {
 
     final Color buttonColor = isOutlined
         ? Colors.transparent
-        : (color ?? ColorsCustom.brandMint);
+        : (color ?? context.colors.primaryFill);
 
     final Color buttonTextColor = isOutlined
         ? (textColor ?? context.colors.primary)
-        : (textColor ?? ColorsCustom.onMint);
+        : (textColor ?? context.colors.onPrimary);
 
     final Color resolvedTextColor = isDisabled
         ? context.colors.textHint

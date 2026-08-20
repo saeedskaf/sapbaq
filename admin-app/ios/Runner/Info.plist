@@ -10,6 +10,13 @@
 	<string>يُستخدم لاختيار صور أو فيديو من المعرض لتوثيق التوصيل.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>يُستخدم لتسجيل الصوت عند تصوير فيديو توثيق التوصيل.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يُستخدم موقعك أثناء العمل لترتيب مهامك من الأقرب إليك.</string>
+	<!-- geolocator_apple's PermissionHandler references requestAlwaysAuthorization,
+	     so Apple requires this purpose string even though the app only ever asks
+	     for when-in-use access (see LocationService.requestPermission). -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يُستخدم موقعك أثناء استخدام التطبيق فقط لترتيب مهامك من الأقرب إليك، ولا يُتتبّع موقعك في الخلفية.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

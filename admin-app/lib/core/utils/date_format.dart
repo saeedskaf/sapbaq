@@ -18,3 +18,12 @@ String formatShortDateTime(String? iso) {
   return '${date.year}/${two(date.month)}/${two(date.day)} '
       '${two(date.hour)}:${two(date.minute)}';
 }
+
+/// Formats a [DateTime] to a local date + 24h time "yyyy/MM/dd HH:mm".
+/// Returns an empty string when the input is null.
+String formatDateTimeOf(DateTime? date) {
+  if (date == null) return '';
+  final d = date.toLocal();
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${d.year}/${two(d.month)}/${two(d.day)} ${two(d.hour)}:${two(d.minute)}';
+}

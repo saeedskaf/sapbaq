@@ -50,18 +50,20 @@ class AppTheme {
         : ColorsCustom.textSecondary;
     final textHint = isDark ? ColorsCustom.darkTextHint : ColorsCustom.textHint;
 
-    // Brand foreground green: deep on light, the logo mint on dark. Visible
-    // brand FILLS (buttons, FAB, selection controls) are themed explicitly to
-    // the logo mint ([ColorsCustom.brandMint] + [ColorsCustom.onMint]) in both
-    // modes; the light ColorScheme keeps white onPrimary for Material internals
-    // that pair it with the deep-green scheme primary.
+    // The primary action is the logo's mint with a black label, identical in
+    // both modes — the mint carries black at 11.3:1 on either ground. Only
+    // the neutral foreground below flips.
     final primary = isDark ? ColorsCustom.primaryOnDark : ColorsCustom.primary;
-    final onPrimary = isDark
-        ? ColorsCustom.darkOnPrimary
-        : ColorsCustom.textOnPrimary;
-    final primaryTint = isDark
-        ? ColorsCustom.darkPrimaryTint
-        : ColorsCustom.secondaryLight;
+    // Every brand fill is the one mint, in both modes.
+    const primaryFill = ColorsCustom.brandMint;
+    const onPrimary = ColorsCustom.onMint;
+
+    // The alarm red as a foreground. `ColorScheme.error` is what Material
+    // paints error text, helper text and error borders in, all of them read
+    // against a surface rather than labelled — so it takes the end that suits
+    // the ground. Solid signal fills are unaffected; they stay
+    // `ColorsCustom.error` at their call sites.
+    final danger = isDark ? ColorsCustom.errorOnDark : ColorsCustom.error;
 
     final overlayStyle = isDark ? statusBarStyleDark : statusBarStyleLight;
 
@@ -86,12 +88,14 @@ class AppTheme {
         onPrimary: onPrimary,
         secondary: ColorsCustom.brandMint,
         onSecondary: ColorsCustom.onMint,
-        tertiary: primaryTint,
+        tertiary: surfaceVariant,
         onTertiary: textPrimary,
         surface: surface,
         onSurface: textPrimary,
-        error: ColorsCustom.error,
-        onError: ColorsCustom.textOnPrimary,
+        error: danger,
+        // Inverted with it: the light-mode red is dark enough to carry white,
+        // the dark-mode one is light enough to need black.
+        onError: isDark ? ColorsCustom.black : ColorsCustom.white,
         outline: border,
         surfaceContainerHighest: surfaceVariant,
       ),
@@ -112,9 +116,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          // Brand fill is the logo mint, which needs a dark foreground.
-          backgroundColor: ColorsCustom.brandMint,
-          foregroundColor: ColorsCustom.onMint,
+          backgroundColor: primaryFill,
+          foregroundColor: onPrimary,
           disabledBackgroundColor: border,
           disabledForegroundColor: textHint,
           elevation: 0,
@@ -149,11 +152,11 @@ class AppTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return ColorsCustom.brandMint;
+            return primaryFill;
           }
           return surface;
         }),
-        checkColor: const WidgetStatePropertyAll(ColorsCustom.onMint),
+        checkColor: WidgetStatePropertyAll(onPrimary),
         side: BorderSide(color: primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
@@ -162,9 +165,8 @@ class AppTheme {
           (states) => states.contains(WidgetState.selected) ? surface : null,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? ColorsCustom.brandMint
-              : null,
+          (states) =>
+              states.contains(WidgetState.selected) ? primaryFill : null,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -182,17 +184,22 @@ class AppTheme {
           borderRadius: _borderRadius,
           borderSide: BorderSide(color: border, width: 0.5),
         ),
+        // Focus is a state, so the ring is mint — this is what puts the hue
+        // on the login screen and on every form in the app.
         focusedBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: BorderSide(color: primary, width: 1.5),
+          borderSide: const BorderSide(
+            color: ColorsCustom.brandMint,
+            width: 1.8,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: const BorderSide(color: ColorsCustom.error),
+          borderSide: BorderSide(color: danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: _borderRadius,
-          borderSide: const BorderSide(color: ColorsCustom.error, width: 1.5),
+          borderSide: BorderSide(color: danger, width: 1.5),
         ),
         hintStyle: textTheme.bodyMedium?.copyWith(color: textHint),
         labelStyle: textTheme.bodyMedium?.copyWith(color: textSecondary),
@@ -205,9 +212,9 @@ class AppTheme {
           side: BorderSide(color: border, width: 0.5),
         ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: ColorsCustom.brandMint,
-        foregroundColor: ColorsCustom.onMint,
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primaryFill,
+        foregroundColor: onPrimary,
         elevation: 4,
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 0.5),

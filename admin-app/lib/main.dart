@@ -60,7 +60,12 @@ Future<void> main() async {
   final pushNotifications = PushNotificationService(
     notifications: NotificationsRepository(dio),
     session: session,
+    languageCode: languageCode,
   );
+  // Unregister this device's FCM token during logout, while the access token is
+  // still valid, so the authenticated DELETE doesn't 401 (see
+  // FLUTTER_FCM_DEVICE_UNREGISTER_NOTE.md).
+  authRepository.onBeforeLogout = pushNotifications.unregisterForLogout;
   if (Environment.pushEnabled) {
     try {
       await Firebase.initializeApp(

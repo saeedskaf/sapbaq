@@ -7,7 +7,6 @@ import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:sapbaq_admin/core/constants/app_constants.dart';
-import 'package:sapbaq_admin/core/theme/colors_custom.dart';
 import 'package:sapbaq_admin/core/theme/theme_colors.dart';
 import 'package:sapbaq_admin/core/widgets/custom_text.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
@@ -43,11 +42,11 @@ class _FieldLabel extends StatelessWidget {
           ),
           if (isRequired) ...[
             const SizedBox(width: 4),
-            const TextCustom(
+            TextCustom(
               text: '*',
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ],
           if (trailing != null) ...[const SizedBox(width: 8), trailing!],
@@ -69,10 +68,10 @@ class _FieldError extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             size: 15,
-            color: ColorsCustom.error,
+            color: context.colors.danger,
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -80,7 +79,7 @@ class _FieldError extends StatelessWidget {
               text: message,
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
             ),
           ),
         ],
@@ -258,12 +257,12 @@ class _FormFieldCustomState extends State<FormFieldCustom> {
             border: _border(context.colors.border),
             enabledBorder: _border(context.colors.border),
             focusedBorder: _border(context.colors.primary, width: 1.5),
-            errorBorder: _border(ColorsCustom.error),
-            focusedErrorBorder: _border(ColorsCustom.error, width: 1.5),
+            errorBorder: _border(context.colors.danger),
+            focusedErrorBorder: _border(context.colors.danger, width: 1.5),
             disabledBorder: _border(context.colors.border, width: 0.5),
             errorStyle: _textStyle(
               fontSize: 13,
-              color: ColorsCustom.error,
+              color: context.colors.danger,
               weight: FontWeight.w400,
             ),
           ),
@@ -348,7 +347,7 @@ class _PhoneFieldCustomState extends State<PhoneFieldCustom> {
     final l10n = AppLocalizations.of(context)!;
     final bool hasError = widget.errorText != null;
     final Color borderColor = hasError
-        ? ColorsCustom.error
+        ? context.colors.danger
         : _isFocused
         ? context.colors.primary
         : context.colors.border;

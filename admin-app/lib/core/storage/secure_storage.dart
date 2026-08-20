@@ -59,8 +59,7 @@ class SecureStorage {
     }
   }
 
-  Future<bool> isGuest() async =>
-      (await _storage.read(key: _kGuest)) == 'true';
+  Future<bool> isGuest() async => (await _storage.read(key: _kGuest)) == 'true';
 
   Future<void> deleteAll() => _storage.deleteAll();
 

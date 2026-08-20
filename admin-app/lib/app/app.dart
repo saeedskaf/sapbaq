@@ -6,16 +6,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sapbaq_admin/app/router/app_router.dart';
+import 'package:sapbaq_admin/core/location/location_service.dart';
 import 'package:sapbaq_admin/core/network/session_manager.dart';
+import 'package:sapbaq_admin/core/notifications/notification_deep_link.dart';
 import 'package:sapbaq_admin/core/notifications/push_notification_service.dart';
 import 'package:sapbaq_admin/core/settings/settings_cubit.dart';
 import 'package:sapbaq_admin/core/settings/settings_service.dart';
 import 'package:sapbaq_admin/core/theme/app_theme.dart';
+import 'package:sapbaq_admin/core/widgets/dismiss_keyboard.dart';
 import 'package:sapbaq_admin/features/admin/data/admin_repository.dart';
+import 'package:sapbaq_admin/features/admin/presentation/bloc/ops_counts_cubit.dart';
 import 'package:sapbaq_admin/features/auth/data/auth_repository.dart';
 import 'package:sapbaq_admin/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:sapbaq_admin/features/driver/data/driver_repository.dart';
+import 'package:sapbaq_admin/features/mosques/data/mosque_lookup_repository.dart';
 import 'package:sapbaq_admin/features/notifications/data/notifications_repository.dart';
+import 'package:sapbaq_admin/features/notifications/presentation/bloc/notifications_badge_cubit.dart';
+import 'package:sapbaq_admin/features/rep/data/rep_repository.dart';
 import 'package:sapbaq_admin/l10n/app_localizations.dart';
 
 /// Root of the Sapbaq Admin & Driver app. Provides the shared repositories and
@@ -40,9 +47,13 @@ class SapbaqAdminApp extends StatefulWidget {
   State<SapbaqAdminApp> createState() => _SapbaqAdminAppState();
 }
 
-class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
+class _SapbaqAdminAppState extends State<SapbaqAdminApp>
+    with WidgetsBindingObserver {
   late final AuthBloc _authBloc;
   late final SettingsCubit _settingsCubit;
+  late final NotificationsBadgeCubit _badgeCubit;
+  late final AdminRepository _adminRepository;
+  late final OpsCountsCubit _opsCountsCubit;
   late final GoRouter _router;
   StreamSubscription<AuthState>? _authStatusSub;
 
@@ -55,34 +66,88 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
       service: widget.settingsService,
       languageCode: widget.languageCode,
     );
+    WidgetsBinding.instance.addObserver(this);
+    _badgeCubit = NotificationsBadgeCubit(
+      NotificationsRepository(widget.dio),
+      // Foreground pushes carry `data.unread_count` for a live badge bump.
+      pushData: widget.pushNotifications.onForegroundData,
+    );
+    _adminRepository = AdminRepository(widget.dio);
+    _opsCountsCubit = OpsCountsCubit(_adminRepository);
     _router = createRouter(_authBloc);
 
     // Deep-link a tapped notification once the session is authenticated (§14):
     // a cold launch resolves auth asynchronously, so wait for it; runtime taps
-    // fire the pendingRoute listener directly.
+    // fire the pendingNotification listener directly.
     _authStatusSub = _authBloc.stream.listen((state) {
-      if (state.status == AuthStatus.authenticated) _maybeNavigatePending();
+      if (state.status == AuthStatus.authenticated) {
+        _maybeNavigatePending();
+        _badgeCubit.refresh();
+        // Prime the operations badge: no shell lands on the hub anymore, so
+        // without this the tab would show zero until first opened.
+        _opsCountsCubit.load(state.user);
+      } else if (state.status == AuthStatus.unauthenticated) {
+        // Clear the bell/nav and OS icon badge on sign-out.
+        _badgeCubit.setCount(0);
+        _opsCountsCubit.reset();
+      }
     });
-    widget.pushNotifications.pendingRoute.addListener(_maybeNavigatePending);
+    widget.pushNotifications.pendingNotification.addListener(
+      _maybeNavigatePending,
+    );
   }
 
   void _maybeNavigatePending() {
-    final route = widget.pushNotifications.pendingRoute.value;
+    final data = widget.pushNotifications.pendingNotification.value;
+    if (data == null) return;
+    final state = _authBloc.state;
+    if (state.status != AuthStatus.authenticated) return;
+    widget.pushNotifications.pendingNotification.value = null;
+    // Resolve here, not in the push service: the same notification opens a
+    // different screen for an imam than for a staff member, and the role is
+    // only known now (a cold launch signs in after the tap arrives).
+    final user = state.user;
+    final route = resolveNotificationData(
+      data,
+      audience: audienceForRole(
+        isMosqueRep: user?.isMosqueRep ?? false,
+        isServiceHandler: user?.isServiceHandler ?? false,
+      ),
+    );
     if (route == null) return;
-    if (_authBloc.state.status != AuthStatus.authenticated) return;
-    widget.pushNotifications.pendingRoute.value = null;
     // Defer a frame so the router has settled on the authenticated shell.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _router.pushNamed(route.name, pathParameters: route.pathParameters);
+      _router.pushNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+      );
     });
+  }
+
+  /// Pushes that arrive while the app is backgrounded never fire the
+  /// foreground stream — re-read the standing counts on resume so the nav
+  /// badges match what the tray has been showing.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final auth = _authBloc.state;
+    if (auth.status != AuthStatus.authenticated) return;
+    _badgeCubit.refresh();
+    _opsCountsCubit.load(auth.user);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _authStatusSub?.cancel();
-    widget.pushNotifications.pendingRoute.removeListener(_maybeNavigatePending);
+    widget.pushNotifications.pendingNotification.removeListener(
+      _maybeNavigatePending,
+    );
     _authBloc.close();
     _settingsCubit.close();
+    _badgeCubit.close();
+    _opsCountsCubit.close();
     super.dispose();
   }
 
@@ -91,20 +156,39 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: widget.authRepository),
-        RepositoryProvider<AdminRepository>(
-          create: (_) => AdminRepository(widget.dio),
+        // The push service, so feature code (e.g. the notifications inbox) can
+        // subscribe to foreground pushes without new plumbing.
+        RepositoryProvider<PushNotificationService>.value(
+          value: widget.pushNotifications,
         ),
+        RepositoryProvider<AdminRepository>.value(value: _adminRepository),
         RepositoryProvider<DriverRepository>(
           create: (_) => DriverRepository(widget.dio),
         ),
         RepositoryProvider<NotificationsRepository>(
           create: (_) => NotificationsRepository(widget.dio),
         ),
+        // One mosque lookup for every picker in the app — staff and the
+        // unauthenticated rep registration alike (both endpoints are public).
+        RepositoryProvider<MosqueLookupRepository>(
+          create: (_) => MosqueLookupRepository(widget.dio),
+        ),
+        RepositoryProvider<RepRepository>(
+          create: (_) => RepRepository(widget.dio),
+        ),
+        // One instance app-wide so the permission is requested once and the
+        // fix is shared by every queue that sorts nearest-first.
+        RepositoryProvider<LocationService>(create: (_) => LocationService()),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider.value(value: _authBloc),
           BlocProvider.value(value: _settingsCubit),
+          BlocProvider.value(value: _badgeCubit),
+          // App-wide: every shell's operations tab badge and the hub cards
+          // read one set of counts, primed on sign-in by the auth listener
+          // above and refreshed by the hub on every visit.
+          BlocProvider.value(value: _opsCountsCubit),
         ],
         // Rebuild on a language switch so MaterialApp adopts the new locale
         // (and flips RTL/LTR) without a restart. The listener also re-applies
@@ -135,7 +219,9 @@ class _SapbaqAdminAppState extends State<SapbaqAdminApp> {
                     value: isDark
                         ? AppTheme.statusBarStyleDark
                         : AppTheme.statusBarStyleLight,
-                    child: child ?? const SizedBox.shrink(),
+                    child: DismissKeyboardOnTap(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   );
                 },
               );
