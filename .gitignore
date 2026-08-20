@@ -23,6 +23,17 @@
 **/Flutter/ephemeral/
 **/Pods/
 
+# ───────── Internal working docs — never published ─────────
+# Plans, backend correspondence, requirement/answer rounds and content drafts
+# live on disk and stay there. This repo publishes the apps, not the notes
+# behind them. README.md is the one document that ships.
+/*.md
+!/README.md
+/customer-app/*.md
+/admin-app/*.md
+/content/
+/backend-handoff/
+
 # ───────── Secrets / machine-local config — NEVER commit ─────────
 **/android/local.properties
 **/ios/Flutter/Generated.xcconfig
