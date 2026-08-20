@@ -452,6 +452,18 @@ abstract class AppLocalizations {
   /// **'قيد التنفيذ'**
   String get tabInProgress;
 
+  /// No description provided for @tabNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'جديدة'**
+  String get tabNew;
+
+  /// No description provided for @tabConfirmed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مؤكّدة'**
+  String get tabConfirmed;
+
   /// No description provided for @orderDateLabel.
   ///
   /// In ar, this message translates to:
@@ -632,6 +644,30 @@ abstract class AppLocalizations {
   /// **'اختر المسجد'**
   String get chooseMosque;
 
+  /// No description provided for @mosquesSelectGovernorate.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المحافظة'**
+  String get mosquesSelectGovernorate;
+
+  /// No description provided for @mosquesSelectArea.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المنطقة'**
+  String get mosquesSelectArea;
+
+  /// No description provided for @mosquesNoAreas.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مناطق في هذه المحافظة'**
+  String get mosquesNoAreas;
+
+  /// No description provided for @mosquesNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مساجد'**
+  String get mosquesNone;
+
   /// No description provided for @chooseTeamLeader.
   ///
   /// In ar, this message translates to:
@@ -739,12 +775,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'توصيلاتي'**
   String get driverDeliveriesTitle;
-
-  /// No description provided for @tabNew.
-  ///
-  /// In ar, this message translates to:
-  /// **'جديدة'**
-  String get tabNew;
 
   /// No description provided for @tabAccepted.
   ///
@@ -932,6 +962,12 @@ abstract class AppLocalizations {
   /// **'لا توجد إشعارات'**
   String get emptyNotifications;
 
+  /// No description provided for @markAllRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الكل كمقروء'**
+  String get markAllRead;
+
   /// No description provided for @dashboardTitle.
   ///
   /// In ar, this message translates to:
@@ -953,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashAssigned.
   ///
   /// In ar, this message translates to:
-  /// **'قيد التنفيذ'**
+  /// **'مؤكّدة'**
   String get dashAssigned;
 
   /// No description provided for @dashCompleted.
@@ -1088,6 +1124,24 @@ abstract class AppLocalizations {
   /// **'اعتماد'**
   String get approveButton;
 
+  /// No description provided for @approvePickModel.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر الموديل المعتمَد'**
+  String get approvePickModel;
+
+  /// No description provided for @approveModelNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار الموديل يثبّت هدف التمويل، ثم يُنشر الطلب لتموّله التبرّعات.'**
+  String get approveModelNote;
+
+  /// No description provided for @approveWithTarget.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعتماد بهدف {amount} د.ك'**
+  String approveWithTarget(String amount);
+
   /// No description provided for @approveSuccess.
   ///
   /// In ar, this message translates to:
@@ -1208,6 +1262,12 @@ abstract class AppLocalizations {
   /// **'غير نشط (يُدار من الويب)'**
   String get productInactive;
 
+  /// No description provided for @productVariantsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{تنويع واحد} =2{تنويعان} few{{count} تنويعات} other{{count} تنويعًا}}'**
+  String productVariantsCount(int count);
+
   /// No description provided for @suspendReasonTitle.
   ///
   /// In ar, this message translates to:
@@ -1321,6 +1381,1722 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تعيينات الطلبات وتحديثات التوصيل.'**
   String get notificationChannelDescription;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد'**
+  String get confirmButton;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ'**
+  String get saveButton;
+
+  /// No description provided for @nextButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'التالي'**
+  String get nextButton;
+
+  /// No description provided for @back.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجوع'**
+  String get back;
+
+  /// No description provided for @otpLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التحقق'**
+  String get otpLabel;
+
+  /// No description provided for @sendCodeButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الرمز'**
+  String get sendCodeButton;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة إرسال الرمز'**
+  String get resendCode;
+
+  /// No description provided for @resendCodeIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الإرسال خلال {seconds} ثانية'**
+  String resendCodeIn(int seconds);
+
+  /// No description provided for @filterGovernorate.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحافظة'**
+  String get filterGovernorate;
+
+  /// No description provided for @filterArea.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنطقة'**
+  String get filterArea;
+
+  /// No description provided for @repEntryPrompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'هل أنت ممثل مسجد؟ اضغط هنا'**
+  String get repEntryPrompt;
+
+  /// No description provided for @repLoginTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'دخول ممثل المسجد'**
+  String get repLoginTitle;
+
+  /// No description provided for @repLoginSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رقم هاتفك للمتابعة'**
+  String get repLoginSubtitle;
+
+  /// No description provided for @repPasscodeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز السري'**
+  String get repPasscodeLabel;
+
+  /// No description provided for @repPasscodeRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز السري المكوّن من 4 أرقام'**
+  String get repPasscodeRequired;
+
+  /// No description provided for @repPasscodeStepTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز السري'**
+  String get repPasscodeStepTitle;
+
+  /// No description provided for @repPasscodeStepSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمزك السري المكوّن من 4 أرقام لتسجيل الدخول'**
+  String get repPasscodeStepSubtitle;
+
+  /// No description provided for @repChangePhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الرقم'**
+  String get repChangePhone;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة'**
+  String get continueButton;
+
+  /// No description provided for @repForgotPasscode.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت الرمز السري؟'**
+  String get repForgotPasscode;
+
+  /// No description provided for @repForgotSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سنرسل رمز تحقق إلى هاتفك لتعيين رمز سري جديد'**
+  String get repForgotSubtitle;
+
+  /// No description provided for @repPasscodeResetDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تعيين الرمز السري الجديد'**
+  String get repPasscodeResetDone;
+
+  /// No description provided for @repRegisterButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل ممثل جديد'**
+  String get repRegisterButton;
+
+  /// No description provided for @repHaveInvite.
+  ///
+  /// In ar, this message translates to:
+  /// **'لديّ رابط دعوة'**
+  String get repHaveInvite;
+
+  /// No description provided for @repRegisterTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل ممثل مسجد'**
+  String get repRegisterTitle;
+
+  /// No description provided for @repRegisterPhoneStep.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رقم هاتفك لإرسال رمز التحقق'**
+  String get repRegisterPhoneStep;
+
+  /// No description provided for @repRegisterIdentityStep.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز التحقق واسمك'**
+  String get repRegisterIdentityStep;
+
+  /// No description provided for @repRegisterMosqueStep.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدّد مسجدك بدقة: المحافظة ثم المنطقة ثم المسجد'**
+  String get repRegisterMosqueStep;
+
+  /// No description provided for @repRegisterPasscodeStep.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنشئ رمزًا سريًا من 4 أرقام للدخول اليومي'**
+  String get repRegisterPasscodeStep;
+
+  /// No description provided for @repFillAllFields.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرجى تعبئة جميع الحقول المطلوبة'**
+  String get repFillAllFields;
+
+  /// No description provided for @repFirstName.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم الأول'**
+  String get repFirstName;
+
+  /// No description provided for @repLastName.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم العائلة'**
+  String get repLastName;
+
+  /// No description provided for @repSearchMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن المسجد بالاسم'**
+  String get repSearchMosque;
+
+  /// No description provided for @repPasscodeCreate.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز السري الجديد'**
+  String get repPasscodeCreate;
+
+  /// No description provided for @repPasscodeConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الرمز السري'**
+  String get repPasscodeConfirm;
+
+  /// No description provided for @repPasscodeMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمزان غير متطابقين'**
+  String get repPasscodeMismatch;
+
+  /// No description provided for @repRegisterSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الطلب'**
+  String get repRegisterSubmit;
+
+  /// No description provided for @repInviteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل بدعوة'**
+  String get repInviteTitle;
+
+  /// No description provided for @repInviteSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز الدعوة الذي وصلك من سبّاق'**
+  String get repInviteSubtitle;
+
+  /// No description provided for @repInviteToken.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز الدعوة'**
+  String get repInviteToken;
+
+  /// No description provided for @repInviteCheck.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحقق من الدعوة'**
+  String get repInviteCheck;
+
+  /// No description provided for @repPendingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبك قيد المراجعة'**
+  String get repPendingTitle;
+
+  /// No description provided for @repPendingBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'استلمنا طلب تسجيلك كممثل مسجد. سيتواصل معك فريق سبّاق للتحقق ثم يُفعَّل حسابك — بعدها يمكنك تسجيل الدخول برقم هاتفك ورمزك السري.'**
+  String get repPendingBody;
+
+  /// No description provided for @repBackToLogin.
+  ///
+  /// In ar, this message translates to:
+  /// **'العودة لتسجيل الدخول'**
+  String get repBackToLogin;
+
+  /// No description provided for @repNavMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسجدي'**
+  String get repNavMosque;
+
+  /// No description provided for @repNavReports.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغاتي'**
+  String get repNavReports;
+
+  /// No description provided for @repActionsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإجراءات'**
+  String get repActionsTitle;
+
+  /// No description provided for @repReportMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغ صيانة'**
+  String get repReportMaintenance;
+
+  /// No description provided for @repReportMaintenanceDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'أبلغ عن عطل في وحدة مسجّلة بمسجدك'**
+  String get repReportMaintenanceDesc;
+
+  /// No description provided for @repWaterFlagTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نقص مياه'**
+  String get repWaterFlagTitle;
+
+  /// No description provided for @repWaterFlagDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'أبلغ بنقرة واحدة أن مياه المسجد شارفت على النفاد'**
+  String get repWaterFlagDesc;
+
+  /// No description provided for @repWaterFlagConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'هل تريد إرسال بلاغ نقص مياه لمسجدك؟ سيظهر للمستخدمين بعد اعتماده.'**
+  String get repWaterFlagConfirm;
+
+  /// No description provided for @repWaterFlagSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال بلاغ نقص المياه'**
+  String get repWaterFlagSent;
+
+  /// No description provided for @repRequestEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب معدّة جديدة'**
+  String get repRequestEquipment;
+
+  /// No description provided for @repRequestEquipmentDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب مبرّد ماء أو ثلاجة جديدة لمسجدك'**
+  String get repRequestEquipmentDesc;
+
+  /// No description provided for @repUnitsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّات مسجدي'**
+  String get repUnitsTitle;
+
+  /// No description provided for @repNoUnits.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد معدّات مسجّلة لمسجدك بعد'**
+  String get repNoUnits;
+
+  /// No description provided for @repStatusPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار الاعتماد'**
+  String get repStatusPending;
+
+  /// No description provided for @repStatusDeactivated.
+  ///
+  /// In ar, this message translates to:
+  /// **'معطَّل'**
+  String get repStatusDeactivated;
+
+  /// No description provided for @repPickUnit.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر الوحدة'**
+  String get repPickUnit;
+
+  /// No description provided for @repIssueType.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع العطل'**
+  String get repIssueType;
+
+  /// No description provided for @repIssueFilterChange.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير فلاتر'**
+  String get repIssueFilterChange;
+
+  /// No description provided for @repIssueNotWorking.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يعمل'**
+  String get repIssueNotWorking;
+
+  /// No description provided for @repIssueLeaking.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسريب'**
+  String get repIssueLeaking;
+
+  /// No description provided for @repIssueOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخرى'**
+  String get repIssueOther;
+
+  /// No description provided for @repIssueOtherNeedsDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوصف مطلوب عند اختيار «أخرى»'**
+  String get repIssueOtherNeedsDesc;
+
+  /// No description provided for @repIssueDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصف العطل'**
+  String get repIssueDescription;
+
+  /// No description provided for @repReportSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال البلاغ'**
+  String get repReportSubmit;
+
+  /// No description provided for @repReportSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال البلاغ'**
+  String get repReportSent;
+
+  /// No description provided for @repEquipmentType.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع المعدّة'**
+  String get repEquipmentType;
+
+  /// No description provided for @repEquipmentNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة (اختياري)'**
+  String get repEquipmentNote;
+
+  /// No description provided for @repEquipmentRequestSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال طلب المعدّة'**
+  String get repEquipmentRequestSent;
+
+  /// No description provided for @repTabMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصيانة'**
+  String get repTabMaintenance;
+
+  /// No description provided for @repTabWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'المياه'**
+  String get repTabWater;
+
+  /// No description provided for @repTabEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'المعدّات'**
+  String get repTabEquipment;
+
+  /// No description provided for @repNoReports.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد بلاغات بعد'**
+  String get repNoReports;
+
+  /// No description provided for @repStatusSubmitted.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُقدَّم'**
+  String get repStatusSubmitted;
+
+  /// No description provided for @repStatusInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد التنفيذ'**
+  String get repStatusInProgress;
+
+  /// No description provided for @repStatusResolved.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُنجَز'**
+  String get repStatusResolved;
+
+  /// No description provided for @repStatusApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمَد'**
+  String get repStatusApproved;
+
+  /// No description provided for @repStatusFulfilled.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُنفَّذ'**
+  String get repStatusFulfilled;
+
+  /// No description provided for @repStatusRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get repStatusRejected;
+
+  /// No description provided for @repStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغى'**
+  String get repStatusCancelled;
+
+  /// No description provided for @repRefresh.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث'**
+  String get repRefresh;
+
+  /// No description provided for @repFieldReference.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم البلاغ'**
+  String get repFieldReference;
+
+  /// No description provided for @repFieldEquipmentCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز الجهاز'**
+  String get repFieldEquipmentCode;
+
+  /// No description provided for @repFieldIssue.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع العطل'**
+  String get repFieldIssue;
+
+  /// No description provided for @repFieldDescription.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوصف'**
+  String get repFieldDescription;
+
+  /// No description provided for @repFieldNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة'**
+  String get repFieldNote;
+
+  /// No description provided for @repFieldDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ التقديم'**
+  String get repFieldDate;
+
+  /// No description provided for @repFieldApprovedAt.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ الاعتماد'**
+  String get repFieldApprovedAt;
+
+  /// No description provided for @repFieldFulfilledAt.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ التنفيذ'**
+  String get repFieldFulfilledAt;
+
+  /// No description provided for @repFieldResolvedAt.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ الإنجاز'**
+  String get repFieldResolvedAt;
+
+  /// No description provided for @repFieldRejectReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الرفض'**
+  String get repFieldRejectReason;
+
+  /// No description provided for @repPhotos.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصور'**
+  String get repPhotos;
+
+  /// No description provided for @repAddPhotos.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة صور'**
+  String get repAddPhotos;
+
+  /// No description provided for @repPhotosHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختياري — حتى 5 صور'**
+  String get repPhotosHint;
+
+  /// No description provided for @repMaxPhotos.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكنك إضافة حتى 5 صور'**
+  String get repMaxPhotos;
+
+  /// No description provided for @opsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مركز العمليات'**
+  String get opsTitle;
+
+  /// No description provided for @opsSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل ما يحتاج إجراءً منك، مرتّبًا حسب صلاحيات دورك'**
+  String get opsSubtitle;
+
+  /// No description provided for @opsPendingTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{عنصر واحد بانتظار إجراءك} =2{عنصران بانتظار إجراءك} few{{count} عناصر بانتظار إجراءك} other{{count} عنصرًا بانتظار إجراءك}}'**
+  String opsPendingTotal(int count);
+
+  /// No description provided for @opsAllClear.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا شيء بانتظار إجراءك'**
+  String get opsAllClear;
+
+  /// No description provided for @opsAllClearDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الطوابير المتاحة لدورك فارغة الآن'**
+  String get opsAllClearDesc;
+
+  /// No description provided for @opsUpdating.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ تحديث الأرقام…'**
+  String get opsUpdating;
+
+  /// No description provided for @opsNothingHere.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا جديد الآن'**
+  String get opsNothingHere;
+
+  /// No description provided for @opsRoleScope.
+  ///
+  /// In ar, this message translates to:
+  /// **'نطاقك: {name}'**
+  String opsRoleScope(String name);
+
+  /// No description provided for @opsNoQueues.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طوابير متاحة لدورك حاليًا'**
+  String get opsNoQueues;
+
+  /// No description provided for @opsSectionApprovals.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار قرارك'**
+  String get opsSectionApprovals;
+
+  /// No description provided for @opsSectionApprovalsDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات ترفعها المساجد أو يشتريها المتبرّعون، ولا تتحرّك قبل اعتمادك.'**
+  String get opsSectionApprovalsDesc;
+
+  /// No description provided for @opsSectionField.
+  ///
+  /// In ar, this message translates to:
+  /// **'التنفيذ والمتابعة'**
+  String get opsSectionField;
+
+  /// No description provided for @opsSectionFieldDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما بعد الاعتماد: إسناد المهام، تنفيذها ميدانيًا، وتوثيق الإنجاز.'**
+  String get opsSectionFieldDesc;
+
+  /// No description provided for @opsSectionCreate.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء بلاغ'**
+  String get opsSectionCreate;
+
+  /// No description provided for @opsSectionCreateDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل حاجة نيابة عن الإدارة دون انتظار طلب من المسجد.'**
+  String get opsSectionCreateDesc;
+
+  /// No description provided for @opsHowItWorks.
+  ///
+  /// In ar, this message translates to:
+  /// **'كيف تسير العمليات؟'**
+  String get opsHowItWorks;
+
+  /// No description provided for @opsHowStep1.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب'**
+  String get opsHowStep1;
+
+  /// No description provided for @opsHowStep1Desc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرفع إمام المسجد بلاغ نقص مياه أو طلب معدّة، أو يشتري متبرّع معدّة من المتجر.'**
+  String get opsHowStep1Desc;
+
+  /// No description provided for @opsHowStep2.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعتماد'**
+  String get opsHowStep2;
+
+  /// No description provided for @opsHowStep2Desc.
+  ///
+  /// In ar, this message translates to:
+  /// **'تراجعه الإدارة: المعتمَد يُعرض للتبرّع، والمرفوض يُغلق بسبب مكتوب.'**
+  String get opsHowStep2Desc;
+
+  /// No description provided for @opsHowStep3.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمويل'**
+  String get opsHowStep3;
+
+  /// No description provided for @opsHowStep3Desc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يكتمل مبلغ الحاجة من تبرّعات المتبرّعين، فتتحوّل إلى مهمّة تنفيذ.'**
+  String get opsHowStep3Desc;
+
+  /// No description provided for @opsHowStep4.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد'**
+  String get opsHowStep4;
+
+  /// No description provided for @opsHowStep4Desc.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُسنَد المهمّة لقائد فريق، ثم يوزّعها على منفّذ ميداني.'**
+  String get opsHowStep4Desc;
+
+  /// No description provided for @opsHowStep5.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنفيذ وتوثيق'**
+  String get opsHowStep5;
+
+  /// No description provided for @opsHowStep5Desc.
+  ///
+  /// In ar, this message translates to:
+  /// **'ينفّذ المنفّذ المهمّة ويرفق بيانًا وصور إنجاز تُغلق بها.'**
+  String get opsHowStep5Desc;
+
+  /// No description provided for @opsHowFooter.
+  ///
+  /// In ar, this message translates to:
+  /// **'تظهر لك الطوابير التي يسمح بها دورك فقط، ومحصورة في نطاقك الجغرافي.'**
+  String get opsHowFooter;
+
+  /// No description provided for @navOperations.
+  ///
+  /// In ar, this message translates to:
+  /// **'العمليات'**
+  String get navOperations;
+
+  /// No description provided for @opsWaterFlags.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغات نقص المياه'**
+  String get opsWaterFlags;
+
+  /// No description provided for @opsWaterFlagsDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغات يرفعها أئمة المساجد عند نقص مياه الشرب. اعتمد البلاغ ليُعرض للتبرّع، أو ألغِه.'**
+  String get opsWaterFlagsDesc;
+
+  /// No description provided for @opsWaterFlagItem.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغ نقص مياه'**
+  String get opsWaterFlagItem;
+
+  /// No description provided for @opsEquipmentRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات معدّات جديدة'**
+  String get opsEquipmentRequests;
+
+  /// No description provided for @opsEquipmentRequestsDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات الأئمة لتزويد المسجد بمعدّة. اعتمد الطلب لتبدأ حملة تمويله، أو ارفضه.'**
+  String get opsEquipmentRequestsDesc;
+
+  /// No description provided for @opsEquipmentRequestItem.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب معدّة'**
+  String get opsEquipmentRequestItem;
+
+  /// No description provided for @opsEmptyQueue.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا عناصر في هذا الطابور'**
+  String get opsEmptyQueue;
+
+  /// No description provided for @opsMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'المسجد'**
+  String get opsMosque;
+
+  /// No description provided for @opsConfirmCancel.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء هذا الطلب؟'**
+  String get opsConfirmCancel;
+
+  /// No description provided for @opsCancelAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الطلب'**
+  String get opsCancelAction;
+
+  /// No description provided for @opsFilterMonth.
+  ///
+  /// In ar, this message translates to:
+  /// **'الشهر'**
+  String get opsFilterMonth;
+
+  /// No description provided for @opsFilterStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة'**
+  String get opsFilterStatus;
+
+  /// No description provided for @opsFilterPriority.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأولوية'**
+  String get opsFilterPriority;
+
+  /// No description provided for @opsFilterKind.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوع'**
+  String get opsFilterKind;
+
+  /// No description provided for @opsFilterAny.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get opsFilterAny;
+
+  /// No description provided for @opsFilterAllTime.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الفترات'**
+  String get opsFilterAllTime;
+
+  /// No description provided for @mtTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغات الصيانة'**
+  String get mtTitle;
+
+  /// No description provided for @mtCaseTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل البلاغ'**
+  String get mtCaseTitle;
+
+  /// No description provided for @mtDescTriage.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعطال المعدّات المركّبة. أقرّ البلاغ، حدّد الأولوية ومسار التكلفة، ثم أسنده لقائد فريق.'**
+  String get mtDescTriage;
+
+  /// No description provided for @mtDescLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقط البلاغات المعتمَدة في نطاقك، وزّعها على أعضاء فريقك، ووثّق إنجازها.'**
+  String get mtDescLeader;
+
+  /// No description provided for @mtDescHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغات الصيانة المُسندة إليك. نفّذ الإصلاح وأرفق صور الإنجاز.'**
+  String get mtDescHandler;
+
+  /// No description provided for @mtStatusSubmitted.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُقدَّم'**
+  String get mtStatusSubmitted;
+
+  /// No description provided for @mtStatusAcknowledged.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الإقرار'**
+  String get mtStatusAcknowledged;
+
+  /// No description provided for @mtStatusApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمَد'**
+  String get mtStatusApproved;
+
+  /// No description provided for @mtStatusAssigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُسنَد لقائد'**
+  String get mtStatusAssigned;
+
+  /// No description provided for @mtStatusInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد التنفيذ'**
+  String get mtStatusInProgress;
+
+  /// No description provided for @mtStatusCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكتمل'**
+  String get mtStatusCompleted;
+
+  /// No description provided for @mtStatusResolved.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُنجَز'**
+  String get mtStatusResolved;
+
+  /// No description provided for @mtStatusDuplicate.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكرّر'**
+  String get mtStatusDuplicate;
+
+  /// No description provided for @mtStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغى'**
+  String get mtStatusCancelled;
+
+  /// No description provided for @mtPriorityLow.
+  ///
+  /// In ar, this message translates to:
+  /// **'منخفضة'**
+  String get mtPriorityLow;
+
+  /// No description provided for @mtPriorityMedium.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسطة'**
+  String get mtPriorityMedium;
+
+  /// No description provided for @mtPriorityHigh.
+  ///
+  /// In ar, this message translates to:
+  /// **'عالية'**
+  String get mtPriorityHigh;
+
+  /// No description provided for @mtPriorityUrgent.
+  ///
+  /// In ar, this message translates to:
+  /// **'عاجلة'**
+  String get mtPriorityUrgent;
+
+  /// No description provided for @mtCostUnset.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير محدّد'**
+  String get mtCostUnset;
+
+  /// No description provided for @mtCostFreeWarranty.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجّاني (ضمان)'**
+  String get mtCostFreeWarranty;
+
+  /// No description provided for @mtCostManufacturer.
+  ///
+  /// In ar, this message translates to:
+  /// **'المصنّع (كمبروسر)'**
+  String get mtCostManufacturer;
+
+  /// No description provided for @mtCostCustomerPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'يموّله عميل'**
+  String get mtCostCustomerPaid;
+
+  /// No description provided for @mtFieldPriority.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأولوية'**
+  String get mtFieldPriority;
+
+  /// No description provided for @mtFieldCostPath.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسار التكلفة'**
+  String get mtFieldCostPath;
+
+  /// No description provided for @mtFieldPrice.
+  ///
+  /// In ar, this message translates to:
+  /// **'السعر'**
+  String get mtFieldPrice;
+
+  /// No description provided for @mtFieldReporter.
+  ///
+  /// In ar, this message translates to:
+  /// **'المُبلِّغ'**
+  String get mtFieldReporter;
+
+  /// No description provided for @mtFieldTeamLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'قائد الفريق'**
+  String get mtFieldTeamLeader;
+
+  /// No description provided for @mtFieldMember.
+  ///
+  /// In ar, this message translates to:
+  /// **'العضو'**
+  String get mtFieldMember;
+
+  /// No description provided for @mtFieldStatement.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيان الإنجاز'**
+  String get mtFieldStatement;
+
+  /// No description provided for @mtAcknowledge.
+  ///
+  /// In ar, this message translates to:
+  /// **'إقرار'**
+  String get mtAcknowledge;
+
+  /// No description provided for @mtSetPriority.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديد الأولوية'**
+  String get mtSetPriority;
+
+  /// No description provided for @mtAssignLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد لقائد فريق'**
+  String get mtAssignLeader;
+
+  /// No description provided for @mtAssignMember.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد لعضو'**
+  String get mtAssignMember;
+
+  /// No description provided for @mtComplete.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنجاز'**
+  String get mtComplete;
+
+  /// No description provided for @mtVerify.
+  ///
+  /// In ar, this message translates to:
+  /// **'توثيق الإنجاز'**
+  String get mtVerify;
+
+  /// No description provided for @mtCancelCase.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء البلاغ'**
+  String get mtCancelCase;
+
+  /// No description provided for @mtApproveTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعتماد البلاغ'**
+  String get mtApproveTitle;
+
+  /// No description provided for @mtChooseCostPath.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر مسار التكلفة'**
+  String get mtChooseCostPath;
+
+  /// No description provided for @mtPriceKwd.
+  ///
+  /// In ar, this message translates to:
+  /// **'السعر (د.ك)'**
+  String get mtPriceKwd;
+
+  /// No description provided for @mtPriceRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل السعر للتمويل من العميل'**
+  String get mtPriceRequired;
+
+  /// No description provided for @mtChoosePriority.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر الأولوية'**
+  String get mtChoosePriority;
+
+  /// No description provided for @mtChooseLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر قائد فريق'**
+  String get mtChooseLeader;
+
+  /// No description provided for @mtChooseMember.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر عضوًا'**
+  String get mtChooseMember;
+
+  /// No description provided for @mtStatementHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'صف ما تم إنجازه'**
+  String get mtStatementHint;
+
+  /// No description provided for @mtStatementRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل بيان الإنجاز'**
+  String get mtStatementRequired;
+
+  /// No description provided for @mtNoLeaders.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد قادة فرق'**
+  String get mtNoLeaders;
+
+  /// No description provided for @mtNoMembers.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد أعضاء'**
+  String get mtNoMembers;
+
+  /// No description provided for @mtActiveLoad.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مهمة نشطة'**
+  String mtActiveLoad(int count);
+
+  /// No description provided for @mtSuggested.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقترح: {label}'**
+  String mtSuggested(String label);
+
+  /// No description provided for @mtManufacturerRouted.
+  ///
+  /// In ar, this message translates to:
+  /// **'موجّه للمصنّع'**
+  String get mtManufacturerRouted;
+
+  /// No description provided for @mtActionDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التنفيذ'**
+  String get mtActionDone;
+
+  /// No description provided for @mtConfirmCancelCase.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء بلاغ الصيانة هذا؟'**
+  String get mtConfirmCancelCase;
+
+  /// No description provided for @mtDuplicate.
+  ///
+  /// In ar, this message translates to:
+  /// **'دمج مكرّر'**
+  String get mtDuplicate;
+
+  /// No description provided for @mtDuplicatePickHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر البلاغ الأصلي لنفس المعدّة'**
+  String get mtDuplicatePickHint;
+
+  /// No description provided for @mtDuplicateEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد بلاغات أخرى لهذه المعدّة'**
+  String get mtDuplicateEmpty;
+
+  /// No description provided for @mtDuplicateNoCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد رمز معدّة للبحث عن بلاغ أصلي'**
+  String get mtDuplicateNoCode;
+
+  /// No description provided for @mtMergedInto.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدموج في البلاغ رقم {id}'**
+  String mtMergedInto(int id);
+
+  /// No description provided for @mtSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث برمز المعدّة'**
+  String get mtSearchHint;
+
+  /// No description provided for @ctTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المساهمات'**
+  String get ctTitle;
+
+  /// No description provided for @ctDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجل المساهمات ومبالغها وحالاتها'**
+  String get ctDesc;
+
+  /// No description provided for @ctKindWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'مياه'**
+  String get ctKindWater;
+
+  /// No description provided for @ctKindMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيانة'**
+  String get ctKindMaintenance;
+
+  /// No description provided for @ctKindEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّة'**
+  String get ctKindEquipment;
+
+  /// No description provided for @ctStatusPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد الانتظار'**
+  String get ctStatusPending;
+
+  /// No description provided for @ctStatusPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدفوعة'**
+  String get ctStatusPaid;
+
+  /// No description provided for @ctStatusFulfilled.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُنفَّذة'**
+  String get ctStatusFulfilled;
+
+  /// No description provided for @ctStatusExpired.
+  ///
+  /// In ar, this message translates to:
+  /// **'منتهية'**
+  String get ctStatusExpired;
+
+  /// No description provided for @ctStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get ctStatusCancelled;
+
+  /// No description provided for @ctCustomer.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتبرّع'**
+  String get ctCustomer;
+
+  /// No description provided for @ctMaintenanceAutoSettle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُسوّى تلقائيًا عند توثيق بلاغ الصيانة'**
+  String get ctMaintenanceAutoSettle;
+
+  /// No description provided for @ctViaTasksNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُنفَّذ عبر طابور مهام التنفيذ'**
+  String get ctViaTasksNote;
+
+  /// No description provided for @ftTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مهام التنفيذ'**
+  String get ftTitle;
+
+  /// No description provided for @ftDescDispatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'مياه ومعدّات اكتمل تمويلها وصارت جاهزة للتنفيذ. أسند كل مهمّة لقائد فريق.'**
+  String get ftDescDispatch;
+
+  /// No description provided for @ftDescLeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهام المُسندة لفريقك. وزّعها على المنفّذين أو نفّذها بنفسك ووثّقها.'**
+  String get ftDescLeader;
+
+  /// No description provided for @ftDescHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهام المُسندة إليك. نفّذها وأرفق بيان التنفيذ وصورته.'**
+  String get ftDescHandler;
+
+  /// No description provided for @ftFilterOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'المفتوحة'**
+  String get ftFilterOpen;
+
+  /// No description provided for @ftStatusAwaitingAssign.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار الإسناد'**
+  String get ftStatusAwaitingAssign;
+
+  /// No description provided for @ftStatusAssignedToTeam.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُسندة لقائد'**
+  String get ftStatusAssignedToTeam;
+
+  /// No description provided for @ftStatusAssigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُسندة لمنفّذ'**
+  String get ftStatusAssigned;
+
+  /// No description provided for @ftStatusDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'منفَّذة'**
+  String get ftStatusDone;
+
+  /// No description provided for @ftStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get ftStatusCancelled;
+
+  /// No description provided for @ftAssignHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد لمنفّذ'**
+  String get ftAssignHandler;
+
+  /// No description provided for @ftChooseHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر منفّذًا'**
+  String get ftChooseHandler;
+
+  /// No description provided for @ftNoHandlers.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد منفّذون'**
+  String get ftNoHandlers;
+
+  /// No description provided for @ftFieldHandler.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنفّذ'**
+  String get ftFieldHandler;
+
+  /// No description provided for @ftFullyFunded.
+  ///
+  /// In ar, this message translates to:
+  /// **'مموَّلة بالكامل: {amount} د.ك'**
+  String ftFullyFunded(String amount);
+
+  /// No description provided for @ftFulfil.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنفيذ المهمّة'**
+  String get ftFulfil;
+
+  /// No description provided for @ftFulfilled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تنفيذ المهمّة'**
+  String get ftFulfilled;
+
+  /// No description provided for @ftStatement.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيان التنفيذ'**
+  String get ftStatement;
+
+  /// No description provided for @ftStatementHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'صف ما تم تنفيذه'**
+  String get ftStatementHint;
+
+  /// No description provided for @ftStatementRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل بيان التنفيذ'**
+  String get ftStatementRequired;
+
+  /// No description provided for @ftPhotoRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرفق صورة التنفيذ'**
+  String get ftPhotoRequired;
+
+  /// No description provided for @mtPhotosRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرفق صورة إنجاز واحدة على الأقل'**
+  String get mtPhotosRequired;
+
+  /// No description provided for @mtPhotosMax.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحدّ الأقصى {count} صور'**
+  String mtPhotosMax(int count);
+
+  /// No description provided for @dedicationAlive.
+  ///
+  /// In ar, this message translates to:
+  /// **'حيّ'**
+  String get dedicationAlive;
+
+  /// No description provided for @dedicationDeceased.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوفّى'**
+  String get dedicationDeceased;
+
+  /// No description provided for @mtClaim.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقاط البلاغ'**
+  String get mtClaim;
+
+  /// No description provided for @mtClaimConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُسنَد هذا البلاغ إليك وإلى فريقك. متابعة؟'**
+  String get mtClaimConfirm;
+
+  /// No description provided for @mtReadyToClaim.
+  ///
+  /// In ar, this message translates to:
+  /// **'جاهز للالتقاط'**
+  String get mtReadyToClaim;
+
+  /// No description provided for @mtChannelManager.
+  ///
+  /// In ar, this message translates to:
+  /// **'بترتيب الإدارة'**
+  String get mtChannelManager;
+
+  /// No description provided for @dpTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع حاجة مباشرة'**
+  String get dpTitle;
+
+  /// No description provided for @dpDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل حاجة مياه أو معدّة أو صيانة لأي مسجد في نطاقك — تُنشر فورًا بلا مرحلة اعتماد.'**
+  String get dpDesc;
+
+  /// No description provided for @dpWater.
+  ///
+  /// In ar, this message translates to:
+  /// **'نقص مياه'**
+  String get dpWater;
+
+  /// No description provided for @dpWaterDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'علَم نقص مياه يُنشر للتمويل فورًا'**
+  String get dpWaterDesc;
+
+  /// No description provided for @dpWaterConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُرفع علَم نقص مياه لهذا المسجد ويُنشر فورًا. متابعة؟'**
+  String get dpWaterConfirm;
+
+  /// No description provided for @dpEquipment.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب معدّة'**
+  String get dpEquipment;
+
+  /// No description provided for @dpEquipmentDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّة جديدة تُنشر للتمويل فورًا'**
+  String get dpEquipmentDesc;
+
+  /// No description provided for @dpMaintenance.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغ صيانة'**
+  String get dpMaintenance;
+
+  /// No description provided for @dpMaintenanceDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغ على وحدة قائمة، يدخل طابور الالتقاط'**
+  String get dpMaintenanceDesc;
+
+  /// No description provided for @dpMosque.
+  ///
+  /// In ar, this message translates to:
+  /// **'المسجد'**
+  String get dpMosque;
+
+  /// No description provided for @dpMosqueRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المسجد أولًا'**
+  String get dpMosqueRequired;
+
+  /// No description provided for @dpEquipmentType.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع المعدّة'**
+  String get dpEquipmentType;
+
+  /// No description provided for @dpModel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الموديل'**
+  String get dpModel;
+
+  /// No description provided for @dpModelRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر الموديل'**
+  String get dpModelRequired;
+
+  /// No description provided for @dpNoTypes.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد أنواع معدّات'**
+  String get dpNoTypes;
+
+  /// No description provided for @dpNoModels.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد موديلات لهذا النوع'**
+  String get dpNoModels;
+
+  /// No description provided for @dpTargetAmountLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'المبلغ المستهدف'**
+  String get dpTargetAmountLabel;
+
+  /// No description provided for @dpTargetAmount.
+  ///
+  /// In ar, this message translates to:
+  /// **'المبلغ المستهدف: {amount} د.ك'**
+  String dpTargetAmount(String amount);
+
+  /// No description provided for @dpNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة (اختياري)'**
+  String get dpNote;
+
+  /// No description provided for @dpUnit.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوحدة'**
+  String get dpUnit;
+
+  /// No description provided for @dpNoUnits.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد وحدات مسجّلة في هذا المسجد'**
+  String get dpNoUnits;
+
+  /// No description provided for @dpUnitInWarranty.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضمن الضمان'**
+  String get dpUnitInWarranty;
+
+  /// No description provided for @dpCostPath.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسار التكلفة'**
+  String get dpCostPath;
+
+  /// No description provided for @dpSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get dpSubmit;
+
+  /// No description provided for @dpCreated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمّ الإنشاء ونُشر مباشرة'**
+  String get dpCreated;
+
+  /// No description provided for @locSortedByDistance.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرتّبة حسب الأقرب إليك · المسافة تقديرية بخط مستقيم'**
+  String get locSortedByDistance;
+
+  /// No description provided for @locEnableHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'فعّل إذن الموقع لترتيب المهام من الأقرب'**
+  String get locEnableHint;
+
+  /// No description provided for @locUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'الموقع غير متوفّر'**
+  String get locUnavailable;
+
+  /// No description provided for @locDistanceKm.
+  ///
+  /// In ar, this message translates to:
+  /// **'{km} كم'**
+  String locDistanceKm(String km);
+
+  /// No description provided for @locNearestDestination.
+  ///
+  /// In ar, this message translates to:
+  /// **'أقرب وجهة: {km} كم'**
+  String locNearestDestination(String km);
+
+  /// No description provided for @locDirections.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاتجاهات'**
+  String get locDirections;
+
+  /// No description provided for @coTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'شراء معدّات من المتجر'**
+  String get coTitle;
+
+  /// No description provided for @coDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّات يشتريها العملاء لمسجد معيّن. راجع الطلب واعتمده ليُفتح للعميل باب الدفع.'**
+  String get coDesc;
+
+  /// No description provided for @coDescField.
+  ///
+  /// In ar, this message translates to:
+  /// **'معدّات مدفوعة بانتظار الإسناد أو التركيب وتوثيقه.'**
+  String get coDescField;
+
+  /// No description provided for @coDescWatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة مشتريات العملاء من الاعتماد حتى التركيب.'**
+  String get coDescWatch;
+
+  /// No description provided for @coStatusUnderReview.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المراجعة'**
+  String get coStatusUnderReview;
+
+  /// No description provided for @coStatusApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمَد — بانتظار الدفع'**
+  String get coStatusApproved;
+
+  /// No description provided for @coStatusPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدفوع'**
+  String get coStatusPaid;
+
+  /// No description provided for @coStatusInstalled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التركيب'**
+  String get coStatusInstalled;
+
+  /// No description provided for @coStatusRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get coStatusRejected;
+
+  /// No description provided for @coApproveConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'بالموافقة تُفتح للعميل مهلة دفع ٤٨ ساعة. متابعة؟'**
+  String get coApproveConfirm;
+
+  /// No description provided for @coInstall.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل التركيب'**
+  String get coInstall;
+
+  /// No description provided for @coInstallConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُسجَّل تركيب الوحدة ويُصدَر لها رمز وضمان. متابعة؟'**
+  String get coInstallConfirm;
+
+  /// No description provided for @coAwaitingPayment.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار دفع العميل حتى {deadline}'**
+  String coAwaitingPayment(String deadline);
 }
 
 class _AppLocalizationsDelegate
